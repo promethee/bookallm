@@ -38,10 +38,10 @@
 
 ## 6. Hash and re-import detection
 
-- [ ] 6.1 Implement the content hash (SHA-256 over the bytes, lowercase hex); verify identical bytes match and a one-byte change differs
-- [ ] 6.2 Implement `normalizeForMatch` and the in-memory registry behind the registry interface; verify with the exported contract-test suite (add and find, duplicate hash rejected, remove leaves no trace)
-- [ ] 6.3 Implement classification (`existing`, `new`, `possible-duplicate` by title or filename); verify tests for same-title-different-case, same-filename-different-title, no match, and that no existing entry is modified
-- [ ] 6.4 Commit checkpoint: "Add re-import detection"
+- [x] 6.1 Implement the content hash (SHA-256 over the bytes, lowercase hex); verify identical bytes match and a one-byte change differs
+- [x] 6.2 Implement `normalizeForMatch` and the in-memory registry behind the registry interface; verify with the exported contract-test suite (add and find, duplicate hash rejected, remove leaves no trace)
+- [x] 6.3 Implement classification (`existing`, `new`, `possible-duplicate` by title or filename); verify tests for same-title-different-case, same-filename-different-title, no match, and that no existing entry is modified
+- [x] 6.4 Commit checkpoint: "Add re-import detection"
 
 ## 7. Orchestration
 
