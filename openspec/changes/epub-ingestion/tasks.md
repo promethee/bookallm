@@ -22,11 +22,11 @@
 
 ## 4. Chapters and text
 
-- [ ] 4.1 Implement text extraction (paragraph boundaries, entity decoding, whitespace collapsing, skipping navigation/script/style/SVG, recording element ids); verify tests for markup and entities, non-content elements, and identical output on repeated runs
-- [ ] 4.2 Implement table-of-contents reading (EPUB 3 navigation document, EPUB 2 NCX, nesting flattened, path normalisation); verify tests for both formats and nested entries
-- [ ] 4.3 Implement chapter assembly (fragment boundaries, multi-document spans, leading text, no-TOC fallback, empty chapters keep their number); verify a test for each scenario in the epub-import spec
-- [ ] 4.4 Return `no-text-content` when no chapter has text; verify with an image-only fixture
-- [ ] 4.5 Commit checkpoint: "Add chapter assembly and text extraction"
+- [x] 4.1 Implement text extraction (paragraph boundaries, entity decoding, whitespace collapsing, skipping navigation/script/style/SVG, recording element ids); verify tests for markup and entities, non-content elements, and identical output on repeated runs
+- [x] 4.2 Implement table-of-contents reading (EPUB 3 navigation document, EPUB 2 NCX, nesting flattened, path normalisation); verify tests for both formats and nested entries
+- [x] 4.3 Implement chapter assembly (fragment boundaries, multi-document spans, leading text, no-TOC fallback, empty chapters keep their number); verify a test for each scenario in the epub-import spec
+- [x] 4.4 Return `no-text-content` when no chapter has text; verify with an image-only fixture
+- [x] 4.5 Commit checkpoint: "Add chapter assembly and text extraction"
 
 ## 5. Chunking
 

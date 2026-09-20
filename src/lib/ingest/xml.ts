@@ -24,3 +24,12 @@ export const attr = (element: XmlElement, name: string): string | undefined =>
 /** Text content with surrounding whitespace removed. */
 export const textOf = (element: XmlElement): string =>
   DomUtils.textContent(element).trim();
+
+/** Lenient HTML parse (lowercase tags, HTML entities) for navigation documents. */
+export const parseHtml = (text: string) => parseDocument(text);
+
+/** All elements with the given (lowercase) tag name in an HTML document. */
+export const elementsByTag = (
+  name: string,
+  root: XmlDocument | XmlElement,
+): XmlElement[] => DomUtils.getElementsByTagName(name, root);
