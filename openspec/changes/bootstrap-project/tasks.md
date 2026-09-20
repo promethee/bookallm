@@ -6,7 +6,7 @@
 - [x] 1.2 Pin pnpm via the `packageManager` field, set `engines`, and allow required dependency build scripts; verify a clean `pnpm install --frozen-lockfile` succeeds
 - [x] 1.3 Replace the template UI with a placeholder shell (app name, "Ask mode" disclosure line); verify `pnpm tauri dev` opens a window showing it
 - [x] 1.4 Add brief Rust-specific comments in `src-tauri/src/` where syntax is non-obvious; verify `cargo check` in `src-tauri/` passes
-- [ ] 1.5 Commit checkpoint: "Scaffold Tauri + Svelte app"
+- [x] 1.5 Commit checkpoint: "Scaffold Tauri + Svelte app"
 
 ## 2. Styling
 
