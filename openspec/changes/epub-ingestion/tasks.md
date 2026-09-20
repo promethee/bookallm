@@ -9,10 +9,10 @@
 
 ## 2. EPUB import (package parsing)
 
-- [ ] 2.1 Implement archive reading that decompresses only text entries and enforces a total-size cap; verify tests cover a valid archive, a non-zip input (`not-an-epub`), and an over-cap archive (`malformed-epub`)
-- [ ] 2.2 Implement container and package parsing (metadata, manifest, spine) with the `not-an-epub` and `malformed-epub` cases; verify tests for the missing-container, missing-package, empty-spine and missing-document scenarios pass
-- [ ] 2.3 Verify metadata extraction with tests for EPUB 3, EPUB 2 and a missing title (empty title, no error)
-- [ ] 2.4 Commit checkpoint: "Add EPUB package parsing"
+- [x] 2.1 Implement archive reading that decompresses only text entries and enforces a total-size cap; verify tests cover a valid archive, a non-zip input (`not-an-epub`), and an over-cap archive (`malformed-epub`)
+- [x] 2.2 Implement container and package parsing (metadata, manifest, spine) with the `not-an-epub` and `malformed-epub` cases; verify tests for the missing-container, missing-package, empty-spine and missing-document scenarios pass
+- [x] 2.3 Verify metadata extraction with tests for EPUB 3, EPUB 2 and a missing title (empty title, no error)
+- [x] 2.4 Commit checkpoint: "Add EPUB package parsing"
 
 ## 3. DRM detection
 
