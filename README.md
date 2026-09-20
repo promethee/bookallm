@@ -242,4 +242,6 @@ MIT.
 
 ## Status
 
-Direction and naming decided. Build not started.
+Direction and naming decided. Project scaffold and tooling are in place
+(Tauri + Svelte shell, lint/format/test hooks, CI). No product features
+yet.

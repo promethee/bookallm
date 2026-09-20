@@ -36,11 +36,11 @@
 ## 6. CI
 
 - [x] 6.1 Add `.github/workflows/ci.yml` (push trigger, Ubuntu, Node LTS, frozen-lockfile install, lint, format check, `cargo fmt --check`, Vitest, Playwright with Chromium cached); verify the workflow file passes `actionlint` or a YAML parse
-- [ ] 6.2 Push a branch and verify the CI run is green on GitHub, and red when a test is temporarily broken
-- [ ] 6.3 Commit checkpoint: "Add CI workflow"
+- [x] 6.2 Push a branch and verify the CI run is green on GitHub, and red when a test is temporarily broken
+- [x] 6.3 Commit checkpoint: "Add CI workflow"
 
 ## 7. Wrap-up
 
-- [ ] 7.1 Update README "Status" to reflect that the scaffold and tooling exist; verify the diff touches only that section
+- [x] 7.1 Update README "Status" to reflect that the scaffold and tooling exist; verify the diff touches only that section
 - [ ] 7.2 Verify from a fresh clone: `pnpm install`, `pnpm check` and `pnpm tauri dev` all succeed
 - [ ] 7.3 Commit checkpoint: "Update README status", then archive the change
