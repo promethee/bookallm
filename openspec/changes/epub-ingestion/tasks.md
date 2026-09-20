@@ -30,11 +30,11 @@
 
 ## 5. Chunking
 
-- [ ] 5.1 Implement paragraph-aware chunking with target and maximum sizes, sentence-level splitting (`Intl.Segmenter` plus fallback), surrogate-safe hard splits, defaults documented in code; verify unit tests for paragraph-aligned, oversized-paragraph and configured-size scenarios
-- [ ] 5.2 Add locators (chapter number, title, paragraph range, character range) and stable chunk ids; verify a test that every chunk's text equals its chapter text at its range, and a test that ids repeat across two runs
-- [ ] 5.3 Verify with property-style tests over generated text (including accented and emoji text) that ranges never cross chapters, cover every non-whitespace character, and never exceed the maximum size
-- [ ] 5.4 Expose chapter lookup (full text and own chunks); verify chapter 7 returns no chunk from another chapter, and an empty chapter keeps its number with no chunks
-- [ ] 5.5 Commit checkpoint: "Add chapter chunking"
+- [x] 5.1 Implement paragraph-aware chunking with target and maximum sizes, sentence-level splitting (`Intl.Segmenter` plus fallback), surrogate-safe hard splits, defaults documented in code; verify unit tests for paragraph-aligned, oversized-paragraph and configured-size scenarios
+- [x] 5.2 Add locators (chapter number, title, paragraph range, character range) and stable chunk ids; verify a test that every chunk's text equals its chapter text at its range, and a test that ids repeat across two runs
+- [x] 5.3 Verify with property-style tests over generated text (including accented and emoji text) that ranges never cross chapters, cover every non-whitespace character, and never exceed the maximum size
+- [x] 5.4 Expose chapter lookup (full text and own chunks); verify chapter 7 returns no chunk from another chapter, and an empty chapter keeps its number with no chunks
+- [x] 5.5 Commit checkpoint: "Add chapter chunking"
 
 ## 6. Hash and re-import detection
 
