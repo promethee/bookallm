@@ -2,10 +2,10 @@
 
 ## 1. Foundations
 
-- [ ] 1.1 Add `fflate` and `htmlparser2` as dependencies; verify `pnpm install --frozen-lockfile` succeeds and `pnpm peers check` reports no issues
-- [ ] 1.2 Define the shared types in `src/lib/ingest/types.ts` (book, chapter, chunk with locator, registry entry, error codes and DRM schemes, ingest result union, options), documenting that offsets are UTF-16 indexes; verify `pnpm typecheck` passes
-- [ ] 1.3 Write a test-only EPUB builder in `src/lib/ingest/testing/epub-builder.ts` that produces EPUB 2 and EPUB 3 archives with configurable metadata, spine, table of contents, extra files and encryption description; verify a builder test unzips its output and finds the expected entries
-- [ ] 1.4 Commit checkpoint: "Add ingestion types and EPUB test builder"
+- [x] 1.1 Add `fflate` and `htmlparser2` as dependencies; verify `pnpm install --frozen-lockfile` succeeds and `pnpm peers check` reports no issues
+- [x] 1.2 Define the shared types in `src/lib/ingest/types.ts` (book, chapter, chunk with locator, registry entry, error codes and DRM schemes, ingest result union, options), documenting that offsets are UTF-16 indexes; verify `pnpm typecheck` passes
+- [x] 1.3 Write a test-only EPUB builder in `src/lib/ingest/testing/epub-builder.ts` that produces EPUB 2 and EPUB 3 archives with configurable metadata, spine, table of contents, extra files and encryption description; verify a builder test unzips its output and finds the expected entries
+- [x] 1.4 Commit checkpoint: "Add ingestion types and EPUB test builder"
 
 ## 2. EPUB import (package parsing)
 
