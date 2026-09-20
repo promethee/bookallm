@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+src-tauri/
+openspec/
+.claude/
+playwright-report/
+test-results/

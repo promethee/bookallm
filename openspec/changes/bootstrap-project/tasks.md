@@ -15,10 +15,10 @@
 
 ## 3. Lint and format
 
-- [ ] 3.1 Add ESLint 9 flat config (typescript-eslint, eslint-plugin-svelte, eslint-config-prettier) and a `lint` script; verify `pnpm lint` passes on the scaffold and fails on an injected unused variable
-- [ ] 3.2 Add Prettier (svelte and tailwind plugins) with `format` and `format:check` scripts; verify `pnpm format:check` passes after `pnpm format`
-- [ ] 3.3 Add `rustfmt.toml` if needed and a `cargo fmt` script entry; verify `cargo fmt --check` in `src-tauri/` passes
-- [ ] 3.4 Commit checkpoint: "Add ESLint, Prettier, rustfmt"
+- [x] 3.1 Add ESLint 9 flat config (typescript-eslint, eslint-plugin-svelte, eslint-config-prettier) and a `lint` script; verify `pnpm lint` passes on the scaffold and fails on an injected unused variable
+- [x] 3.2 Add Prettier (svelte and tailwind plugins) with `format` and `format:check` scripts; verify `pnpm format:check` passes after `pnpm format`
+- [x] 3.3 Add `rustfmt.toml` if needed and a `cargo fmt` script entry; verify `cargo fmt --check` in `src-tauri/` passes
+- [x] 3.4 Commit checkpoint: "Add ESLint, Prettier, rustfmt"
 
 ## 4. Tests
 
