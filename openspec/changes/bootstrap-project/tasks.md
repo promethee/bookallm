@@ -22,10 +22,10 @@
 
 ## 4. Tests
 
-- [ ] 4.1 Add Vitest (jsdom, `@testing-library/svelte`) with a `test` script and one component smoke test for the placeholder shell; verify `pnpm test` passes
-- [ ] 4.2 Add Playwright (Chromium only, `webServer` on the Vite dev server) with a `test:e2e` script and one test asserting the shell renders; verify `pnpm test:e2e` passes
-- [ ] 4.3 Add a `check` script (lint, format check, unit, e2e); verify `pnpm check` passes end to end
-- [ ] 4.4 Commit checkpoint: "Add Vitest and Playwright"
+- [x] 4.1 Add Vitest (jsdom, `@testing-library/svelte`) with a `test` script and one component smoke test for the placeholder shell; verify `pnpm test` passes
+- [x] 4.2 Add Playwright (Chromium only, `webServer` on the Vite dev server) with a `test:e2e` script and one test asserting the shell renders; verify `pnpm test:e2e` passes
+- [x] 4.3 Add a `check` script (lint, format check, unit, e2e); verify `pnpm check` passes end to end
+- [x] 4.4 Commit checkpoint: "Add Vitest and Playwright"
 
 ## 5. Git hooks
 
