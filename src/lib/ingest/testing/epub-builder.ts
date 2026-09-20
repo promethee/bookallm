@@ -155,3 +155,26 @@ export function buildEpub(options: BuildEpubOptions): Uint8Array {
   }
   return zipSync(archive);
 }
+
+/** An `encryption.xml` listing one encrypted resource per algorithm. */
+export function encryptionXml(algorithms: string[]): string {
+  const entries = algorithms
+    .map(
+      (algorithm, i) =>
+        `<enc:EncryptedData><enc:EncryptionMethod Algorithm="${escapeXml(algorithm)}"/>` +
+        `<enc:CipherData><enc:CipherReference URI="OEBPS/resource${i}"/></enc:CipherData></enc:EncryptedData>`,
+    )
+    .join('');
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<encryption xmlns="urn:oasis:names:tc:opendocument:xmlns:container" ` +
+    `xmlns:enc="http://www.w3.org/2001/04/xmlenc#">${entries}</encryption>`
+  );
+}
+
+export const FONT_ALGORITHMS = {
+  idpf: 'http://www.idpf.org/2008/embedding',
+  adobe: 'http://ns.adobe.com/pdf/enc#RC',
+} as const;
+
+export const AES_ALGORITHM = 'http://www.w3.org/2001/04/xmlenc#aes128-cbc';

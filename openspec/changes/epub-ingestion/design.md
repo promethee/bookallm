@@ -38,6 +38,7 @@ Greenfield module in a working scaffold: Svelte + Vite frontend, Vitest (jsdom b
 - [Real EPUBs are messy: missing ids, odd TOC nesting, non-standard spine] → Layered fallbacks (fragment miss → document start, no TOC → per-document chapters) plus the manual real-book check before calling the change done.
 - [Malicious or huge archives] → Only text entries are decompressed, and a cap on total decompressed text size maps to `malformed-epub`.
 - [An unknown DRM scheme slips through] → Rejecting any non-font encryption algorithm covers most encrypted content; a scheme that leaves content readable is by definition not blocking ingestion.
+- [DRM detection is verified only against synthetic fixtures built from the documented file layouts; no real DRM-protected EPUB is available] → Rules follow the published layouts and reject anything unrecognised as encrypted; the real public-domain book in task 8.2 checks the opposite risk (no false positive on a genuine, non-DRM EPUB). Real-world false negatives remain possible until a protected sample can be tested.
 - [Title/filename matching gives false positives] → It only produces a prompt-worthy `possible-duplicate`, never an overwrite, so the cost is one extra question.
 - [Default chunk sizes may be wrong for retrieval quality] → They are configuration, not spec; retune during the embeddings change with real questions.
 - [`Intl.Segmenter` support varies by webview] → Fallback splitter keeps behavior deterministic where it is missing.

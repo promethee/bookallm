@@ -16,9 +16,9 @@
 
 ## 3. DRM detection
 
-- [ ] 3.1 Implement DRM detection (rights file, Apple protection file, Readium license, non-font encryption algorithms, font-obfuscation allow-list); verify one test per scheme scenario and one for unknown encryption
-- [ ] 3.2 Verify a font-obfuscation-only EPUB imports normally and that a DRM EPUB with unparseable content returns `drm-locked`, not `malformed-epub`
-- [ ] 3.3 Commit checkpoint: "Add DRM detection"
+- [x] 3.1 Implement DRM detection (rights file, Apple protection file, Readium license, non-font encryption algorithms, font-obfuscation allow-list); verify one test per scheme scenario and one for unknown encryption
+- [x] 3.2 Verify a font-obfuscation-only EPUB imports normally and that a DRM EPUB with unparseable content returns `drm-locked`, not `malformed-epub`
+- [x] 3.3 Commit checkpoint: "Add DRM detection"
 
 ## 4. Chapters and text
 
