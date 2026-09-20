@@ -10,8 +10,8 @@
 
 ## 2. Styling
 
-- [ ] 2.1 Add Tailwind CSS v4 with `@tailwindcss/vite` and import it in the app stylesheet; verify a Tailwind utility class visibly styles the placeholder shell in `pnpm dev`
-- [ ] 2.2 Commit checkpoint: "Add Tailwind CSS"
+- [x] 2.1 Add Tailwind CSS v4 with `@tailwindcss/vite` and import it in the app stylesheet; verify a Tailwind utility class visibly styles the placeholder shell in `pnpm dev`
+- [x] 2.2 Commit checkpoint: "Add Tailwind CSS"
 
 ## 3. Lint and format
 
