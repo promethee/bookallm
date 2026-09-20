@@ -42,5 +42,5 @@
 ## 7. Wrap-up
 
 - [x] 7.1 Update README "Status" to reflect that the scaffold and tooling exist; verify the diff touches only that section
-- [ ] 7.2 Verify from a fresh clone: `pnpm install`, `pnpm check` and `pnpm tauri dev` all succeed
+- [x] 7.2 Verify from a fresh clone: `pnpm install`, `pnpm check` and `pnpm tauri dev` all succeed
 - [ ] 7.3 Commit checkpoint: "Update README status", then archive the change
