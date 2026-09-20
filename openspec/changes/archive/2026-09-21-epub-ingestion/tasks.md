@@ -55,4 +55,4 @@
 - [x] 8.1 Add an opt-in test that runs only when `EPUB_PATH` is set and prints title, chapter titles and one sample chunk; verify `pnpm test` still passes with the variable unset
 - [x] 8.2 Download one public-domain EPUB (one English, one French if size allows) from a legal public source such as Project Gutenberg into the scratchpad, never into the repo, after stating filename, source and size and getting the user's yes; run the opt-in test on it and manually compare chapter count, titles and one sampled chunk against the book's text; record the result in the change's final summary
 - [x] 8.3 Verify `pnpm check` passes end to end and CI is green on the pushed branch
-- [ ] 8.4 Commit checkpoint: "Finish epub-ingestion", then archive the change
+- [x] 8.4 Commit checkpoint: "Finish epub-ingestion", then archive the change
