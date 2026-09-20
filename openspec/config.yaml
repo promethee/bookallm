@@ -1,0 +1,41 @@
+schema: spec-driven
+
+# Project context (shown to AI when creating artifacts)
+context: |
+  Product: BookaLLM, a local Tauri desktop study companion for EPUB books.
+  Answers are RAG-grounded with precise citations (exact passage/chapter, never
+  vague). It trains users to verify claims against the primary source. Study
+  tool, not a reading replacement. README.md is the source of truth for
+  positioning, scope, architecture and rejected approaches.
+  Tech stack: TypeScript, Svelte, Tailwind CSS, pnpm, Tauri (Rust only as a thin
+  native bridge, with brief comments on Rust-specific syntax), local Ollama
+  (default llama3.1:8b, embeddings bge-m3), SQLite or flat-file vectors.
+  Modes: v1 Ask (cited Q&A), v1.1 Verify (mutated claims, user judges).
+  Testing: Vitest (unit), Playwright (e2e); citation and mutation quality are
+  judged manually. Lint: ESLint, Prettier, rustfmt. LF line endings.
+  Conventions: commit at each completed logical unit. Never alter core decisions
+  (positioning, mode split, stack, rejected approaches) without flagging the
+  change to the user first.
+  Dev environment: Windows, Git Bash.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
