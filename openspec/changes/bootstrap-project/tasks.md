@@ -29,9 +29,9 @@
 
 ## 5. Git hooks
 
-- [ ] 5.1 Add husky and lint-staged (ESLint, Prettier, rustfmt on staged files); verify committing a file with a lint error is blocked and a clean commit succeeds under Git Bash
-- [ ] 5.2 Add a pre-push hook running the full test suite; verify a push is blocked when a test is made to fail and allowed when it passes
-- [ ] 5.3 Commit checkpoint: "Add husky and lint-staged hooks"
+- [x] 5.1 Add husky and lint-staged (ESLint, Prettier, rustfmt on staged files); verify committing a file with a lint error is blocked and a clean commit succeeds under Git Bash
+- [x] 5.2 Add a pre-push hook running the full test suite; verify a push is blocked when a test is made to fail and allowed when it passes
+- [x] 5.3 Commit checkpoint: "Add husky and lint-staged hooks"
 
 ## 6. CI
 

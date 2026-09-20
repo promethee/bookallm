@@ -1,0 +1,8 @@
+{
+  "*.{ts,js,svelte}": [
+    "eslint --fix --no-warn-ignored",
+    "prettier --write --ignore-unknown"
+  ],
+  "*.{json,css,html,md,yml,yaml}": "prettier --write --ignore-unknown",
+  "src-tauri/**/*.rs": "rustfmt --edition 2021"
+}
