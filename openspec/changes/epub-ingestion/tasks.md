@@ -45,10 +45,10 @@
 
 ## 7. Orchestration
 
-- [ ] 7.1 Implement `ingestEpub` (hash, registry lookup, DRM check, parse, chunk, classify) with catch-all mapping to `malformed-epub`; verify an integration test per outcome (`existing` produces no chunks, `new`, `possible-duplicate`, each error code)
-- [ ] 7.2 Verify a DRM-locked EPUB produces no chapters, chunks or registry entry, and that a repeated ingest of the same bytes yields identical books
-- [ ] 7.3 Export the public API from `src/lib/ingest/index.ts`; verify `pnpm typecheck` and `pnpm lint` pass with no unused exports flagged
-- [ ] 7.4 Commit checkpoint: "Add ingestEpub entry point"
+- [x] 7.1 Implement `ingestEpub` (hash, registry lookup, DRM check, parse, chunk, classify) with catch-all mapping to `malformed-epub`; verify an integration test per outcome (`existing` produces no chunks, `new`, `possible-duplicate`, each error code)
+- [x] 7.2 Verify a DRM-locked EPUB produces no chapters, chunks or registry entry, and that a repeated ingest of the same bytes yields identical books
+- [x] 7.3 Export the public API from `src/lib/ingest/index.ts`; verify `pnpm typecheck` and `pnpm lint` pass with no unused exports flagged
+- [x] 7.4 Commit checkpoint: "Add ingestEpub entry point"
 
 ## 8. Real-book check and wrap-up
 
