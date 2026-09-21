@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { strFromU8, unzipSync } from 'fflate';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { buildEpub } from './epub-builder';
 
 const docs = [
@@ -9,6 +9,20 @@ const docs = [
 ];
 
 describe('buildEpub', () => {
+  it('gives identical bytes for identical input, whatever the time', () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+      const first = buildEpub({ documents: docs });
+      vi.setSystemTime(new Date('2026-01-01T00:00:07Z'));
+      const second = buildEpub({ documents: docs });
+
+      expect(Buffer.from(second).equals(Buffer.from(first))).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('builds an EPUB 3 archive with a navigation document', () => {
     const files = unzipSync(
       buildEpub({

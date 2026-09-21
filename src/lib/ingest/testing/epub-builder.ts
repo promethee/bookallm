@@ -153,7 +153,9 @@ export function buildEpub(options: BuildEpubOptions): Uint8Array {
   for (const [path, content] of Object.entries(entries)) {
     archive[path] = typeof content === 'string' ? strToU8(content) : content;
   }
-  return zipSync(archive);
+  // A fixed timestamp keeps the output identical for identical input; otherwise the
+  // clock is embedded (to 2-second resolution) and "the same book" can differ by a byte.
+  return zipSync(archive, { mtime: new Date('2020-01-01T00:00:00Z') });
 }
 
 /** An `encryption.xml` listing one encrypted resource per algorithm. */
