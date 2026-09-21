@@ -108,7 +108,7 @@ test.describe('the first launch, start to finish', () => {
       page.getByRole('heading', { level: 1, name: 'BookaLLM' }),
     ).toBeVisible();
     await expect(
-      page.getByText('Ask mode — answers are cited, check them'),
+      page.getByText('Ask mode: answers are cited, check them'),
     ).toBeVisible();
     await expect(page.getByText('Candide', { exact: true })).toBeVisible();
   });
@@ -144,7 +144,7 @@ test.describe('after the first launch', () => {
       page.getByRole('heading', { level: 1, name: 'BookaLLM' }),
     ).toBeVisible();
     await expect(
-      page.getByText('Mode Question — les réponses sont citées, vérifiez-les'),
+      page.getByText('Mode Question : les réponses sont citées, vérifiez-les'),
     ).toBeVisible();
     await expect(page.getByText('Candide', { exact: true })).toBeVisible();
     await expect(

@@ -59,7 +59,7 @@ describe('the app shell', () => {
       books: [await bookOf('Candide')],
     });
     render(App, { props: { services } });
-    await screen.findByText('Ask mode — answers are cited, check them');
+    await screen.findByText('Ask mode: answers are cited, check them');
 
     await fireEvent.change(screen.getByLabelText('Language'), {
       target: { value: 'fr' },
@@ -67,12 +67,12 @@ describe('the app shell', () => {
 
     expect(
       screen.getByText(
-        'Mode Question — les réponses sont citées, vérifiez-les',
+        'Mode Question : les réponses sont citées, vérifiez-les',
       ),
     ).toBeTruthy();
     expect(screen.getByLabelText('Langue')).toBeTruthy();
     expect(
-      screen.queryByText('Ask mode — answers are cited, check them'),
+      screen.queryByText('Ask mode: answers are cited, check them'),
     ).toBeNull();
   });
 

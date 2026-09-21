@@ -54,3 +54,10 @@ Grounded facts:
 ## Open Questions
 
 - Where the language control lives once a settings screen exists is left to that later change; it stays in the header until then.
+
+## Real-window results (Tauri on Windows, checked by the user)
+
+- Language choice, Ollama detection with plain `fetch`, model proposal and a real 4.9 GB download with automatic advance all work.
+- Found: nothing said what was happening after the last byte while Ollama verifies the model, so it looked frozen. Fixed with an explanation, an indeterminate bar and no cancel (spec: "The end of a download is explained").
+- Found: the window was blank for a few seconds at start, and after adding an in-page splash it was still blank until the webview loaded. Fixed with a splash in `index.html` and a window that stays hidden until the page has loaded (spec: "The window is never blank while the app starts").
+- The download button opens the official page in the default browser, an EPUB can be imported, and the book is still listed after closing and reopening the app.

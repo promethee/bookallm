@@ -119,7 +119,7 @@ describe('LandingScreen', () => {
       screen.getByRole('heading', { level: 1, name: 'BookaLLM' }),
     ).toBeTruthy();
     expect(
-      screen.getByText('Ask mode — answers are cited, check them'),
+      screen.getByText('Ask mode: answers are cited, check them'),
     ).toBeTruthy();
     expect(screen.getByText('Candide')).toBeTruthy();
     expect(screen.getByText('by Someone')).toBeTruthy();
@@ -168,7 +168,7 @@ describe('LandingScreen', () => {
 
     expect(
       screen.getByText(
-        'Mode Question — les réponses sont citées, vérifiez-les',
+        'Mode Question : les réponses sont citées, vérifiez-les',
       ),
     ).toBeTruthy();
     expect(screen.getByText('Livre actif')).toBeTruthy();

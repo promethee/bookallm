@@ -114,7 +114,7 @@ describe('ImportScreen: choosing a book', () => {
 
     expect(
       await screen.findByText(
-        '2 other files were skipped: BookaLLM adds one book at a time.',
+        'BookaLLM adds one book at a time, so only the first file was added. The other 2 files were left out.',
       ),
     ).toBeTruthy();
     expect(screen.getByText('One')).toBeTruthy();
@@ -133,7 +133,7 @@ describe('ImportScreen: choosing a book', () => {
 
     expect(
       await screen.findByText(
-        'One other file was skipped: BookaLLM adds one book at a time.',
+        'BookaLLM adds one book at a time, so only the first file was added. The other file was left out.',
       ),
     ).toBeTruthy();
     controller.destroy();

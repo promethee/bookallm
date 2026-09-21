@@ -41,7 +41,7 @@ export const en = {
   'languageScreen.body':
     'You can change it at any time from the top of the window.',
 
-  'landing.mode': 'Ask mode — answers are cited, check them',
+  'landing.mode': 'Ask mode: answers are cited, check them',
   'landing.activeBook': 'Active book',
   'landing.byAuthors': 'by {authors}',
   'landing.noBook': 'No book is selected yet. Import an EPUB to get started.',
@@ -51,7 +51,7 @@ export const en = {
 
   'ollama.get.title': 'Let’s get Ollama running',
   'ollama.get.intro':
-    'BookaLLM answers your questions with an AI model that runs on your own computer, so your books never leave it. A free program called Ollama runs that model, and BookaLLM could not find it.',
+    'BookaLLM answers your questions with an AI model that runs on your own computer. Your books and everything else in BookaLLM stay on this computer and are never sent anywhere. A free program called Ollama runs that model, and BookaLLM could not find it.',
   'ollama.get.mayBeInstalled':
     'It may already be installed but not running. If so, just start it: this page will notice.',
   'ollama.step.download': 'Download Ollama from its official website.',
@@ -65,7 +65,7 @@ export const en = {
   'ollama.downloadAddress': 'Download page: {url}',
   'ollama.openFailed':
     'Your web browser could not be opened. Copy the address below into your browser instead.',
-  'ollama.advanced': 'Advanced',
+  'ollama.advanced': 'Advanced settings',
   'ollama.address.label': 'Ollama address',
   'ollama.address.help':
     'Only change this if Ollama runs somewhere other than this computer.',
@@ -125,8 +125,8 @@ export const en = {
     'It is already in BookaLLM, so nothing new was added. It is now your active book.',
   'import.skipped': ({ count }) =>
     count === 1
-      ? 'One other file was skipped: BookaLLM adds one book at a time.'
-      : `${count} other files were skipped: BookaLLM adds one book at a time.`,
+      ? 'BookaLLM adds one book at a time, so only the first file was added. The other file was left out.'
+      : `BookaLLM adds one book at a time, so only the first file was added. The other ${count} files were left out.`,
   'import.tryAnother': 'Try another file',
   'import.error.title': 'This book could not be added',
   'import.error.notEpub':
@@ -188,7 +188,7 @@ export const fr: Record<MessageKey, Message> = {
   'languageScreen.body':
     'Vous pourrez la changer à tout moment depuis le haut de la fenêtre.',
 
-  'landing.mode': 'Mode Question — les réponses sont citées, vérifiez-les',
+  'landing.mode': 'Mode Question : les réponses sont citées, vérifiez-les',
   'landing.activeBook': 'Livre actif',
   'landing.byAuthors': 'de {authors}',
   'landing.noBook':
@@ -199,7 +199,7 @@ export const fr: Record<MessageKey, Message> = {
 
   'ollama.get.title': 'Mettons Ollama en marche',
   'ollama.get.intro':
-    'BookaLLM répond à vos questions grâce à un modèle d’IA qui tourne sur votre propre ordinateur : vos livres n’en sortent jamais. Un programme gratuit appelé Ollama fait tourner ce modèle, et BookaLLM ne l’a pas trouvé.',
+    'BookaLLM répond à vos questions grâce à un modèle d’IA qui tourne sur votre propre ordinateur. Vos livres et toutes les données de BookaLLM restent sur cet ordinateur et ne sont jamais envoyés ailleurs. Un programme gratuit appelé Ollama fait tourner ce modèle, et BookaLLM ne l’a pas trouvé.',
   'ollama.get.mayBeInstalled':
     'Il est peut-être déjà installé mais pas lancé. Dans ce cas, lancez-le simplement : cette page s’en apercevra.',
   'ollama.step.download': 'Téléchargez Ollama depuis son site officiel.',
@@ -213,7 +213,7 @@ export const fr: Record<MessageKey, Message> = {
   'ollama.downloadAddress': 'Page de téléchargement : {url}',
   'ollama.openFailed':
     'Impossible d’ouvrir votre navigateur. Copiez plutôt l’adresse ci-dessous dans votre navigateur.',
-  'ollama.advanced': 'Avancé',
+  'ollama.advanced': 'Paramètres avancés',
   'ollama.address.label': 'Adresse d’Ollama',
   'ollama.address.help':
     'Ne la changez que si Ollama tourne ailleurs que sur cet ordinateur.',
@@ -273,8 +273,8 @@ export const fr: Record<MessageKey, Message> = {
     'Il est déjà dans BookaLLM, donc rien de nouveau n’a été ajouté. C’est maintenant votre livre actif.',
   'import.skipped': ({ count }) =>
     count === 1
-      ? 'Un autre fichier a été ignoré : BookaLLM ajoute un livre à la fois.'
-      : `${count} autres fichiers ont été ignorés : BookaLLM ajoute un livre à la fois.`,
+      ? 'BookaLLM n’ajoute qu’un livre à la fois : seul le premier fichier a été ajouté. L’autre fichier n’a pas été pris en compte.'
+      : `BookaLLM n’ajoute qu’un livre à la fois : seul le premier fichier a été ajouté. Les ${count} autres fichiers n’ont pas été pris en compte.`,
   'import.tryAnother': 'Essayer un autre fichier',
   'import.error.title': 'Ce livre n’a pas pu être ajouté',
   'import.error.notEpub':

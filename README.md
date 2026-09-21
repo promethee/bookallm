@@ -196,8 +196,8 @@ disproportionate risk for a portfolio build.
   replacement for it, since a portfolio reviewer clicking around
   won't know the shortcut exists.
 - Persistent disclosure at the top of the window naming the current
-  mode and what it does in one line (e.g. "Ask mode — answers are
-  cited, check them" / "Verify mode — one claim below may be
+  mode and what it does in one line (e.g. "Ask mode: answers are
+  cited, check them" / "Verify mode: one claim below may be
   false"). Always visible, not a one-time hint — this is the
   ongoing "friendly guide" for a non-technical, book-focused
   audience, and it's also what keeps Verify mode's planted false

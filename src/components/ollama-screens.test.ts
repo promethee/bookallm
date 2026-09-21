@@ -36,9 +36,7 @@ describe('GetOllamaScreen', () => {
       }),
     ).toBeTruthy();
     expect(
-      screen.getByText(
-        /runs on your own computer, so your books never leave it/,
-      ),
+      screen.getByText(/stay on this computer and are never sent anywhere/),
     ).toBeTruthy();
     expect(
       screen.getByText(/may already be installed but not running/),
@@ -177,7 +175,7 @@ describe('GetOllamaScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Vérifier à nouveau' }),
     ).toBeTruthy();
-    expect(screen.getByText('Avancé')).toBeTruthy();
+    expect(screen.getByText('Paramètres avancés')).toBeTruthy();
     controller.destroy();
   });
 });
