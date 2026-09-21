@@ -50,9 +50,9 @@
 
 ## 8. End-to-end
 
-- [ ] 8.1 Add a Playwright test for the first-launch flow with Ollama mocked by request interception: language, get-Ollama that advances by itself once the mock starts answering, model confirmation and a mocked download, import of a generated EPUB, and the landing screen; verify it passes
-- [ ] 8.2 Add Playwright tests for persistence after a reload (language and book), switching language mid-flow, the possible-duplicate question, a protected-book error, and a returning reader landing directly; verify they pass
-- [ ] 8.3 Commit checkpoint: "Add onboarding end-to-end tests"
+- [x] 8.1 Add a Playwright test for the first-launch flow with Ollama mocked by request interception: language, get-Ollama that advances by itself once the mock starts answering, model confirmation and a mocked download, import of a generated EPUB, and the landing screen; verify it passes
+- [x] 8.2 Add Playwright tests for persistence after a reload (language and book), switching language mid-flow, the possible-duplicate question, a protected-book error, and a returning reader landing directly; verify they pass
+- [x] 8.3 Commit checkpoint: "Add onboarding end-to-end tests"
 
 ## 9. Real-world checks
 
