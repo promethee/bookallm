@@ -5,9 +5,76 @@
     <link rel="icon" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BookaLLM</title>
+    <!-- Inline on purpose: the app's own styles only arrive with its script. -->
+    <style>
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      #splash {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        color: #334155;
+      }
+      #splash .name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4338ca;
+      }
+      #splash .spinner {
+        width: 1.75rem;
+        height: 1.75rem;
+        border: 3px solid #c7d2fe;
+        border-top-color: #4338ca;
+        border-radius: 50%;
+        animation: splash-spin 0.9s linear infinite;
+      }
+      #splash[data-failed] .spinner {
+        display: none;
+      }
+      @keyframes splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash .spinner {
+          animation-duration: 3s;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="splash" role="status">
+        <span class="name">BookaLLM</span>
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="splash-text">Starting…</p>
+      </div>
+    </div>
+    <script>
+      // Runs at once, before the app's script, so the words are there from the first paint.
+      // The app itself takes over the language once it is running.
+      (function () {
+        var french =
+          (navigator.language || '').toLowerCase().indexOf('fr') === 0;
+        var splash = document.getElementById('splash');
+        splash.dataset.failure = french
+          ? 'BookaLLM n’a pas pu démarrer. Fermez-le et rouvrez-le.'
+          : 'BookaLLM could not start. Close it and open it again.';
+        document.getElementById('splash-text').textContent = french
+          ? 'Démarrage…'
+          : 'Starting…';
+      })();
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -351,3 +351,49 @@ test.describe('importing', () => {
     await expect(page.getByText('Dropped', { exact: true })).toBeVisible();
   });
 });
+
+test.describe('starting up', () => {
+  test('shows a splash while the app loads, then replaces it', async ({
+    page,
+  }) => {
+    await mockOllama(page, newMock());
+    // Hold the app's script back, as a slow window start would.
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route('**/src/main.ts*', async (route) => {
+      await held;
+      await route.continue();
+    });
+
+    await page.goto('/', { waitUntil: 'commit' });
+    const splash = page.getByRole('status').filter({ hasText: 'BookaLLM' });
+    await expect(splash).toBeVisible();
+    await expect(splash).toContainText('Starting…');
+
+    release();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Choose your language' }),
+    ).toBeVisible();
+    await expect(page.locator('#splash')).toHaveCount(0);
+  });
+
+  test('speaks French from the first paint when the system is French', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ locale: 'fr-FR' });
+    const page = await context.newPage();
+    await mockOllama(page, newMock());
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route('**/src/main.ts*', async (route) => {
+      await held;
+      await route.continue();
+    });
+
+    await page.goto('/', { waitUntil: 'commit' });
+    await expect(page.locator('#splash')).toContainText('Démarrage…');
+    release();
+    await expect(page.locator('#splash')).toHaveCount(0);
+    await context.close();
+  });
+});

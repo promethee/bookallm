@@ -99,3 +99,22 @@ The system SHALL move keyboard focus to the new screen's heading whenever the sc
 
 - **WHEN** a reader uses only the keyboard
 - **THEN** every button, field and the file drop area can be reached and activated
+
+### Requirement: The window is never blank while the app starts
+
+The system SHALL show a splash with the app name, an activity indicator and a short "starting" message from the first paint until the first screen is ready, in the system's language when it is French and in English otherwise. It SHALL replace the splash with the first screen once the app is running. If the app cannot start, it SHALL replace the indicator with a message asking the reader to close and reopen the app.
+
+#### Scenario: Slow start
+
+- **WHEN** the app takes a few seconds to load
+- **THEN** the window shows the splash instead of staying blank
+
+#### Scenario: Start finished
+
+- **WHEN** the app is ready
+- **THEN** the splash is gone and the first screen is shown
+
+#### Scenario: Start failed
+
+- **WHEN** the app cannot start
+- **THEN** the splash says so and asks the reader to close and reopen the app
