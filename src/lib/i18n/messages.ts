@@ -95,9 +95,10 @@ export const en = {
   'models.downloading': 'Downloading {name}…',
   'models.phase.preparing': 'Getting ready…',
   'models.phase.downloading': 'Downloading…',
-  'models.phase.verifying': 'Checking the download…',
-  'models.phase.finishing': 'Finishing up…',
-  'models.phase.done': 'Done',
+  'models.phase.verifying':
+    'Download complete. BookaLLM is now checking that it arrived intact. This can take a minute, so please keep this window open.',
+  'models.phase.finishing': 'Almost there. Finishing up…',
+  'models.phase.done': 'All done. Moving on…',
   'models.amount': '{done} of {total}',
   'models.progressLabel': 'Download progress',
   'models.cancelled':
@@ -242,9 +243,10 @@ export const fr: Record<MessageKey, Message> = {
   'models.downloading': 'Téléchargement de {name}…',
   'models.phase.preparing': 'Préparation…',
   'models.phase.downloading': 'Téléchargement…',
-  'models.phase.verifying': 'Vérification du téléchargement…',
-  'models.phase.finishing': 'Finalisation…',
-  'models.phase.done': 'Terminé',
+  'models.phase.verifying':
+    'Téléchargement terminé. BookaLLM vérifie maintenant que tout est bien arrivé. Cela peut prendre une minute : gardez cette fenêtre ouverte.',
+  'models.phase.finishing': 'Presque terminé. Finalisation…',
+  'models.phase.done': 'Tout est prêt. On continue…',
   'models.amount': '{done} sur {total}',
   'models.progressLabel': 'Progression du téléchargement',
   'models.cancelled':

@@ -276,9 +276,11 @@ export class OnboardingController {
     this.pullAbort = undefined;
 
     if (result.status === 'success') {
-      this.pull = { status: 'idle' };
       this.announce('announce.modelsReady');
+      // Keep showing "all done" until the check has finished, so the screen never falls
+      // back to the confirmation for a moment and looks as if nothing happened.
       await this.runCheck();
+      this.pull = { status: 'idle' };
     } else if (result.status === 'cancelled') {
       this.pull = { status: 'cancelled', progress: this.lastProgress };
       this.announce('announce.downloadCancelled');

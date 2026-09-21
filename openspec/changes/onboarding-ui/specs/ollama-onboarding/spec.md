@@ -119,3 +119,17 @@ The system SHALL remember the confirmed model names and use them on the next lau
 
 - **WHEN** the reader enters something that is not a web address
 - **THEN** a message says so and the previous address stays in use
+
+### Requirement: The end of a download is explained
+
+The system SHALL, once every byte of a model has arrived while Ollama is still checking it, say in plain words that the download is complete and is being checked, that this can take a minute, and that the window should stay open. It SHALL show an activity indicator instead of a full progress bar for that time and SHALL NOT offer to cancel. It SHALL keep showing that it is finishing until the readiness check after the download has completed, so the screen never falls back to the confirmation.
+
+#### Scenario: Checking after the last byte
+
+- **WHEN** every byte has arrived and Ollama is still checking the model
+- **THEN** the screen says the download is complete and being checked, that it can take a minute, shows an activity indicator without a full bar, and offers no cancel
+
+#### Scenario: Handing over to the next screen
+
+- **WHEN** the last model has finished and the readiness check is still running
+- **THEN** the screen keeps saying it is finishing and does not show the download button again

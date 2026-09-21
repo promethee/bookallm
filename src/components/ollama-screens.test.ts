@@ -410,6 +410,66 @@ describe('ModelsScreen: downloading', () => {
     controller.destroy();
   });
 
+  it('says the download is complete and being checked, with a moving indicator and no cancel', async () => {
+    const state = { ...MISSING_CHAT(), stallAtVerify: true };
+    const { controller } = await harness(state, { language: 'en' });
+    await controller.start();
+    render(ModelsScreen, withController(controller));
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Download' }));
+
+    const message = await screen.findByText(
+      /Download complete\. BookaLLM is now checking/,
+    );
+    expect(message.textContent).toContain('This can take a minute');
+    expect(message.textContent).toContain('please keep this window open');
+    const bar = screen.getByRole('progressbar', { name: 'Download progress' });
+    // No value: the bar is indeterminate and moves, instead of sitting at 100%.
+    expect(bar.hasAttribute('value')).toBe(false);
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
+    expect(plain(document.body.textContent)).not.toContain('100%');
+    controller.cancelDownload();
+    controller.destroy();
+  });
+
+  it('says the same in French', async () => {
+    const state = { ...MISSING_CHAT(), stallAtVerify: true };
+    const { controller } = await harness(state, { language: 'fr' });
+    await controller.start();
+    render(ModelsScreen, withController(controller));
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Télécharger' }));
+
+    const message = await screen.findByText(
+      /Téléchargement terminé\. BookaLLM vérifie/,
+    );
+    expect(message.textContent).toContain('gardez cette fenêtre ouverte');
+    expect(screen.queryByRole('button', { name: 'Annuler' })).toBeNull();
+    controller.cancelDownload();
+    controller.destroy();
+  });
+
+  it('keeps saying it is finishing until the check ends, and never shows the download button again', async () => {
+    const state = MISSING_CHAT();
+    const { controller } = await harness(state, { language: 'en' });
+    await controller.start();
+    render(ModelsScreen, withController(controller));
+    let release!: () => void;
+    state.versionGate = new Promise<void>((resolve) => (release = resolve));
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Download' }));
+
+    // The pull has finished, but the check that follows is still waiting.
+    expect(await screen.findByText('All done. Moving on…')).toBeTruthy();
+    expect(controller.screen).toBe('pull-models');
+    expect(screen.queryByRole('button', { name: 'Download' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
+
+    release();
+    await waitFor(() => expect(controller.screen).toBe('import-book'));
+    controller.destroy();
+  });
+
   it('is in French while downloading', async () => {
     const state = { ...MISSING_CHAT(), stallPulls: true };
     const { controller } = await harness(state, { language: 'fr' });

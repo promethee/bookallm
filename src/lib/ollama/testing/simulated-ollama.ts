@@ -22,6 +22,8 @@ export interface OllamaState {
   stallPulls?: boolean;
   /** When set, pulls send a first progress line and then the connection drops. */
   dropPulls?: boolean;
+  /** When set, pulls send every byte, then `verifying`, and stall until cancelled. */
+  stallAtVerify?: boolean;
 }
 
 /** Fake `fetch` routes that behave like Ollama's version, model list and pull endpoints. */
@@ -45,6 +47,22 @@ export function simulateOllama(state: OllamaState): FakeFetch {
         return streamResponse([
           ndjson({ status: 'pulling manifest' }, { error }),
         ]);
+      if (state.stallAtVerify) {
+        return streamResponse(
+          [
+            ndjson(
+              { status: 'pulling manifest' },
+              {
+                digest: `d-${model}`,
+                total: 100_000_000,
+                completed: 100_000_000,
+              },
+              { status: 'verifying sha256 digest' },
+            ),
+          ],
+          { stall: true, signal },
+        );
+      }
       if (state.dropPulls) {
         return streamResponse(
           [

@@ -24,6 +24,12 @@
       ? pull.progress
       : undefined,
   );
+  /** Every byte has arrived and Ollama is checking or finishing: nothing more to download. */
+  const checking = $derived(
+    progress?.phase === 'verifying' ||
+      progress?.phase === 'finishing' ||
+      progress?.phase === 'done',
+  );
 </script>
 
 <section class="space-y-4">
@@ -34,14 +40,23 @@
       <p class="font-medium text-slate-900">
         {t('models.downloading', { name: progress.model })}
       </p>
-      <p class="text-slate-700">{t(`models.phase.${progress.phase}`)}</p>
-      <progress
-        class="w-full"
-        aria-label={t('models.progressLabel')}
-        value={progress.totalBytes > 0 ? progress.completedBytes : undefined}
-        max={progress.totalBytes > 0 ? progress.totalBytes : undefined}
-      ></progress>
-      {#if progress.totalBytes > 0}
+      <p role="status" class="text-slate-700">
+        {t(`models.phase.${progress.phase}`)}
+      </p>
+      {#if !checking && progress.totalBytes > 0}
+        <progress
+          class="w-full"
+          aria-label={t('models.progressLabel')}
+          value={progress.completedBytes}
+          max={progress.totalBytes}
+        ></progress>
+      {:else}
+        <!-- No value attribute at all: the bar is indeterminate and moves, instead of
+             sitting at 100% while Ollama checks the download. -->
+        <progress class="w-full" aria-label={t('models.progressLabel')}
+        ></progress>
+      {/if}
+      {#if progress.totalBytes > 0 && !checking}
         <p class="text-sm text-slate-700">
           {t('models.amount', {
             done: formatBytes(progress.completedBytes, language),
@@ -58,9 +73,12 @@
     {/if}
 
     {#if pull.status === 'running'}
-      <Button variant="secondary" onclick={() => controller.cancelDownload()}
-        >{t('common.cancel')}</Button
-      >
+      <!-- Once every byte has arrived there is nothing left to cancel. -->
+      {#if !checking}
+        <Button variant="secondary" onclick={() => controller.cancelDownload()}
+          >{t('common.cancel')}</Button
+        >
+      {/if}
     {:else}
       <p class="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">
         {t('models.cancelled')}
