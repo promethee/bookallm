@@ -90,7 +90,7 @@ describe('the app shell', () => {
 
     const heading = await screen.findByRole('heading', {
       level: 1,
-      name: 'import-book',
+      name: 'Add a book',
     });
     expect(document.activeElement).toBe(heading);
   });

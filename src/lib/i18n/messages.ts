@@ -110,6 +110,44 @@ export const en = {
     'There is not enough free space on your disk. Free up some space, then try again.',
   'models.error.other': 'The download did not finish.',
 
+  'import.title': 'Add a book',
+  'import.body':
+    'Choose an EPUB book from your computer, or drop it here. BookaLLM only reads the file: it never changes, moves or deletes it.',
+  'import.drop': 'Drop an EPUB here, or choose a file',
+  'import.working': 'Getting to know this book…',
+  'import.workingFile': 'Reading {filename}',
+  'import.done.title': 'Book added',
+  'import.done.body':
+    'BookaLLM has read the book and saved it on this computer. It is now your active book.',
+  'import.done.existingTitle': 'You already have this book',
+  'import.done.existingBody':
+    'It is already in BookaLLM, so nothing new was added. It is now your active book.',
+  'import.skipped': ({ count }) =>
+    count === 1
+      ? 'One other file was skipped: BookaLLM adds one book at a time.'
+      : `${count} other files were skipped: BookaLLM adds one book at a time.`,
+  'import.tryAnother': 'Try another file',
+  'import.error.title': 'This book could not be added',
+  'import.error.notEpub':
+    'This file is not an EPUB book. Choose a file whose name ends in .epub.',
+  'import.error.malformed':
+    'This EPUB could not be read. The file may be damaged: try another copy of the book.',
+  'import.error.noText':
+    'This EPUB has no readable text in it, only images. BookaLLM needs the text to work with.',
+  'import.error.drm':
+    'This book is protected against copying (DRM). BookaLLM never removes that protection, so it cannot open this file. You need a copy of the book without protection; public-domain books usually come without it.',
+  'import.duplicate.title': 'Is this a book you already have?',
+  'import.duplicate.body':
+    'This file has the same title or file name as a book you already added, but it is not the same file, so it may be another edition. If you add it, both books are kept and nothing is replaced.',
+  'import.duplicate.new': 'The file you chose',
+  'import.duplicate.existing': 'Already in BookaLLM',
+  'import.duplicate.add': 'Add as a separate book',
+  'import.saveFailed.title': 'The book could not be saved',
+  'import.saveFailed.full':
+    'There is not enough room to save this book. Free up some space, then try again.',
+  'import.saveFailed.other':
+    'This book could not be saved on this device. Nothing was added.',
+
   'common.chapters': ({ count }) =>
     count === 1 ? '1 chapter' : `${count} chapters`,
 } as const satisfies Record<string, Message>;
@@ -218,6 +256,44 @@ export const fr: Record<MessageKey, Message> = {
   'models.error.diskSpace':
     'Il n’y a pas assez de place libre sur votre disque. Libérez de l’espace, puis réessayez.',
   'models.error.other': 'Le téléchargement ne s’est pas terminé.',
+
+  'import.title': 'Ajouter un livre',
+  'import.body':
+    'Choisissez un livre EPUB sur votre ordinateur, ou déposez-le ici. BookaLLM ne fait que lire le fichier : il ne le modifie, ne le déplace et ne le supprime jamais.',
+  'import.drop': 'Déposez un EPUB ici, ou choisissez un fichier',
+  'import.working': 'BookaLLM fait connaissance avec ce livre…',
+  'import.workingFile': 'Lecture de {filename}',
+  'import.done.title': 'Livre ajouté',
+  'import.done.body':
+    'BookaLLM a lu le livre et l’a enregistré sur cet ordinateur. C’est maintenant votre livre actif.',
+  'import.done.existingTitle': 'Vous avez déjà ce livre',
+  'import.done.existingBody':
+    'Il est déjà dans BookaLLM, donc rien de nouveau n’a été ajouté. C’est maintenant votre livre actif.',
+  'import.skipped': ({ count }) =>
+    count === 1
+      ? 'Un autre fichier a été ignoré : BookaLLM ajoute un livre à la fois.'
+      : `${count} autres fichiers ont été ignorés : BookaLLM ajoute un livre à la fois.`,
+  'import.tryAnother': 'Essayer un autre fichier',
+  'import.error.title': 'Ce livre n’a pas pu être ajouté',
+  'import.error.notEpub':
+    'Ce fichier n’est pas un livre EPUB. Choisissez un fichier dont le nom se termine par .epub.',
+  'import.error.malformed':
+    'Cet EPUB n’a pas pu être lu. Le fichier est peut-être endommagé : essayez une autre copie du livre.',
+  'import.error.noText':
+    'Cet EPUB ne contient aucun texte lisible, seulement des images. BookaLLM a besoin du texte pour travailler.',
+  'import.error.drm':
+    'Ce livre est protégé contre la copie (DRM). BookaLLM ne retire jamais cette protection, il ne peut donc pas ouvrir ce fichier. Il vous faut une copie du livre sans protection ; les livres du domaine public en sont généralement dépourvus.',
+  'import.duplicate.title': 'Ce livre, vous l’avez déjà ?',
+  'import.duplicate.body':
+    'Ce fichier porte le même titre ou le même nom qu’un livre déjà ajouté, mais ce n’est pas le même fichier : il s’agit peut-être d’une autre édition. Si vous l’ajoutez, les deux livres sont conservés et rien n’est remplacé.',
+  'import.duplicate.new': 'Le fichier que vous avez choisi',
+  'import.duplicate.existing': 'Déjà dans BookaLLM',
+  'import.duplicate.add': 'Ajouter comme livre séparé',
+  'import.saveFailed.title': 'Le livre n’a pas pu être enregistré',
+  'import.saveFailed.full':
+    'Il n’y a pas assez de place pour enregistrer ce livre. Libérez de l’espace, puis réessayez.',
+  'import.saveFailed.other':
+    'Ce livre n’a pas pu être enregistré sur cet appareil. Rien n’a été ajouté.',
 
   'common.chapters': ({ count }) =>
     count === 1 ? '1 chapitre' : `${count} chapitres`,

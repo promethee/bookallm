@@ -43,10 +43,10 @@
 
 ## 7. Book import screens
 
-- [ ] 7.1 Add the import screen with the picker, the drop area (also keyboard operable), the wait message shown before work starts, the success summary, the already-imported message, and the several-files message; verify component tests including that the wait message is visible before the result and an untitled book shows its file name
-- [ ] 7.2 Add the plain error messages for each import failure code, the possible-duplicate question with exactly two actions, and the failed-save message; verify component tests for each code (including the protected-book wording), add-separately leaving both books, cancel saving nothing, and a full disk leaving nothing half-saved
-- [ ] 7.3 Verify the chosen file is only read: a test that the file object is never written to and that no removal action exists on the screen
-- [ ] 7.4 Commit checkpoint: "Add book import screens"
+- [x] 7.1 Add the import screen with the picker, the drop area (also keyboard operable), the wait message shown before work starts, the success summary, the already-imported message, and the several-files message; verify component tests including that the wait message is visible before the result and an untitled book shows its file name
+- [x] 7.2 Add the plain error messages for each import failure code, the possible-duplicate question with exactly two actions, and the failed-save message; verify component tests for each code (including the protected-book wording), add-separately leaving both books, cancel saving nothing, and a full disk leaving nothing half-saved
+- [x] 7.3 Verify the chosen file is only read: a test that the file object is never written to and that no removal action exists on the screen
+- [x] 7.4 Commit checkpoint: "Add book import screens"
 
 ## 8. End-to-end
 

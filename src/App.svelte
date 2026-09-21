@@ -2,12 +2,12 @@
   import { onMount, untrack } from 'svelte';
   import CheckingScreen from './components/CheckingScreen.svelte';
   import GetOllamaScreen from './components/GetOllamaScreen.svelte';
+  import ImportScreen from './components/ImportScreen.svelte';
   import LandingScreen from './components/LandingScreen.svelte';
   import LanguageScreen from './components/LanguageScreen.svelte';
   import LanguageSelect from './components/LanguageSelect.svelte';
   import LiveRegion from './components/LiveRegion.svelte';
   import ModelsScreen from './components/ModelsScreen.svelte';
-  import PlaceholderScreen from './components/PlaceholderScreen.svelte';
   import UpdateOllamaScreen from './components/UpdateOllamaScreen.svelte';
   import { t } from './lib/i18n';
   import { setController } from './lib/onboarding/context';
@@ -53,10 +53,10 @@
       <UpdateOllamaScreen />
     {:else if controller.screen === 'pull-models'}
       <ModelsScreen />
-    {:else if controller.screen === 'landing'}
-      <LandingScreen />
+    {:else if controller.screen === 'import-book'}
+      <ImportScreen />
     {:else}
-      <PlaceholderScreen name={controller.screen} />
+      <LandingScreen />
     {/if}
   </main>
 
