@@ -84,3 +84,7 @@ Checked with a 3-chapter, 13-chunk EPUB made from the first chapters of the real
 - Reloading part-way resumed with "Continuing where it stopped." on chapter 3 of 3 (chapters 1 and 2 were kept), then finished and went to the landing screen. IndexedDB was at version 2 with three chapter records for `bge-m3:latest`, 13 chunks in all, each vector 1,024 numbers long.
 - Time left: it appeared once 9 chunks were done (the first count of 8 or more, since the batch is 4 chunks), saying "About 2 minutes left." with 4 chunks to go. The rest took about 110 seconds.
 - Changing the saved search model to `qwen2.5:0.5b` and reloading showed the rebuild note ("The search model was changed…"). That model cannot make embeddings (Ollama answers 501 "This server does not support embeddings"), so the real failure path showed "The book could not be prepared." with Ollama's message under Details, the old `bge-m3` index was still there afterwards, and switching the setting back went straight to the landing screen with no embedding request. A successful rebuild with a real second embedding model was not run here (none is installed, and downloading one was not approved); it is covered by the unit and end-to-end tests.
+
+### The real Tauri window (checked by the user)
+
+The user ran `pnpm tauri dev` with the small real-text EPUB and confirmed it works as intended: the indexing screen with the percentage, closing part-way and reopening resumes, and a book imported before this change is indexed at start.
