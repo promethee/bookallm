@@ -172,6 +172,37 @@ test.describe('after the first launch', () => {
     ).toBeVisible();
   });
 
+  test('remembers swapped model names after a reload, without downloading anything', async ({
+    page,
+  }) => {
+    const ollama = newMock({
+      version: '0.34.0',
+      installed: ['bge-m3:latest', 'qwen2.5:3b'],
+    });
+    await mockOllama(page, ollama);
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Continue' }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Download the AI models' }),
+    ).toBeVisible();
+
+    await page.getByText('Use different models (advanced)').click();
+    await page.getByLabel('Answering model').fill('qwen2.5:3b');
+    await page.getByLabel('Answering model').press('Tab');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Add a book' }),
+    ).toBeVisible();
+
+    await page.reload();
+
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Add a book' }),
+    ).toBeVisible();
+    expect(ollama.requests.some((request) => request.method === 'POST')).toBe(
+      false,
+    );
+  });
+
   test('recognises a book that was already imported, without adding it again', async ({
     page,
   }) => {

@@ -5,6 +5,7 @@ import { ingestEpub } from '../ingest';
 import { AES_ALGORITHM, encryptionXml } from '../ingest/testing/epub-builder';
 import type { OllamaState } from '../ollama/testing/simulated-ollama';
 import { MemoryLibrary, StorageFullError, type BookLibrary } from '../storage';
+import { OnboardingController } from './controller.svelte';
 import {
   bookOf,
   epub,
@@ -377,6 +378,48 @@ describe('downloading models', () => {
     await controller.editModels({ chat: 'qwen2.5:3b', embedding: 'bge-m3' });
 
     expect(controller.readiness?.step).toBe('ready');
+    controller.destroy();
+  });
+
+  it('remembers edited names at once, so swapping to installed models is not asked again next launch', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest', 'qwen2.5:3b'],
+    };
+    const first = await harness(state, { language: 'en' });
+    await first.controller.start();
+    expect(first.controller.screen).toBe('pull-models');
+
+    await first.controller.editModels({
+      chat: 'qwen2.5:3b',
+      embedding: 'bge-m3',
+    });
+
+    expect(first.controller.screen).toBe('import-book');
+    expect(first.settings.load()).toMatchObject({
+      chatModel: 'qwen2.5:3b',
+      embeddingModel: 'bge-m3',
+    });
+    first.controller.destroy();
+
+    // A new launch sharing the same saved settings goes straight past the download screen.
+    const next = new OnboardingController(first.services);
+    await next.start();
+    expect(next.screen).toBe('import-book');
+    next.destroy();
+  });
+
+  it('goes back to the default when a name is cleared', async () => {
+    const { controller, settings } = await harness(MISSING_CHAT, {
+      language: 'en',
+    });
+    await controller.start();
+    await controller.editModels({ chat: 'phi3:mini', embedding: 'bge-m3' });
+
+    await controller.editModels({ chat: '   ', embedding: 'bge-m3' });
+
+    expect(settings.load().chatModel).toBe('llama3.1:8b');
+    expect(controller.modelDraft.chat).toBe('llama3.1:8b');
     controller.destroy();
   });
 

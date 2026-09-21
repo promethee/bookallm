@@ -56,8 +56,8 @@
 
 ## 9. Real-world checks
 
-- [ ] 9.1 With the user's approval, start the local Ollama server and drive the running app in the browser against it, confirming the real screens for this machine's state (Ollama ready, `bge-m3` installed, `llama3.1:8b` missing), then stop the server and record the result
-- [ ] 9.2 Import the real Pride and Prejudice EPUB through the UI in the browser and confirm the summary, persistence after reload, and the duplicate and already-imported messages; record the result. If the file is no longer available, ask the user before downloading it again
+- [x] 9.1 With the user's approval, start the local Ollama server and drive the running app in the browser against it, confirming the real screens for this machine's state (Ollama ready, `bge-m3` installed, `llama3.1:8b` missing), then stop the server and record the result
+- [x] 9.2 Import the real Pride and Prejudice EPUB through the UI in the browser and confirm the summary, persistence after reload, and the duplicate and already-imported messages; record the result. If the file is no longer available, ask the user before downloading it again
 - [ ] 9.3 With the user, run `pnpm tauri dev` and confirm in the real window that the download button opens the official page in the browser, that dropping an EPUB works, and that a book survives closing and reopening the app; record the result
 - [ ] 9.4 Ask the user to skim the French text and record any corrections
 - [ ] 9.5 Commit checkpoint: "Record real-world onboarding checks"

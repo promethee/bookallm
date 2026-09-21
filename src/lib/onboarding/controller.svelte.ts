@@ -239,9 +239,18 @@ export class OnboardingController {
 
   // ---- models ---------------------------------------------------------------------
 
-  /** Updates the edited names and refreshes the plan, without downloading anything. */
+  /**
+   * Remembers the edited names and refreshes the plan, without downloading anything.
+   * They are saved as soon as they change: a reader who swaps to models that are
+   * already installed never presses Download, and must not be asked again next launch.
+   * An empty name goes back to the default.
+   */
   async editModels(draft: RequiredModels): Promise<void> {
-    this.modelDraft = draft;
+    this.save({ chatModel: draft.chat, embeddingModel: draft.embedding });
+    this.modelDraft = {
+      chat: this.settings.chatModel,
+      embedding: this.settings.embeddingModel,
+    };
     await this.runCheck();
   }
 
