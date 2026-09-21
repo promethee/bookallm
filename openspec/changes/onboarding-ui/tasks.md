@@ -30,9 +30,9 @@
 
 ## 5. Shell, language and landing screens
 
-- [ ] 5.1 Turn `src/App.svelte` into the shell (header with app name and language control, current screen, polite live region) with focus moved to each screen's heading; verify component tests for focus on screen change, the always-visible language control and live-region announcements
-- [ ] 5.2 Add the language screen (preselected from the system language) and the landing screen (mode line, active book, import action, no-book message); verify component tests for French and other system languages, changing language mid-screen without losing state, and both landing variants
-- [ ] 5.3 Commit checkpoint: "Add app shell, language and landing screens"
+- [x] 5.1 Turn `src/App.svelte` into the shell (header with app name and language control, current screen, polite live region) with focus moved to each screen's heading; verify component tests for focus on screen change, the always-visible language control and live-region announcements
+- [x] 5.2 Add the language screen (preselected from the system language) and the landing screen (mode line, active book, import action, no-book message); verify component tests for French and other system languages, changing language mid-screen without losing state, and both landing variants
+- [x] 5.3 Commit checkpoint: "Add app shell, language and landing screens"
 
 ## 6. Ollama screens
 

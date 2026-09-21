@@ -1,95 +1,18 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getLanguage, setLanguage, type Language } from '../i18n';
-import { ingestEpub, InMemoryRegistry, type Book } from '../ingest';
+import { getLanguage, setLanguage } from '../i18n';
+import { ingestEpub } from '../ingest';
+import { AES_ALGORITHM, encryptionXml } from '../ingest/testing/epub-builder';
+import type { OllamaState } from '../ollama/testing/simulated-ollama';
+import { MemoryLibrary, StorageFullError, type BookLibrary } from '../storage';
 import {
-  buildEpub,
-  encryptionXml,
-  AES_ALGORITHM,
-  type BuildEpubOptions,
-} from '../ingest/testing/epub-builder';
-import { createOllamaClient } from '../ollama';
-import {
-  simulateOllama,
-  type OllamaState,
-} from '../ollama/testing/simulated-ollama';
-import {
-  MemoryLibrary,
-  MemorySettings,
-  StorageFullError,
-  type AppStorage,
-  type BookLibrary,
-} from '../storage';
-import { OnboardingController } from './controller.svelte';
-import type { Services } from './services';
-
-const READY: OllamaState = {
-  version: '0.34.0',
-  installed: ['llama3.1:8b', 'bge-m3:latest'],
-};
-
-/** A small EPUB; `title` and `body` make different books. */
-const epub = (
-  title: string,
-  body = 'Once upon a time.',
-  extra: Partial<BuildEpubOptions> = {},
-) =>
-  buildEpub({
-    title,
-    authors: ['Someone'],
-    documents: [{ href: 'a.xhtml', body: `<h1>Start</h1><p>${body}</p>` }],
-    toc: [{ title: 'Start', href: 'a.xhtml' }],
-    ...extra,
-  });
-
-const file = (bytes: Uint8Array, name = 'book.epub') =>
-  new File([bytes as BlobPart], name);
-
-async function bookOf(title: string, body?: string): Promise<Book> {
-  const result = await ingestEpub(epub(title, body), {
-    registry: new InMemoryRegistry(),
-  });
-  if (result.status !== 'new') throw new Error('expected a new book');
-  return result.book;
-}
-
-interface HarnessOptions {
-  language?: Language;
-  systemLanguages?: string[];
-  books?: Book[];
-  library?: BookLibrary;
-  ingest?: Services['ingest'];
-  nextFrame?: Services['nextFrame'];
-}
-
-async function harness(ollama: OllamaState, options: HarnessOptions = {}) {
-  const fake = simulateOllama(ollama);
-  const settings = new MemorySettings();
-  if (options.language) settings.save({ language: options.language });
-  const library = options.library ?? new MemoryLibrary();
-  for (const book of options.books ?? []) await library.saveBook(book);
-  const storage: AppStorage = { settings, library, booksProblem: undefined };
-  const opened: string[] = [];
-  const services: Services = {
-    storage,
-    createClient: (baseUrl) =>
-      createOllamaClient({ fetch: fake.fetch, baseUrl }),
-    platform: 'windows',
-    openExternal: async (url) => {
-      opened.push(url);
-      return true;
-    },
-    systemLanguages: options.systemLanguages ?? ['en-US'],
-    ingest: options.ingest ?? ingestEpub,
-    pollIntervalMs: 3000,
-    nextFrame: options.nextFrame ?? (async () => undefined),
-  };
-  const controller = new OnboardingController(services);
-  return { controller, fake, storage, library, settings, opened };
-}
-
-const versionRequests = (fake: ReturnType<typeof simulateOllama>) =>
-  fake.requests.filter((r) => r.path === '/api/version').length;
+  bookOf,
+  epub,
+  file,
+  harness,
+  READY,
+  versionRequests,
+} from './testing/harness';
 
 beforeEach(() => setLanguage('en'));
 afterEach(() => {
