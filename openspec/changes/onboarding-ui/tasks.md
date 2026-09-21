@@ -65,5 +65,5 @@
 ## 10. Wrap-up
 
 - [x] 10.1 Verify `pnpm check` passes end to end
-- [ ] 10.2 With the user's approval to push, verify CI is green on the pushed branch
-- [ ] 10.3 Commit checkpoint: "Finish onboarding-ui", then archive the change
+- [x] 10.2 With the user's approval to push, verify CI is green on the pushed branch
+- [x] 10.3 Commit checkpoint: "Finish onboarding-ui", then archive the change
