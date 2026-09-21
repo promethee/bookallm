@@ -59,6 +59,19 @@ test.describe('indexing a book', () => {
   }) => {
     const ollama: MockOllama = { ...READY(), embedDelayMs: 400 };
     await mockOllama(page, ollama);
+    // Records every percentage the page shows, however briefly.
+    await page.addInitScript(() => {
+      const seen = new Set<string>();
+      (window as unknown as { __percents: Set<string> }).__percents = seen;
+      new MutationObserver(() => {
+        const text = document.body?.innerText ?? '';
+        for (const match of text.matchAll(/\d+\.\d\d%/g)) seen.add(match[0]);
+      }).observe(document, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+      });
+    });
 
     await importBook(page, 4);
 
@@ -67,10 +80,15 @@ test.describe('indexing a book', () => {
     const bar = page.getByRole('progressbar', { name: 'Preparation progress' });
     await expect(bar).toBeVisible();
     await expect(bar).toHaveAttribute('max', '4');
-    // One chunk per chapter here, so the percentage climbs in steps of 25.00%.
-    await expect(page.getByText('25.00%')).toBeVisible(LATER);
-    await expect(page.getByText('50.00%')).toBeVisible(LATER);
     await expect(heading(page, 'Book added')).toBeVisible(LATER);
+    // One chunk per chapter here, so the percentage climbed in steps of 25.00%. Each step
+    // is on screen only briefly, so it was recorded as it appeared.
+    const seen = await page.evaluate(() => [
+      ...(window as unknown as { __percents: Set<string> }).__percents,
+    ]);
+    expect(seen).toEqual(
+      expect.arrayContaining(['0.00%', '25.00%', '50.00%', '75.00%']),
+    );
     await expect(page.getByText('Candide', { exact: true })).toBeVisible();
     expect(embedBodies(ollama.requests)).toHaveLength(4);
     expect(await vectorModels(page)).toEqual(['bge-m3:latest']);
