@@ -1,11 +1,14 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import CheckingScreen from './components/CheckingScreen.svelte';
+  import GetOllamaScreen from './components/GetOllamaScreen.svelte';
   import LandingScreen from './components/LandingScreen.svelte';
   import LanguageScreen from './components/LanguageScreen.svelte';
   import LanguageSelect from './components/LanguageSelect.svelte';
   import LiveRegion from './components/LiveRegion.svelte';
+  import ModelsScreen from './components/ModelsScreen.svelte';
   import PlaceholderScreen from './components/PlaceholderScreen.svelte';
+  import UpdateOllamaScreen from './components/UpdateOllamaScreen.svelte';
   import { t } from './lib/i18n';
   import { setController } from './lib/onboarding/context';
   import { OnboardingController } from './lib/onboarding/controller.svelte';
@@ -44,6 +47,12 @@
       <LanguageScreen />
     {:else if controller.screen === 'checking'}
       <CheckingScreen />
+    {:else if controller.screen === 'get-ollama'}
+      <GetOllamaScreen />
+    {:else if controller.screen === 'update-ollama'}
+      <UpdateOllamaScreen />
+    {:else if controller.screen === 'pull-models'}
+      <ModelsScreen />
     {:else if controller.screen === 'landing'}
       <LandingScreen />
     {:else}

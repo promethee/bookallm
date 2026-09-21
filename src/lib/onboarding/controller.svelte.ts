@@ -15,6 +15,7 @@ import type {
 import {
   checkSetup,
   installGuidance,
+  type InstallGuidance,
   pullMissingModels,
   type ModelPullProgress,
   type PullError,
@@ -215,11 +216,14 @@ export class OnboardingController {
     this.timer = undefined;
   }
 
+  /** The install steps and the official download page for this platform. */
+  get guidance(): InstallGuidance {
+    return installGuidance(this.services.platform);
+  }
+
   /** Opens the official download page for this platform. Returns whether it opened. */
   openDownloadPage(): Promise<boolean> {
-    return this.services.openExternal(
-      installGuidance(this.services.platform).downloadUrl,
-    );
+    return this.services.openExternal(this.guidance.downloadUrl);
   }
 
   /** Saves a new Ollama address if it is a web address, otherwise reports the error. */

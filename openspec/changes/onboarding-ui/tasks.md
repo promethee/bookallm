@@ -36,10 +36,10 @@
 
 ## 6. Ollama screens
 
-- [ ] 6.1 Add the get-Ollama and update-Ollama screens (plain explanation, ordered steps from the guidance data, note that Ollama may only need starting, download button through `openExternal`, check-again button, closed advanced section for the address with validation); verify component tests for each scenario in ollama-onboarding including an invalid address keeping the old one
-- [ ] 6.2 Add the model confirmation screen (missing models with sizes in the reader's units, total, one-time explanation, editable names that refresh the plan, unknown sizes, no automatic download); verify component tests for the default plan, a swapped model, an unknown size and that nothing downloads before the button is pressed
-- [ ] 6.3 Add download progress, cancel, continue and automatic advance, and the plain error messages with retry for each failure code; verify component tests with a fake client for watching a download, cancel then continue, completion, and one test per code (`unreachable`, `model-not-found`, `insufficient-disk-space`, `pull-failed` with details)
-- [ ] 6.4 Commit checkpoint: "Add Ollama setup screens"
+- [x] 6.1 Add the get-Ollama and update-Ollama screens (plain explanation, ordered steps from the guidance data, note that Ollama may only need starting, download button through `openExternal`, check-again button, closed advanced section for the address with validation); verify component tests for each scenario in ollama-onboarding including an invalid address keeping the old one
+- [x] 6.2 Add the model confirmation screen (missing models with sizes in the reader's units, total, one-time explanation, editable names that refresh the plan, unknown sizes, no automatic download); verify component tests for the default plan, a swapped model, an unknown size and that nothing downloads before the button is pressed
+- [x] 6.3 Add download progress, cancel, continue and automatic advance, and the plain error messages with retry for each failure code; verify component tests with a fake client for watching a download, cancel then continue, completion, and one test per code (`unreachable`, `model-not-found`, `insufficient-disk-space`, `pull-failed` with details)
+- [x] 6.4 Commit checkpoint: "Add Ollama setup screens"
 
 ## 7. Book import screens
 

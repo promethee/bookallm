@@ -312,7 +312,7 @@ describe('downloading models', () => {
     expect(
       controller.pull.status === 'cancelled' &&
         controller.pull.progress?.completedBytes,
-    ).toBe(30);
+    ).toBe(30_000_000);
     expect(controller.announcement?.key).toBe('announce.downloadCancelled');
 
     state.stallPulls = false;

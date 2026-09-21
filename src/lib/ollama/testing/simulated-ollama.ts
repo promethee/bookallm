@@ -20,6 +20,8 @@ export interface OllamaState {
   versionGate?: Promise<void>;
   /** When set, pulls send a first progress line and then stall until cancelled. */
   stallPulls?: boolean;
+  /** When set, pulls send a first progress line and then the connection drops. */
+  dropPulls?: boolean;
 }
 
 /** Fake `fetch` routes that behave like Ollama's version, model list and pull endpoints. */
@@ -43,12 +45,31 @@ export function simulateOllama(state: OllamaState): FakeFetch {
         return streamResponse([
           ndjson({ status: 'pulling manifest' }, { error }),
         ]);
+      if (state.dropPulls) {
+        return streamResponse(
+          [
+            ndjson(
+              { status: 'pulling manifest' },
+              {
+                digest: `d-${model}`,
+                total: 100_000_000,
+                completed: 30_000_000,
+              },
+            ),
+          ],
+          { failWith: new TypeError('terminated') },
+        );
+      }
       if (state.stallPulls) {
         return streamResponse(
           [
             ndjson(
               { status: 'pulling manifest' },
-              { digest: `d-${model}`, total: 100, completed: 30 },
+              {
+                digest: `d-${model}`,
+                total: 100_000_000,
+                completed: 30_000_000,
+              },
             ),
           ],
           { stall: true, signal },
