@@ -2,11 +2,11 @@
 
 ## 1. Foundations
 
-- [ ] 1.1 Define the types in `src/lib/ollama/types.ts` (statuses, model requirements, download plan, progress events, pull result and error codes, readiness result, client options); verify `pnpm typecheck` passes
-- [ ] 1.2 Add the defaults in `src/lib/ollama/defaults.ts` (base URL, default model names, approximate sizes, detection timeout); verify `pnpm typecheck` passes
-- [ ] 1.3 Write test helpers in `src/lib/ollama/testing/`: a fake-`fetch` builder that returns JSON or streamed newline-delimited bodies, and a local HTTP server helper (`node:http`) that can send chunks, delay, and drop; verify a helper test reads a streamed body back with lines split across chunks
-- [ ] 1.4 Confirm the minimum Ollama version and the official download addresses against Ollama's release notes and download pages, and record the sources in code comments; verify the constants match what was found
-- [ ] 1.5 Commit checkpoint: "Add Ollama setup types, defaults and test helpers"
+- [x] 1.1 Define the types in `src/lib/ollama/types.ts` (statuses, model requirements, download plan, progress events, pull result and error codes, readiness result, client options); verify `pnpm typecheck` passes
+- [x] 1.2 Add the defaults in `src/lib/ollama/defaults.ts` (base URL, default model names, approximate sizes, detection timeout); verify `pnpm typecheck` passes
+- [x] 1.3 Write test helpers in `src/lib/ollama/testing/`: a fake-`fetch` builder that returns JSON or streamed newline-delimited bodies, and a local HTTP server helper (`node:http`) that can send chunks, delay, and drop; verify a helper test reads a streamed body back with lines split across chunks
+- [x] 1.4 Confirm the minimum Ollama version and the official download addresses against Ollama's release notes and download pages, and record the sources in code comments; verify the constants match what was found
+- [x] 1.5 Commit checkpoint: "Add Ollama setup types, defaults and test helpers"
 
 ## 2. Detection
 
