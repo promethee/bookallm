@@ -42,7 +42,7 @@
 ## 6. Real Ollama check
 
 - [x] 6.1 Add an opt-in test, enabled by `OLLAMA_URL`, that runs detection and readiness against a real server and prints the results; verify `pnpm test` still passes with the variable unset
-- [ ] 6.2 With the user's approval, start the local Ollama server, run the opt-in test, and confirm the real readiness result (this machine has `bge-m3` but not `llama3.1:8b`, so `pull-models` is expected); then stop the server and record the result
+- [x] 6.2 With the user's approval, start the local Ollama server, run the opt-in test, and confirm the real readiness result (this machine has `bge-m3` but not `llama3.1:8b`, so `pull-models` is expected); then stop the server and record the result
 - [ ] 6.3 With the user's approval of one small model's name and size, run a real pull of it through `pullModel` and confirm progress, then a cancel and resume; record the result. Skip if the user declines
 - [ ] 6.4 Commit checkpoint: "Add real Ollama check"
 
