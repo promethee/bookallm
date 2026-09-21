@@ -5,6 +5,9 @@
 pub fn run() {
     // Builder pattern: chain configuration calls, then `.run(...)` starts the app.
     tauri::Builder::default()
+        // Lets the frontend open a web page in the user's default browser. What it may open
+        // is limited by the `opener:allow-open-url` scope in capabilities/default.json.
+        .plugin(tauri_plugin_opener::init())
         // `generate_context!` embeds tauri.conf.json and the frontend assets at compile time.
         // `.expect(...)` panics with this message if the app fails to start.
         .run(tauri::generate_context!())

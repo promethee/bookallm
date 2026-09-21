@@ -2,9 +2,9 @@
 
 ## 1. Tauri wiring and dependencies
 
-- [ ] 1.1 Add `idb` and `@tauri-apps/plugin-opener` as dependencies and `fake-indexeddb` as a dev dependency; verify `pnpm install --frozen-lockfile` succeeds and `pnpm peers check` reports no issues
-- [ ] 1.2 Add the `tauri-plugin-opener` crate, register it in `src-tauri/src/lib.rs`, add the `opener:allow-open-url` permission scoped to `https://ollama.com/*` in `src-tauri/capabilities/default.json`, and set `dragDropEnabled: false` on the main window in `tauri.conf.json`; verify `cargo check` in `src-tauri/` passes (about 20 minutes, run in the background while other work continues) and `pnpm format:rust:check` passes
-- [ ] 1.3 Commit checkpoint: "Add opener plugin and disable Tauri file drop"
+- [x] 1.1 Add `idb` and `@tauri-apps/plugin-opener` as dependencies and `fake-indexeddb` as a dev dependency; verify `pnpm install --frozen-lockfile` succeeds and `pnpm peers check` reports no issues
+- [x] 1.2 Add the `tauri-plugin-opener` crate, register it in `src-tauri/src/lib.rs`, add the `opener:allow-open-url` permission scoped to `https://ollama.com/*` in `src-tauri/capabilities/default.json`, and set `dragDropEnabled: false` on the main window in `tauri.conf.json`; verify `cargo check` in `src-tauri/` passes (about 20 minutes, run in the background while other work continues) and `pnpm format:rust:check` passes
+- [x] 1.3 Commit checkpoint: "Add opener plugin and disable Tauri file drop"
 
 ## 2. Interface language foundation
 
