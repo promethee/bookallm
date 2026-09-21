@@ -25,8 +25,18 @@ describe('createFakeFetch', () => {
 
     expect(await response.json()).toEqual({ version: '0.34.0' });
     expect(fake.requests).toEqual([
-      { method: 'GET', path: '/api/version', body: undefined },
-      { method: 'POST', path: '/api/pull', body: '{"model":"x"}' },
+      {
+        method: 'GET',
+        url: 'http://localhost:11434/api/version',
+        path: '/api/version',
+        body: undefined,
+      },
+      {
+        method: 'POST',
+        url: 'http://localhost:11434/api/pull',
+        path: '/api/pull',
+        body: '{"model":"x"}',
+      },
     ]);
   });
 

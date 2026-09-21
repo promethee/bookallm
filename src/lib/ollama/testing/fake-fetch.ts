@@ -1,6 +1,8 @@
 /** A request as seen by a fake handler. */
 export interface RecordedRequest {
   method: string;
+  /** Full URL, including the base address the client was configured with. */
+  url: string;
   /** Path and query, e.g. `/api/pull`. */
   path: string;
   body?: string;
@@ -38,6 +40,7 @@ export function createFakeFetch(
     );
     const request: RecordedRequest = {
       method: (init?.method ?? 'GET').toUpperCase(),
+      url: url.href,
       path: url.pathname + url.search,
       body: typeof init?.body === 'string' ? init.body : undefined,
     };

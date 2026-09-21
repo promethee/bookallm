@@ -10,11 +10,11 @@
 
 ## 2. Detection
 
-- [ ] 2.1 Implement version parsing and comparison; verify tests for suffixes such as `-rc1`, equal versions, and lower and higher versions
-- [ ] 2.2 Implement `detectOllama` with the time limit and the not-Ollama cases; verify tests for `ready`, `outdated`, refused connection, non-200, invalid JSON, missing `version`, and a connection that never answers
-- [ ] 2.3 Verify a custom base URL is used for detection and later requests, and that only read requests are made
-- [ ] 2.4 Implement `installGuidance`; verify tests for each platform and the unknown-platform fallback
-- [ ] 2.5 Commit checkpoint: "Add Ollama detection"
+- [x] 2.1 Implement version parsing and comparison; verify tests for suffixes such as `-rc1`, equal versions, and lower and higher versions
+- [x] 2.2 Implement `detectOllama` with the time limit and the not-Ollama cases; verify tests for `ready`, `outdated`, refused connection, non-200, invalid JSON, missing `version`, and a connection that never answers
+- [x] 2.3 Verify a custom base URL is used for detection and later requests, and that only read requests are made
+- [x] 2.4 Implement `installGuidance`; verify tests for each platform and the unknown-platform fallback
+- [x] 2.5 Commit checkpoint: "Add Ollama detection"
 
 ## 3. Model checking and planning
 
