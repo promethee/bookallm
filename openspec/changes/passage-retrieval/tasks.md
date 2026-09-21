@@ -16,7 +16,7 @@
 
 ## 3. Real-world measurement
 
-- [ ] 3.1 Add `real-retrieval.manual.test.ts` (skipped unless an environment variable is set) that indexes the first chapters of the real book with a vector cache file, asks a written set of answered, unrelated and same-subject-but-absent questions, and prints the best scores and passages; verify it is skipped in the normal run and typechecks
+- [x] 3.1 Add `real-retrieval.manual.test.ts` (skipped unless an environment variable is set) that indexes the first chapters of the real book with a vector cache file, asks a written set of answered, unrelated and same-subject-but-absent questions, and prints the best scores and passages; verify it is skipped in the normal run and typechecks
 - [ ] 3.2 With the user's Ollama, embed the first 10 chapters of the real Pride and Prejudice (about 150 chunks, about an hour on the current machine, resumable) and run the questions; record the scores, the gap and the limits in the design
 - [ ] 3.3 Set the relevance cutoff from the measurement, replace the provisional comment with where the value came from, and verify the unit tests and the manual test agree with it
 - [ ] 3.4 Commit checkpoint: "Record the retrieval measurements"
