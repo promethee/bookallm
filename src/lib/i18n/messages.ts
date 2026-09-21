@@ -21,6 +21,13 @@ export const en = {
   'common.checkAgain': 'Check again',
   'common.notNow': 'Not now',
 
+  'announce.modelsReady': 'The models are installed.',
+  'announce.downloadCancelled':
+    'Download cancelled. You can continue where it stopped.',
+  'announce.downloadFailed': 'The download did not finish.',
+  'announce.importDone': 'Imported: {title}',
+  'announce.importFailed': 'The book could not be imported.',
+
   'common.chapters': ({ count }) =>
     count === 1 ? '1 chapter' : `${count} chapters`,
 } as const satisfies Record<string, Message>;
@@ -40,6 +47,13 @@ export const fr: Record<MessageKey, Message> = {
   'common.details': 'Détails',
   'common.checkAgain': 'Vérifier à nouveau',
   'common.notNow': 'Pas maintenant',
+
+  'announce.modelsReady': 'Les modèles sont installés.',
+  'announce.downloadCancelled':
+    'Téléchargement annulé. Vous pouvez reprendre là où il s’est arrêté.',
+  'announce.downloadFailed': 'Le téléchargement ne s’est pas terminé.',
+  'announce.importDone': 'Importé : {title}',
+  'announce.importFailed': 'Le livre n’a pas pu être importé.',
 
   'common.chapters': ({ count }) =>
     count === 1 ? '1 chapitre' : `${count} chapitres`,

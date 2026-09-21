@@ -23,10 +23,10 @@
 
 ## 4. Flow logic
 
-- [ ] 4.1 Implement `decideScreen` and test it as a table covering every row of the first-run-flow order, including "ready with a book", "postponed import" and "import requested from the landing screen"; verify all rows pass
-- [ ] 4.2 Implement `src/lib/platform.ts` (`detectPlatform`, the `https://ollama.com` allow-list, `openExternal` using `openUrl` inside Tauri and `window.open` otherwise); verify tests that official pages are allowed and every other address (other hosts, `http`, look-alike hosts such as `ollama.com.evil.test`, `javascript:`) is refused
-- [ ] 4.3 Implement the controller in `src/lib/onboarding/controller.svelte.ts` with the launch sequence, 3-second polling that skips overlapping checks and stops on screen change, and the actions (choose language, re-check, confirm models, pull, cancel, continue, import, add duplicate, cancel duplicate, postpone); verify tests with fake services and fake timers for each scenario in first-run-flow
-- [ ] 4.4 Commit checkpoint: "Add first-run flow logic"
+- [x] 4.1 Implement `decideScreen` and test it as a table covering every row of the first-run-flow order, including "ready with a book", "postponed import" and "import requested from the landing screen"; verify all rows pass
+- [x] 4.2 Implement `src/lib/platform.ts` (`detectPlatform`, the `https://ollama.com` allow-list, `openExternal` using `openUrl` inside Tauri and `window.open` otherwise); verify tests that official pages are allowed and every other address (other hosts, `http`, look-alike hosts such as `ollama.com.evil.test`, `javascript:`) is refused
+- [x] 4.3 Implement the controller in `src/lib/onboarding/controller.svelte.ts` with the launch sequence, 3-second polling that skips overlapping checks and stops on screen change, and the actions (choose language, re-check, confirm models, pull, cancel, continue, import, add duplicate, cancel duplicate, postpone); verify tests with fake services and fake timers for each scenario in first-run-flow
+- [x] 4.4 Commit checkpoint: "Add first-run flow logic"
 
 ## 5. Shell, language and landing screens
 
