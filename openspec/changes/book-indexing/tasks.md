@@ -2,10 +2,10 @@
 
 ## 1. Embedding call
 
-- [ ] 1.1 Add `src/lib/indexing/types.ts` with the typed failure codes, the vector record, the progress shape and the `VectorStore` contract, and verify `pnpm typecheck` passes
-- [ ] 1.2 Add `embedTexts` (`POST /api/embed`, 16 chunks per request, two-minute time limit, abort signal) that validates the answer and returns typed results, and verify its unit tests pass for success, wrong count, empty or non-finite vectors, 404, other errors, connection failure, timeout and abort
-- [ ] 1.3 Add a deterministic `/api/embed` to the simulated Ollama with switches for a wrong count, a dropped connection after N requests, a missing model and a stall, and verify a test proves equal texts give equal vectors and each switch works
-- [ ] 1.4 Commit checkpoint: "Add the embedding call"
+- [x] 1.1 Add `src/lib/indexing/types.ts` with the typed failure codes, the vector record, the progress shape and the `VectorStore` contract, and verify `pnpm typecheck` passes
+- [x] 1.2 Add `embedTexts` (`POST /api/embed`, 16 chunks per request, two-minute time limit, abort signal) that validates the answer and returns typed results, and verify its unit tests pass for success, wrong count, empty or non-finite vectors, 404, other errors, connection failure, timeout and abort
+- [x] 1.3 Add a deterministic `/api/embed` to the simulated Ollama with switches for a wrong count, a dropped connection after N requests, a missing model and a stall, and verify a test proves equal texts give equal vectors and each switch works
+- [x] 1.4 Commit checkpoint: "Add the embedding call"
 
 ## 2. Vector storage
 

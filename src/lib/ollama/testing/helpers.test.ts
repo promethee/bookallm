@@ -8,6 +8,12 @@ import {
   readChunks,
   streamResponse,
 } from './fake-fetch';
+import {
+  DEFAULT_EMBED_DIMENSION,
+  fakeEmbedding,
+  simulateOllama,
+  type OllamaState,
+} from './simulated-ollama';
 import { sendChunks, startTestServer } from './test-server';
 
 describe('createFakeFetch', () => {
@@ -149,5 +155,118 @@ describe('startTestServer', () => {
     } finally {
       await server.close();
     }
+  });
+});
+
+describe('simulated embeddings', () => {
+  const embed = (
+    state: OllamaState,
+    input: string[],
+    model = 'bge-m3',
+    signal?: AbortSignal,
+  ) =>
+    simulateOllama(state).fetch('http://localhost:11434/api/embed', {
+      method: 'POST',
+      body: JSON.stringify({ model, input }),
+      signal,
+    });
+
+  it('gives equal texts equal vectors and different texts different ones', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+    };
+
+    const response = await embed(state, [
+      'The cat sat.',
+      'the CAT sat',
+      'Dogs bark',
+    ]);
+    const { embeddings } = (await response.json()) as {
+      embeddings: number[][];
+    };
+
+    expect(embeddings).toHaveLength(3);
+    expect(embeddings[0]).toEqual(embeddings[1]);
+    expect(embeddings[0]).not.toEqual(embeddings[2]);
+    expect(embeddings[0]).toHaveLength(DEFAULT_EMBED_DIMENSION);
+    expect(fakeEmbedding('The cat sat.')).toEqual(embeddings[0]);
+  });
+
+  it('makes unit vectors, even for text without words', () => {
+    for (const text of ['Some words here', '...', '']) {
+      const norm = Math.hypot(...fakeEmbedding(text));
+      expect(norm).toBeCloseTo(1);
+    }
+  });
+
+  it('follows the chosen vector length', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+      embedDimension: 3,
+    };
+
+    const { embeddings } = (await (await embed(state, ['a'])).json()) as {
+      embeddings: number[][];
+    };
+
+    expect(embeddings[0]).toHaveLength(3);
+  });
+
+  it('answers 404 for a model that is not installed, also for an untagged name', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+    };
+
+    expect((await embed(state, ['a'], 'bge-m3')).status).toBe(200);
+    const missing = await embed(state, ['a'], 'nomic-embed-text');
+
+    expect(missing.status).toBe(404);
+    expect(await missing.json()).toEqual({
+      error: 'model "nomic-embed-text" not found, try pulling it first',
+    });
+  });
+
+  it('can answer with one vector too few', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+      embedWrongCount: true,
+    };
+
+    const { embeddings } = (await (await embed(state, ['a', 'b'])).json()) as {
+      embeddings: number[][];
+    };
+
+    expect(embeddings).toHaveLength(1);
+  });
+
+  it('drops the connection after the chosen number of requests and counts them', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+      embedDropAfter: 2,
+    };
+
+    expect((await embed(state, ['a'])).status).toBe(200);
+    expect((await embed(state, ['a'])).status).toBe(200);
+    await expect(embed(state, ['a'])).rejects.toBeInstanceOf(TypeError);
+    expect(state.embedCalls).toBe(3);
+  });
+
+  it('stalls until the request is aborted', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+      embedStall: true,
+    };
+    const controller = new AbortController();
+
+    const pending = embed(state, ['a'], 'bge-m3', controller.signal);
+    controller.abort();
+
+    await expect(pending).rejects.toBeDefined();
   });
 });
