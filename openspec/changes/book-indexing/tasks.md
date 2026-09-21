@@ -50,8 +50,8 @@
 - [x] 7.3 Drive the running app in the browser against the real Ollama: import the real book, watch real progress, reload part way and confirm it resumes, swap the embedding model name and confirm the rebuild, then stop the server and record the result
 - [x] 7.4 Show finer progress as the user asked: one chunk per request, a percentage with two decimals (rounded down) next to the chapter, and a small activity animation that stops for reduced motion, and verify unit, component and end-to-end tests cover the percentage moving per chunk, never showing 100.00% early, both languages and the animation being hidden from assistive technology
 - [x] 7.5 With the user, run `pnpm tauri dev` and confirm in the real window that indexing shows, that closing part way and reopening resumes, and that a book imported before this change is indexed at start; record the result
-- [ ] 7.6 Ask the user to skim the new French text and record any corrections
-- [ ] 7.7 Commit checkpoint: "Record real-world indexing checks"
+- [ ] 7.6 Ask the user to skim the new French text and record any corrections (deferred by the user to later: the 17 new messages are unreviewed, see the risks in design.md)
+- [x] 7.7 Commit checkpoint: "Record real-world indexing checks"
 
 ## 8. Wrap-up
 

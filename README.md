@@ -245,5 +245,7 @@ MIT.
 Direction and naming decided. Project scaffold and tooling are in place
 (Tauri + Svelte shell, lint/format/test hooks, CI). The first-run wizard
 works end to end in English and French: Ollama detection and guidance,
-model download, EPUB import (with DRM and duplicate detection) and local
-storage of books. Reading, indexing and chat are not built yet.
+model download, EPUB import (with DRM and duplicate detection), local
+storage of books, and indexing of the active book with the local
+embedding model (resumable, with live progress and a time estimate).
+Searching the index, Ask mode and chat are not built yet.

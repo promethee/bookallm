@@ -53,6 +53,7 @@ Books are saved in IndexedDB (`books` and `registry` stores, database `bookallm`
 - [Two indexes of one book exist during a rebuild] → About 3 to 4 MB of extra space for a novel; the old one is deleted the moment the new one completes.
 - [Vectors are text-derived and live in the browser's storage, which some webviews may evict] → The same "ask for persistent storage" request already covers all of the app's data, and losing an index only costs a re-run of indexing.
 - [Indexing on the main thread while the screen updates] → Every step awaits network or IndexedDB, so the page stays responsive. Move to a worker only if a real run shows jank.
+- [The new French text (17 messages for the indexing screen and its announcements) is written by the assistant and the user has deferred reading it] → It lives only in the language tables, so corrections are one edit each, and the archive summary flags it.
 - [Chapters with no chunks make "chapter k of n" skip numbers] → Counting only chapters that have text is the honest version, and it is stated in the spec.
 - [The README lists SQLite plus a vector extension or flat files as options] → IndexedDB records with one `Float32Array` per chapter are the flat-file option in the store the app already uses. Moving to SQLite later means implementing the same `VectorStore` contract.
 
