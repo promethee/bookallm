@@ -147,4 +147,22 @@ describe('the app shell', () => {
     const alert = await screen.findByRole('alert');
     expect(alert.textContent).toContain('pas assez de place');
   });
+
+  it('shows the indexing screen, with focus on its heading, for a book that needs indexing', async () => {
+    const { services } = await harness(
+      { ...READY, embedStall: true },
+      { language: 'en', books: [await bookOf('Candide')] },
+    );
+
+    const { unmount } = render(App, { props: { services } });
+
+    const heading = await screen.findByRole('heading', {
+      level: 1,
+      name: 'Getting to know your book',
+    });
+    expect(document.activeElement).toBe(heading);
+    expect(await screen.findByText('Chapter 1 of 1')).toBeTruthy();
+    // Closing the app stops the index instead of leaving it running.
+    unmount();
+  });
 });

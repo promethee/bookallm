@@ -129,6 +129,23 @@ export const en = {
     count === 1
       ? 'BookaLLM adds one book at a time, so only the first file was added. The other file was left out.'
       : `BookaLLM adds one book at a time, so only the first file was added. The other ${count} files were left out.`,
+  'indexing.title': 'Getting to know your book',
+  'indexing.forBook': 'Preparing “{title}” so you can ask questions about it.',
+  'indexing.intro':
+    'This is a one-time step and can take a few minutes for a long book. You can close BookaLLM at any time: it will continue where it stopped.',
+  'indexing.starting': 'Getting ready…',
+  'indexing.chapter': 'Chapter {current} of {total}',
+  'indexing.progressLabel': 'Preparation progress',
+  'indexing.resumed': 'Continuing where it stopped.',
+  'indexing.rebuild':
+    'The search model was changed, so BookaLLM is getting to know this book again.',
+  'indexing.error.unreachable':
+    'Ollama seems to have stopped. Make sure it is running, then try again. What was already done is kept.',
+  'indexing.error.notFound':
+    'Ollama does not have a model called “{name}”. Check the name of the search model, then try again.',
+  'indexing.error.diskSpace':
+    'There is not enough room to save this book. Free up some space, then try again. What was already done is kept.',
+  'indexing.error.other': 'The book could not be prepared.',
   'import.tryAnother': 'Try another file',
   'import.error.title': 'This book could not be added',
   'import.error.notEpub':
@@ -279,6 +296,24 @@ export const fr: Record<MessageKey, Message> = {
     count === 1
       ? 'BookaLLM n’ajoute qu’un livre à la fois : seul le premier fichier a été ajouté. L’autre fichier n’a pas été pris en compte.'
       : `BookaLLM n’ajoute qu’un livre à la fois : seul le premier fichier a été ajouté. Les ${count} autres fichiers n’ont pas été pris en compte.`,
+  'indexing.title': 'BookaLLM fait connaissance avec votre livre',
+  'indexing.forBook':
+    'Préparation de « {title} » pour que vous puissiez poser des questions dessus.',
+  'indexing.intro':
+    'C’est une étape à faire une seule fois, qui peut prendre quelques minutes pour un long livre. Vous pouvez fermer BookaLLM à tout moment : il reprendra là où il s’était arrêté.',
+  'indexing.starting': 'Préparation…',
+  'indexing.chapter': 'Chapitre {current} sur {total}',
+  'indexing.progressLabel': 'Progression de la préparation',
+  'indexing.resumed': 'On reprend là où l’on s’était arrêté.',
+  'indexing.rebuild':
+    'Le modèle de recherche a changé : BookaLLM refait connaissance avec ce livre.',
+  'indexing.error.unreachable':
+    'Ollama semble s’être arrêté. Vérifiez qu’il est lancé, puis réessayez. Ce qui a déjà été fait est conservé.',
+  'indexing.error.notFound':
+    'Ollama n’a pas de modèle appelé « {name} ». Vérifiez le nom du modèle de recherche, puis réessayez.',
+  'indexing.error.diskSpace':
+    'Il n’y a pas assez de place pour enregistrer ce livre. Libérez de l’espace, puis réessayez. Ce qui a déjà été fait est conservé.',
+  'indexing.error.other': 'Le livre n’a pas pu être préparé.',
   'import.tryAnother': 'Essayer un autre fichier',
   'import.error.title': 'Ce livre n’a pas pu être ajouté',
   'import.error.notEpub':

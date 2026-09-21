@@ -29,10 +29,10 @@
 
 ## 5. Screen and text
 
-- [ ] 5.1 Add English and French messages for the indexing screen, its failures, the resume and rebuild notes and the announcements, and verify the language table parity test passes and no message uses an em dash
-- [ ] 5.2 Add `IndexingScreen.svelte` (title, "chapter k of n", progress bar with value, min and max, one-time note, resume and rebuild lines, failure block with details and retry) and wire it into `App.svelte`, and verify component tests in both languages cover progress, resume, rebuild, each failure and the readable progress bar
-- [ ] 5.3 Update the "reading a book" wait wording only if it now contradicts the indexing screen, and verify the import screen tests still pass
-- [ ] 5.4 Commit checkpoint: "Add the indexing screen"
+- [x] 5.1 Add English and French messages for the indexing screen, its failures, the resume and rebuild notes and the announcements, and verify the language table parity test passes and no message uses an em dash
+- [x] 5.2 Add `IndexingScreen.svelte` (title, "chapter k of n", progress bar with value, min and max, one-time note, resume and rebuild lines, failure block with details and retry) and wire it into `App.svelte`, and verify component tests in both languages cover progress, resume, rebuild, each failure and the readable progress bar
+- [x] 5.3 Update the "reading a book" wait wording only if it now contradicts the indexing screen, and verify the import screen tests still pass
+- [x] 5.4 Commit checkpoint: "Add the indexing screen"
 
 ## 6. End to end
 

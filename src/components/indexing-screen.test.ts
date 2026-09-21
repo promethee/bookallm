@@ -1,0 +1,262 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { describe, expect, it, vi } from 'vitest';
+import { indexBook } from '../lib/indexing';
+import { makeIndexableBook } from '../lib/indexing/testing/books';
+import { createOllamaClient } from '../lib/ollama';
+import {
+  simulateOllama,
+  type OllamaState,
+} from '../lib/ollama/testing/simulated-ollama';
+import { CONTROLLER_KEY } from '../lib/onboarding/context';
+import type { OnboardingController } from '../lib/onboarding/controller.svelte';
+import {
+  harness,
+  READY,
+  type HarnessOptions,
+} from '../lib/onboarding/testing/harness';
+import { MemoryLibrary } from '../lib/storage';
+import IndexingScreen from './IndexingScreen.svelte';
+
+const withController = (controller: OnboardingController) => ({
+  context: new Map([[CONTROLLER_KEY, controller]]),
+});
+
+const bar = () => screen.getByRole('progressbar') as HTMLProgressElement;
+
+/** A controller for a book that needs indexing; `state` decides how Ollama behaves. */
+async function setup(
+  state: OllamaState,
+  options: HarnessOptions = {},
+  counts = [3, 3, 3],
+) {
+  const book = makeIndexableBook(counts);
+  return {
+    book,
+    ...(await harness(state, { language: 'en', books: [book], ...options })),
+  };
+}
+
+/** A library where the first chapter of `book` is already indexed. */
+async function halfIndexed(counts = [3, 3, 3]) {
+  const book = makeIndexableBook(counts);
+  const library = new MemoryLibrary();
+  await library.saveBook(book);
+  const earlier = simulateOllama({ ...READY, embedDropAfter: 1 });
+  await indexBook({
+    book,
+    model: 'bge-m3',
+    client: createOllamaClient({ fetch: earlier.fetch }),
+    store: library.vectors,
+  });
+  return { book, library };
+}
+
+describe('IndexingScreen: progress', () => {
+  it('shows the book, the chapter, a readable progress bar and the one-time note', async () => {
+    const { book, library } = await halfIndexed();
+    const { controller } = await harness(
+      { ...READY, embedStall: true },
+      { language: 'en', library },
+    );
+    const started = controller.start();
+    await vi.waitFor(() => expect(controller.indexState.kind).toBe('running'));
+
+    render(IndexingScreen, withController(controller));
+
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Getting to know your book',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Preparing “A Test Book” so you can ask questions about it.',
+      ),
+    ).toBeTruthy();
+    expect(await screen.findByText('Chapter 2 of 3')).toBeTruthy();
+    expect(screen.getByText('Continuing where it stopped.')).toBeTruthy();
+    expect(
+      screen.getByText(/one-time step and can take a few minutes/),
+    ).toBeTruthy();
+    expect(screen.getByText(/You can close BookaLLM at any time/)).toBeTruthy();
+    const progress = screen.getByRole('progressbar', {
+      name: 'Preparation progress',
+    }) as HTMLProgressElement;
+    expect(progress.value).toBe(3);
+    expect(progress.max).toBe(book.chunks.length);
+    controller.destroy();
+    await started;
+  });
+
+  it('says it is getting ready before the first numbers arrive', async () => {
+    const { controller } = await setup({ ...READY });
+
+    render(IndexingScreen, withController(controller));
+
+    expect(screen.getByText('Getting ready…')).toBeTruthy();
+    expect(bar().value).toBe(0);
+    controller.destroy();
+  });
+
+  it('does not say it is continuing or rebuilding for a first index', async () => {
+    const { controller } = await setup({ ...READY, embedStall: true });
+    const started = controller.start();
+    await vi.waitFor(() => expect(controller.indexState.kind).toBe('running'));
+
+    render(IndexingScreen, withController(controller));
+
+    await screen.findByText('Chapter 1 of 3');
+    expect(screen.queryByText('Continuing where it stopped.')).toBeNull();
+    expect(screen.queryByText(/search model was changed/)).toBeNull();
+    controller.destroy();
+    await started;
+  });
+
+  it('says the search model changed when it is a rebuild', async () => {
+    const state: OllamaState = {
+      ...READY,
+      installed: [...READY.installed, 'nomic-embed-text:latest'],
+    };
+    const { controller } = await setup(state, { indexed: true });
+    await controller.start();
+    state.embedStall = true;
+    const pending = controller.editModels({
+      chat: 'llama3.1:8b',
+      embedding: 'nomic-embed-text',
+    });
+    await vi.waitFor(() => expect(controller.indexState.kind).toBe('running'));
+
+    render(IndexingScreen, withController(controller));
+
+    expect(
+      await screen.findByText(
+        'The search model was changed, so BookaLLM is getting to know this book again.',
+      ),
+    ).toBeTruthy();
+    controller.destroy();
+    await pending;
+  });
+});
+
+describe('IndexingScreen: failures', () => {
+  it('says Ollama seems to have stopped and offers to try again', async () => {
+    const { controller } = await setup({ ...READY, embedDropAfter: 0 });
+    await controller.start();
+
+    render(IndexingScreen, withController(controller));
+
+    expect((await screen.findByRole('alert')).textContent).toContain(
+      'Ollama seems to have stopped.',
+    );
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    controller.destroy();
+  });
+
+  it('asks the reader to free some space when there is no room', async () => {
+    const { controller } = await setup({ ...READY });
+    controller.indexState = { kind: 'failed', error: { code: 'storage-full' } };
+
+    render(IndexingScreen, withController(controller));
+
+    expect(screen.getByRole('alert').textContent).toContain(
+      'There is not enough room to save this book. Free up some space',
+    );
+  });
+
+  it('asks the reader to check the search model name', async () => {
+    const { controller } = await setup({ ...READY });
+    await controller.start();
+    controller.indexState = {
+      kind: 'failed',
+      error: { code: 'model-not-found' },
+    };
+
+    render(IndexingScreen, withController(controller));
+
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Ollama does not have a model called “bge-m3”. Check the name of the search model',
+    );
+    controller.destroy();
+  });
+
+  it('says the book could not be prepared and keeps Ollama’s message under details', async () => {
+    const { controller } = await setup({ ...READY, embedWrongCount: true });
+    await controller.start();
+
+    render(IndexingScreen, withController(controller));
+
+    expect((await screen.findByRole('alert')).textContent).toContain(
+      'The book could not be prepared.',
+    );
+    expect(screen.getByText('Details')).toBeTruthy();
+    expect(screen.getByRole('alert').textContent).toContain('Expected');
+    controller.destroy();
+  });
+
+  it('keeps what was done and finishes when the reader presses try again', async () => {
+    const state: OllamaState = { ...READY, embedDropAfter: 1 };
+    const { controller, library, book } = await setup(state);
+    await controller.start();
+    render(IndexingScreen, withController(controller));
+    expect((await screen.findByRole('alert')).textContent).toContain('Ollama');
+    state.embedDropAfter = undefined;
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    await waitFor(() => expect(controller.screen).toBe('landing'));
+    expect(
+      (await library.vectors.savedChapters(book.hash, 'bge-m3:latest')).length,
+    ).toBe(3);
+    controller.destroy();
+  });
+});
+
+describe('IndexingScreen: in French', () => {
+  it('shows French words and numbers for a resumed index', async () => {
+    const { library } = await halfIndexed();
+    const { controller } = await harness(
+      { ...READY, embedStall: true },
+      { language: 'fr', library },
+    );
+    const started = controller.start();
+    await vi.waitFor(() => expect(controller.indexState.kind).toBe('running'));
+
+    render(IndexingScreen, withController(controller));
+
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'BookaLLM fait connaissance avec votre livre',
+      }),
+    ).toBeTruthy();
+    expect(await screen.findByText('Chapitre 2 sur 3')).toBeTruthy();
+    expect(
+      screen.getByText('On reprend là où l’on s’était arrêté.'),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('progressbar', {
+        name: 'Progression de la préparation',
+      }),
+    ).toBeTruthy();
+    controller.destroy();
+    await started;
+  });
+
+  it('shows a French failure with a French retry button', async () => {
+    const { controller } = await harness(
+      { ...READY, embedDropAfter: 0 },
+      { language: 'fr', books: [makeIndexableBook([2])] },
+    );
+    await controller.start();
+
+    render(IndexingScreen, withController(controller));
+
+    expect((await screen.findByRole('alert')).textContent).toContain(
+      'Ollama semble s’être arrêté.',
+    );
+    expect(screen.getByRole('button', { name: 'Réessayer' })).toBeTruthy();
+    controller.destroy();
+  });
+});

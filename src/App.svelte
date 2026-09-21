@@ -3,6 +3,7 @@
   import CheckingScreen from './components/CheckingScreen.svelte';
   import GetOllamaScreen from './components/GetOllamaScreen.svelte';
   import ImportScreen from './components/ImportScreen.svelte';
+  import IndexingScreen from './components/IndexingScreen.svelte';
   import LandingScreen from './components/LandingScreen.svelte';
   import LanguageScreen from './components/LanguageScreen.svelte';
   import LanguageSelect from './components/LanguageSelect.svelte';
@@ -53,6 +54,8 @@
       <UpdateOllamaScreen />
     {:else if controller.screen === 'pull-models'}
       <ModelsScreen />
+    {:else if controller.screen === 'index-book'}
+      <IndexingScreen />
     {:else if controller.screen === 'import-book'}
       <ImportScreen />
     {:else}
