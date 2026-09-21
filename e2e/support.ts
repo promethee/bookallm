@@ -3,20 +3,31 @@ import {
   buildEpub,
   type BuildEpubOptions,
 } from '../src/lib/ingest/testing/epub-builder';
+import { fakeEmbedding } from '../src/lib/ollama/testing/simulated-ollama';
 
 /** A pretend Ollama the tests can change while the app is running. */
 export interface MockOllama {
   /** Undefined means Ollama is not running: connections are refused. */
   version?: string;
   installed: string[];
-  requests: { method: string; path: string }[];
+  requests: { method: string; path: string; body?: string }[];
+  /** After this many embed requests, further ones fail like a dropped connection. */
+  embedDropAfter?: number;
+  /** Milliseconds each embed answer is held back, so progress can be watched. */
+  embedDelayMs?: number;
+  /** How many embed requests have arrived. */
+  embedCalls: number;
 }
 
 export const newMock = (overrides: Partial<MockOllama> = {}): MockOllama => ({
   installed: [],
   requests: [],
+  embedCalls: 0,
   ...overrides,
 });
+
+const withTag = (name: string) =>
+  (name.includes(':') ? name : `${name}:latest`).toLowerCase();
 
 const cors = {
   'access-control-allow-origin': '*',
@@ -38,7 +49,11 @@ export async function mockOllama(page: Page, state: MockOllama): Promise<void> {
       return route.fulfill({ status: 204, headers: cors });
 
     const { pathname } = new URL(request.url());
-    state.requests.push({ method: request.method(), path: pathname });
+    state.requests.push({
+      method: request.method(),
+      path: pathname,
+      body: request.postData() ?? undefined,
+    });
     if (!state.version) return route.abort('connectionrefused');
 
     if (pathname === '/api/version') {
@@ -47,6 +62,30 @@ export async function mockOllama(page: Page, state: MockOllama): Promise<void> {
     if (pathname === '/api/tags') {
       return route.fulfill({
         json: { models: state.installed.map((name) => ({ name })) },
+        headers: cors,
+      });
+    }
+    if (pathname === '/api/embed') {
+      const { model, input } = JSON.parse(request.postData() ?? '{}') as {
+        model: string;
+        input: string[];
+      };
+      state.embedCalls += 1;
+      if (
+        state.embedDropAfter !== undefined &&
+        state.embedCalls > state.embedDropAfter
+      )
+        return route.abort('connectionrefused');
+      if (state.embedDelayMs)
+        await new Promise((resolve) => setTimeout(resolve, state.embedDelayMs));
+      if (!state.installed.map(withTag).includes(withTag(model)))
+        return route.fulfill({
+          status: 404,
+          json: { error: `model "${model}" not found, try pulling it first` },
+          headers: cors,
+        });
+      return route.fulfill({
+        json: { model, embeddings: input.map((text) => fakeEmbedding(text)) },
         headers: cors,
       });
     }
@@ -101,6 +140,30 @@ export function epubFile(
     ...extra,
   });
   return { name, mimeType: 'application/epub+zip', buffer: Buffer.from(bytes) };
+}
+
+/** A generated EPUB with `chapters` short chapters, each of which becomes one chunk. */
+export function chaptersFile(
+  title: string,
+  chapters: number,
+  name = 'book.epub',
+) {
+  const documents = Array.from({ length: chapters }, (_, index) => ({
+    href: `c${index + 1}.xhtml`,
+    body: `<h1>Chapter ${index + 1}</h1><p>Words of chapter ${index + 1} tell of event ${index + 1}.</p>`,
+  }));
+  return epubFile(
+    title,
+    '',
+    {
+      documents,
+      toc: documents.map((document, index) => ({
+        title: `Chapter ${index + 1}`,
+        href: document.href,
+      })),
+    },
+    name,
+  );
 }
 
 /** A running, recent Ollama with both default models installed. */

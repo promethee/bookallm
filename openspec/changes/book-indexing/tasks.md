@@ -36,9 +36,9 @@
 
 ## 6. End to end
 
-- [ ] 6.1 Add `/api/embed` to the Playwright Ollama mock with the same switches and verify a Playwright test imports a book, sees progress, and reaches "Book added" once indexed
-- [ ] 6.2 Add Playwright tests for resume after a reload (only missing chapters requested), a rebuild after swapping the embedding model, failure then retry, and an already imported unindexed book indexing at start, and verify they pass together with the existing suite
-- [ ] 6.3 Commit checkpoint: "Add indexing end-to-end tests"
+- [x] 6.1 Add `/api/embed` to the Playwright Ollama mock with the same switches and verify a Playwright test imports a book, sees progress, and reaches "Book added" once indexed
+- [x] 6.2 Add Playwright tests for resume after a reload (only missing chapters requested), a rebuild after swapping the embedding model, failure then retry, and an already imported unindexed book indexing at start, and verify they pass together with the existing suite
+- [x] 6.3 Commit checkpoint: "Add indexing end-to-end tests"
 
 ## 7. Real-world checks
 
