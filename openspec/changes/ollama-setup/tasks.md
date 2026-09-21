@@ -18,10 +18,10 @@
 
 ## 3. Model checking and planning
 
-- [ ] 3.1 Implement model-name normalisation and the installed-list read; verify tests for `bge-m3` vs `bge-m3:latest`, case, and `llama3.1:8b` vs `llama3.1:70b`
-- [ ] 3.2 Implement `checkModels` reporting each required model as installed or missing, with a read failure as an `unreachable` error; verify tests for the partly-set-up case and a failed listing
-- [ ] 3.3 Implement `planDownloads`; verify tests for only-missing models, unknown sizes left out of the total, an empty plan, and that no request beyond the list is made
-- [ ] 3.4 Commit checkpoint: "Add model checking and download planning"
+- [x] 3.1 Implement model-name normalisation and the installed-list read; verify tests for `bge-m3` vs `bge-m3:latest`, case, and `llama3.1:8b` vs `llama3.1:70b`
+- [x] 3.2 Implement `checkModels` reporting each required model as installed or missing, with a read failure as an `unreachable` error; verify tests for the partly-set-up case and a failed listing
+- [x] 3.3 Implement `planDownloads`; verify tests for only-missing models, unknown sizes left out of the total, an empty plan, and that no request beyond the list is made
+- [x] 3.4 Commit checkpoint: "Add model checking and download planning"
 
 ## 4. Pulling models
 
