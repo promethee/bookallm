@@ -13,6 +13,13 @@ import type {
   RegistryEntry,
 } from '../ingest';
 import {
+  indexBook,
+  indexStatus,
+  type IndexError,
+  type IndexProgress,
+  type IndexStatus,
+} from '../indexing';
+import {
   checkSetup,
   installGuidance,
   type InstallGuidance,
@@ -29,7 +36,7 @@ import {
   type Settings,
   type StorageProblem,
 } from '../storage';
-import { decideScreen, type Screen } from './screens';
+import { decideScreen, type IndexNeed, type Screen } from './screens';
 import type { Services } from './services';
 
 /** A short note for screen readers, as a message key so it follows the language. */
@@ -60,6 +67,19 @@ export type PullState =
   | { status: 'running'; progress?: ModelPullProgress }
   | { status: 'cancelled'; progress?: ModelPullProgress }
   | { status: 'failed'; error: PullError; model?: string };
+
+export type IndexRunState =
+  | { kind: 'idle' }
+  | {
+      kind: 'running';
+      /** Undefined until the first numbers arrive. */
+      progress?: IndexProgress;
+      /** Some chapters were already saved, so this continues where it stopped. */
+      resumed: boolean;
+      /** The index is being rebuilt because the embedding model changed. */
+      rebuild: boolean;
+    }
+  | { kind: 'failed'; error: IndexError };
 
 const summaryOf = (book: Book): BookSummary => ({
   hash: book.hash,
@@ -98,6 +118,11 @@ export class OnboardingController {
   /** How many extra files were ignored because one book is imported at a time. */
   skippedFiles = $state(0);
   pull = $state.raw<PullState>({ status: 'idle' });
+  /** Whether the active book needs indexing for the configured embedding model. */
+  index = $state<IndexNeed>('unknown');
+  /** What is saved for the active book, as of the last time it was worked out. */
+  indexInfo = $state.raw<IndexStatus | undefined>(undefined);
+  indexState = $state.raw<IndexRunState>({ kind: 'idle' });
   /** The model names being edited on the confirmation screen. */
   modelDraft = $state.raw<RequiredModels>({ chat: '', embedding: '' });
   /** True when the last address the reader typed was not a valid web address. */
@@ -112,6 +137,7 @@ export class OnboardingController {
       language: this.settings.language,
       readiness: this.readiness,
       bookCount: this.books.length,
+      index: this.index,
       importPostponed: this.importPostponed,
       importRequested: this.importRequested,
     }),
@@ -126,6 +152,11 @@ export class OnboardingController {
 
   private timer: ReturnType<typeof setInterval> | undefined;
   private pullAbort: AbortController | undefined;
+  private indexAbort: AbortController | undefined;
+  /** True from the moment an index run starts until it ends, so it is never started twice. */
+  private indexing = false;
+  /** Which book and model `index` was worked out for, so unchanged answers are reused. */
+  private indexKey: string | undefined;
   private lastProgress: ModelPullProgress | undefined;
   private destroyed = false;
 
@@ -146,10 +177,11 @@ export class OnboardingController {
     if (this.settings.language) await this.runCheck();
   }
 
-  /** Stops the timer. Call when the app is torn down. */
+  /** Stops the timer and any running index. Call when the app is torn down. */
   destroy(): void {
     this.destroyed = true;
     this.stopPolling();
+    this.indexAbort?.abort();
   }
 
   // ---- language -----------------------------------------------------------------
@@ -185,11 +217,15 @@ export class OnboardingController {
     try {
       const client = this.services.createClient(this.settings.ollamaUrl);
       const readiness = await checkSetup(client, this.models());
-      if (!this.destroyed) this.readiness = readiness;
+      if (!this.destroyed) {
+        this.readiness = readiness;
+        if (readiness.step === 'ready') await this.ensureIndexNeed();
+      }
     } finally {
       this.checking = false;
       this.syncPolling();
     }
+    await this.syncIndexing();
   }
 
   /** Re-checks by hand, for the "check again" button. */
@@ -370,6 +406,8 @@ export class OnboardingController {
         this.announce('announce.importDone', {
           title: result.entry.title || file.name,
         });
+        await this.ensureIndexNeed();
+        await this.syncIndexing();
         return;
       case 'new':
         await this.saveAndActivate(result.book);
@@ -416,6 +454,8 @@ export class OnboardingController {
           book: summaryOf(book),
           existing: true,
         };
+        await this.ensureIndexNeed();
+        await this.syncIndexing();
         return;
       }
       this.importState = {
@@ -435,6 +475,112 @@ export class OnboardingController {
     this.announce('announce.importDone', {
       title: book.title || book.sourceFilename || '',
     });
+    await this.ensureIndexNeed();
+    await this.syncIndexing();
+  }
+
+  // ---- indexing the active book -------------------------------------------------------
+
+  /**
+   * Works out whether the active book has vectors for the configured embedding model.
+   * The answer is reused until the book or the model changes, or `force` is set, so the
+   * waiting screens' repeated checks do not reread the book every few seconds.
+   */
+  private async ensureIndexNeed(force = false): Promise<void> {
+    const entry = this.activeBook;
+    const model = this.models().embedding;
+    const key = `${entry?.hash ?? ''}|${model}`;
+    if (!force && this.index !== 'unknown' && key === this.indexKey) return;
+
+    const { library } = this.services.storage;
+    try {
+      const book = entry ? await library.getBook(entry.hash) : undefined;
+      if (!book) {
+        this.indexInfo = undefined;
+        this.index = 'ready';
+      } else {
+        const info = await indexStatus(book, model, library.vectors);
+        this.indexInfo = info;
+        this.index = info.state === 'complete' ? 'ready' : 'needed';
+      }
+      this.indexKey = key;
+    } catch {
+      // Saved vectors could not be read: let indexing run and report what is wrong.
+      this.indexInfo = undefined;
+      this.index = 'needed';
+      this.indexKey = key;
+    }
+  }
+
+  /**
+   * Indexes the active book when the indexing screen is showing and nothing is running.
+   * It starts by itself: the reader already chose this book, it downloads nothing, and it
+   * changes only the app's own index. After a failure it waits for `retryIndexing`.
+   */
+  private async syncIndexing(): Promise<void> {
+    if (this.destroyed || this.indexing) return;
+    if (this.screen !== 'index-book' || this.indexState.kind === 'failed')
+      return;
+    await this.runIndexing();
+  }
+
+  private async runIndexing(): Promise<void> {
+    this.indexing = true;
+    const abort = new AbortController();
+    this.indexAbort = abort;
+    try {
+      await this.ensureIndexNeed(true);
+      const entry = this.activeBook;
+      const info = this.indexInfo;
+      if (this.index !== 'needed' || !entry || !info) return;
+
+      const { library } = this.services.storage;
+      const book = await library.getBook(entry.hash);
+      if (!book) return;
+
+      this.indexState = {
+        kind: 'running',
+        resumed: info.chapterDone > 0,
+        rebuild: info.rebuild,
+      };
+      const result = await indexBook({
+        book,
+        model: this.models().embedding,
+        client: this.services.createClient(this.settings.ollamaUrl),
+        store: library.vectors,
+        signal: abort.signal,
+        onProgress: (progress) => {
+          if (this.indexState.kind === 'running')
+            this.indexState = { ...this.indexState, progress };
+        },
+      });
+
+      if (result.status === 'complete') {
+        this.indexState = { kind: 'idle' };
+        await this.ensureIndexNeed(true);
+        this.announce('announce.indexingDone', {
+          title: entry.title || entry.sourceFilename || '',
+        });
+      } else if (result.status === 'aborted') {
+        this.indexState = { kind: 'idle' };
+      } else {
+        this.indexState = { kind: 'failed', error: result.error };
+        this.announce('announce.indexingFailed');
+      }
+    } finally {
+      this.indexAbort = undefined;
+      this.indexing = false;
+    }
+  }
+
+  /**
+   * Tries again after a failure. The real state is checked first, so if Ollama stopped
+   * the flow goes back to the get-Ollama screen, and indexing resumes by itself once the
+   * state allows.
+   */
+  async retryIndexing(): Promise<void> {
+    this.indexState = { kind: 'idle' };
+    await this.runCheck();
   }
 
   // ---- helpers ----------------------------------------------------------------------

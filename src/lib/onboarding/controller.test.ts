@@ -77,6 +77,7 @@ describe('a returning reader', () => {
     const { controller, fake } = await harness(READY, {
       language: 'fr',
       books: [await bookOf('Candide')],
+      indexed: true,
     });
 
     await controller.start();
@@ -498,8 +499,9 @@ describe('importing a book', () => {
     expect(
       (await library.getBook(controller.books[0].hash))?.chapters,
     ).toHaveLength(1);
+    // The last thing announced is that the book is ready, after it was indexed.
     expect(controller.announcement).toEqual({
-      key: 'announce.importDone',
+      key: 'announce.indexingDone',
       params: { title: 'Candide' },
     });
     // The summary stays up until the reader continues.

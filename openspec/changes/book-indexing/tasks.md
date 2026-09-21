@@ -23,9 +23,9 @@
 
 ## 4. Flow and controller
 
-- [ ] 4.1 Add the `index` input and the `index-book` screen to `decideScreen` in the specified order and verify the table test covers unknown, needed and ready for every readiness step, no active book, and import requested
-- [ ] 4.2 Add index status, run state, retry and abort-on-destroy to the onboarding controller, computing status after a readiness check, after a book is saved or recognised and after the model names change, and verify controller tests with fake services cover import to done, resume at start, rebuild after a swap, each failure, retry with Ollama stopped and running, and destroy while running
-- [ ] 4.3 Commit checkpoint: "Wire indexing into the first-run flow"
+- [x] 4.1 Add the `index` input and the `index-book` screen to `decideScreen` in the specified order and verify the table test covers unknown, needed and ready for every readiness step, no active book, and import requested
+- [x] 4.2 Add index status, run state, retry and abort-on-destroy to the onboarding controller, computing status after a readiness check, after a book is saved or recognised and after the model names change, and verify controller tests with fake services cover import to done, resume at start, rebuild after a swap, each failure, retry with Ollama stopped and running, and destroy while running
+- [x] 4.3 Commit checkpoint: "Wire indexing into the first-run flow"
 
 ## 5. Screen and text
 

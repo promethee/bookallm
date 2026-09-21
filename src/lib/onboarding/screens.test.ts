@@ -21,6 +21,7 @@ const base: ScreenInput = {
   language: 'en',
   readiness: ready,
   bookCount: 1,
+  index: 'ready',
   importPostponed: false,
   importRequested: false,
 };
@@ -75,6 +76,61 @@ const cases: [string, Partial<ScreenInput>, Screen][] = [
     'missing models beat a requested import',
     { readiness: pull, importRequested: true },
     'pull-models',
+  ],
+  [
+    'everything ready but the book is not indexed',
+    { index: 'needed' },
+    'index-book',
+  ],
+  [
+    'an unindexed book beats a requested import',
+    { index: 'needed', importRequested: true },
+    'index-book',
+  ],
+  [
+    'an unindexed book beats the landing screen after a postponed import',
+    { index: 'needed', importPostponed: true },
+    'index-book',
+  ],
+  [
+    'ready but not yet known whether the book is indexed',
+    { index: 'unknown' },
+    'checking',
+  ],
+  [
+    'not yet known whether indexed, with no book',
+    { index: 'unknown', bookCount: 0 },
+    'checking',
+  ],
+  [
+    'missing models come before indexing',
+    { readiness: pull, index: 'needed' },
+    'pull-models',
+  ],
+  [
+    'a stopped Ollama comes before indexing',
+    { readiness: get, index: 'needed' },
+    'get-ollama',
+  ],
+  [
+    'an old Ollama comes before indexing',
+    { readiness: update, index: 'needed' },
+    'update-ollama',
+  ],
+  [
+    'the state of the index does not matter while Ollama is not ready',
+    { readiness: get, index: 'unknown' },
+    'get-ollama',
+  ],
+  [
+    'the language choice comes before everything, indexing included',
+    { language: undefined, index: 'needed' },
+    'language',
+  ],
+  [
+    'an indexed book and no request goes to the landing screen',
+    { index: 'ready' },
+    'landing',
   ],
 ];
 

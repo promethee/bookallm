@@ -193,6 +193,9 @@ describe('ImportScreen: waiting and the result', () => {
     expect(screen.getByText(/It is now your active book/)).toBeTruthy();
     expect(await library.registry.list()).toHaveLength(1);
     expect(controller.activeBook?.title).toBe('Candide');
+    // In the app the summary is only shown once the book is indexed; this screen is
+    // rendered on its own here, so wait for that before continuing.
+    await waitFor(() => expect(controller.index).toBe('ready'));
 
     await fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(controller.screen).toBe('landing');

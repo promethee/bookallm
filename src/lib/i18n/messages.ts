@@ -27,6 +27,8 @@ export const en = {
   'announce.downloadFailed': 'The download did not finish.',
   'announce.importDone': 'Imported: {title}',
   'announce.importFailed': 'The book could not be imported.',
+  'announce.indexingDone': 'Your book is ready: {title}',
+  'announce.indexingFailed': 'The book could not be prepared.',
 
   'storage.unavailable':
     'This device is not letting BookaLLM save anything, so your choices and books will be forgotten when you close it.',
@@ -175,6 +177,8 @@ export const fr: Record<MessageKey, Message> = {
   'announce.downloadFailed': 'Le téléchargement ne s’est pas terminé.',
   'announce.importDone': 'Importé : {title}',
   'announce.importFailed': 'Le livre n’a pas pu être importé.',
+  'announce.indexingDone': 'Votre livre est prêt : {title}',
+  'announce.indexingFailed': 'Le livre n’a pas pu être préparé.',
 
   'storage.unavailable':
     'Cet appareil ne permet pas à BookaLLM d’enregistrer quoi que ce soit : vos choix et vos livres seront oubliés à la fermeture.',

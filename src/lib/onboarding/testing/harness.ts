@@ -4,6 +4,7 @@ import {
   buildEpub,
   type BuildEpubOptions,
 } from '../../ingest/testing/epub-builder';
+import { indexBook } from '../../indexing';
 import { createOllamaClient } from '../../ollama';
 import {
   simulateOllama,
@@ -49,10 +50,29 @@ export async function bookOf(title: string, body?: string): Promise<Book> {
   return result.book;
 }
 
+/** Saves vectors for a book, as if the app had indexed it with the default embedding model. */
+export async function indexWithDefaults(
+  library: BookLibrary,
+  book: Book,
+): Promise<void> {
+  const fake = simulateOllama({
+    version: '0.34.0',
+    installed: [READY.installed[1]],
+  });
+  await indexBook({
+    book,
+    model: READY.installed[1],
+    client: createOllamaClient({ fetch: fake.fetch }),
+    store: library.vectors,
+  });
+}
+
 export interface HarnessOptions {
   language?: Language;
   systemLanguages?: string[];
   books?: Book[];
+  /** Also index every book in `books` with the default embedding model. */
+  indexed?: boolean;
   library?: BookLibrary;
   ingest?: Services['ingest'];
   nextFrame?: Services['nextFrame'];
@@ -72,7 +92,10 @@ export async function harness(
   const settings = new MemorySettings();
   if (options.language) settings.save({ language: options.language });
   const library = options.library ?? new MemoryLibrary();
-  for (const book of options.books ?? []) await library.saveBook(book);
+  for (const book of options.books ?? []) {
+    await library.saveBook(book);
+    if (options.indexed) await indexWithDefaults(library, book);
+  }
   const storage: AppStorage = { settings, library, booksProblem: undefined };
   const opened: string[] = [];
   const services: Services = {
