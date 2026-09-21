@@ -61,3 +61,4 @@ Grounded facts:
 - Found: nothing said what was happening after the last byte while Ollama verifies the model, so it looked frozen. Fixed with an explanation, an indeterminate bar and no cancel (spec: "The end of a download is explained").
 - Found: the window was blank for a few seconds at start, and after adding an in-page splash it was still blank until the webview loaded. Fixed with a splash in `index.html` and a window that stays hidden until the page has loaded (spec: "The window is never blank while the app starts").
 - The download button opens the official page in the default browser, an EPUB can be imported, and the book is still listed after closing and reopening the app.
+- The user read all 95 messages side by side and asked for four wording changes (no em dash, the privacy sentence, the skipped-files message, the advanced-settings title), all applied. They judged the rest fine for now; a native speaker's read is still welcome later.
