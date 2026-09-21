@@ -16,10 +16,10 @@
 
 ## 3. The indexer
 
-- [ ] 3.1 Add `indexStatus` (complete, partial with counts, none, plus whether another model's vectors exist) with model names normalised, and verify a table-driven test covers empty chapters, spelling of model names, partial and rebuild cases
-- [ ] 3.2 Add `indexBook` (group by chapter, skip saved chapters, embed in batches, validate, save per chapter, report progress, check the signal between requests) and verify tests cover full index, resume sending only missing chapters, nothing to do sending no request, progress on resume, and abort keeping saved chapters
-- [ ] 3.3 Cover model swap (old index kept until the new one completes, then deleted, and kept when interrupted), a changed vector length discarding stale vectors, the typed failures including storage full, and chunk text sent only to the configured address, and verify all pass
-- [ ] 3.4 Commit checkpoint: "Add the book indexer"
+- [x] 3.1 Add `indexStatus` (complete, partial with counts, none, plus whether another model's vectors exist) with model names normalised, and verify a table-driven test covers empty chapters, spelling of model names, partial and rebuild cases
+- [x] 3.2 Add `indexBook` (group by chapter, skip saved chapters, embed in batches, validate, save per chapter, report progress, check the signal between requests) and verify tests cover full index, resume sending only missing chapters, nothing to do sending no request, progress on resume, and abort keeping saved chapters
+- [x] 3.3 Cover model swap (old index kept until the new one completes, then deleted, and kept when interrupted), a changed vector length discarding stale vectors, the typed failures including storage full, and chunk text sent only to the configured address, and verify all pass
+- [x] 3.4 Commit checkpoint: "Add the book indexer"
 
 ## 4. Flow and controller
 
