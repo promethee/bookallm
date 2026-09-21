@@ -33,11 +33,11 @@
 
 ## 5. Orchestration
 
-- [ ] 5.1 Implement `pullMissingModels` (sequential, skips installed, names the model in progress, stops at the first failure or cancellation); verify tests for both missing, one installed, and stop-on-failure
-- [ ] 5.2 Implement `checkSetup` with the fixed step priority and no caching; verify a test per step, the disappears-while-checking case, and repeat checks reflecting new state
-- [ ] 5.3 Verify a substituted model name and a custom address flow through detection, checking, planning and pulling
-- [ ] 5.4 Export the public API from `src/lib/ollama/index.ts`; verify `pnpm typecheck` and `pnpm lint` pass
-- [ ] 5.5 Commit checkpoint: "Add Ollama setup readiness"
+- [x] 5.1 Implement `pullMissingModels` (sequential, skips installed, names the model in progress, stops at the first failure or cancellation); verify tests for both missing, one installed, and stop-on-failure
+- [x] 5.2 Implement `checkSetup` with the fixed step priority and no caching; verify a test per step, the disappears-while-checking case, and repeat checks reflecting new state
+- [x] 5.3 Verify a substituted model name and a custom address flow through detection, checking, planning and pulling
+- [x] 5.4 Export the public API from `src/lib/ollama/index.ts`; verify `pnpm typecheck` and `pnpm lint` pass
+- [x] 5.5 Commit checkpoint: "Add Ollama setup readiness"
 
 ## 6. Real Ollama check
 

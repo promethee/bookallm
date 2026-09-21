@@ -105,3 +105,12 @@ export interface OllamaClientOptions {
 export interface ModelPullProgress extends PullProgress {
   model: string;
 }
+
+/** Outcome of pulling every missing required model, one after another. */
+export type PullMissingResult =
+  /** Every missing model was downloaded (`pulled` may be empty if none were missing). */
+  | { status: 'success'; pulled: string[] }
+  /** The caller cancelled while `model` was downloading. */
+  | { status: 'cancelled'; pulled: string[]; model: string }
+  /** `model` failed to download; undefined when Ollama could not be reached to start. */
+  | { status: 'failed'; pulled: string[]; model?: string; error: PullError };

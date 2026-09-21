@@ -138,6 +138,24 @@ describe('pullModel cancellation and resume', () => {
     expect(updates.at(-1)?.phase).toBe('downloading');
   });
 
+  it('stops at once when cancelled, even if more lines were already buffered from the same chunk', async () => {
+    // All the lines arrive in one chunk, so they are all buffered when the first is handled.
+    const { client } = clientFor(pullRoute(...SUCCESS_LINES));
+    const controller = new AbortController();
+    const updates: PullProgress[] = [];
+
+    const result = await pullModel(client, 'x', {
+      signal: controller.signal,
+      onProgress: (progress) => {
+        updates.push(progress);
+        controller.abort();
+      },
+    });
+
+    expect(result).toEqual({ status: 'cancelled' });
+    expect(updates).toHaveLength(1);
+  });
+
   it('is cancelled without any request when the signal is already aborted', async () => {
     const { fake, client } = clientFor(pullRoute(...SUCCESS_LINES));
 

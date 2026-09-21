@@ -90,6 +90,8 @@ export async function pullModel(
 
     const tracker = createProgressTracker();
     for await (const line of readNdjson(response.body)) {
+      // Lines already buffered from one network chunk must not outlive a cancel.
+      if (signal?.aborted) return { status: 'cancelled' };
       const event = toPullEvent(line);
       if (!event) continue;
       if (event.error !== undefined)

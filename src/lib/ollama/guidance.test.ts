@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { installGuidance } from './guidance';
 import type { Platform } from './types';
