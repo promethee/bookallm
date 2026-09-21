@@ -25,11 +25,11 @@
 
 ## 4. Pulling models
 
-- [ ] 4.1 Implement the newline-delimited stream reader that survives lines split across chunks and a missing trailing newline; verify tests against the local HTTP server
-- [ ] 4.2 Implement progress aggregation across parts and the phase mapping, keeping the last phase on unknown status text; verify tests for multi-part sums, the fraction, and repeated progress events
-- [ ] 4.3 Implement `pullModel` success, plus `cancelled` on abort without deleting anything; verify tests for success, a cancel mid-stream, and a second pull after cancelling
-- [ ] 4.4 Implement failure mapping (`unreachable`, `model-not-found`, `insufficient-disk-space`, `pull-failed`), including an error line inside a 200 response and a dropped connection; verify one test per code
-- [ ] 4.5 Commit checkpoint: "Add model pulling"
+- [x] 4.1 Implement the newline-delimited stream reader that survives lines split across chunks and a missing trailing newline; verify tests against the local HTTP server
+- [x] 4.2 Implement progress aggregation across parts and the phase mapping, keeping the last phase on unknown status text; verify tests for multi-part sums, the fraction, and repeated progress events
+- [x] 4.3 Implement `pullModel` success, plus `cancelled` on abort without deleting anything; verify tests for success, a cancel mid-stream, and a second pull after cancelling
+- [x] 4.4 Implement failure mapping (`unreachable`, `model-not-found`, `insufficient-disk-space`, `pull-failed`), including an error line inside a 200 response and a dropped connection; verify one test per code
+- [x] 4.5 Commit checkpoint: "Add model pulling"
 
 ## 5. Orchestration
 
