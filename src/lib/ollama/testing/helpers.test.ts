@@ -229,6 +229,21 @@ describe('simulated embeddings', () => {
     });
   });
 
+  it('answers chosen texts with fixed vectors and every other text with the word-based ones', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+      embedFixed: { 'a chosen question': [1, 0, 0] },
+    };
+
+    const { embeddings } = (await (
+      await embed(state, ['a chosen question', 'The cat sat.'])
+    ).json()) as { embeddings: number[][] };
+
+    expect(embeddings[0]).toEqual([1, 0, 0]);
+    expect(embeddings[1]).toEqual(fakeEmbedding('The cat sat.'));
+  });
+
   it('can answer with one vector too few', async () => {
     const state: OllamaState = {
       version: '0.34.0',

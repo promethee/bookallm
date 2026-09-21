@@ -36,6 +36,8 @@ export interface OllamaState {
   embedStall?: boolean;
   /** After this many embed requests, further ones never answer until aborted. */
   embedStallAfter?: number;
+  /** Vectors to answer for exact texts; any other text gets the word-based fake vector. */
+  embedFixed?: Record<string, number[]>;
   /** How many embed requests have arrived. Kept by the simulator; tests may reset it. */
   embedCalls?: number;
 }
@@ -44,7 +46,7 @@ export interface OllamaState {
 export const DEFAULT_EMBED_DIMENSION = 8;
 
 /**
- * A stand-in for an embedding: a unit vector made from the words of the text, so equal
+ * A stand-in for an embedding: a unit vector made from the words and numbers of the text, so equal
  * texts give equal vectors and texts that share words are closer. Not a real model.
  */
 export function fakeEmbedding(
@@ -52,7 +54,7 @@ export function fakeEmbedding(
   dimension = DEFAULT_EMBED_DIMENSION,
 ): number[] {
   const vector = new Array<number>(dimension).fill(0);
-  for (const word of text.toLowerCase().match(/\p{L}+/gu) ?? []) {
+  for (const word of text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []) {
     let hash = 2166136261;
     for (const char of word) {
       hash = Math.imul(hash ^ char.codePointAt(0)!, 16777619) >>> 0;
@@ -101,8 +103,9 @@ export function simulateOllama(state: OllamaState): FakeFetch {
           { error: `model "${model}" not found, try pulling it first` },
           404,
         );
-      const embeddings = input.map((text) =>
-        fakeEmbedding(text, state.embedDimension),
+      const embeddings = input.map(
+        (text) =>
+          state.embedFixed?.[text] ?? fakeEmbedding(text, state.embedDimension),
       );
       if (state.embedWrongCount) embeddings.pop();
       return jsonResponse({ model, embeddings });

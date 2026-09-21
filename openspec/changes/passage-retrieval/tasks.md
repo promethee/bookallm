@@ -8,11 +8,11 @@
 
 ## 2. The retrieval function
 
-- [ ] 2.1 Let the simulated Ollama answer chosen texts with fixed vectors, and verify a test proves it and that the deterministic default still works for other texts
-- [ ] 2.2 Add `retrievePassages` (clean the question, require a complete index, embed with the configured model, read the saved vectors, score, rank, attach text and locators), and verify tests cover ranking order, locators equal to the chapter text at the range, an exact-text question ranking first, the default and small limits, and repeatable results
-- [ ] 2.3 Add the relevance verdict from the cutoff, and verify tests cover scores just below, at and above the cutoff, passages returned in both cases, and the verdict following the best passage only
-- [ ] 2.4 Cover the typed failures and cleaning: empty and untidy and very long questions, not indexed and partly indexed with no request sent, unreachable, model not found, unusable answer, index mismatch, abort, question sent only to the configured address, and nothing written to the store; verify all pass
-- [ ] 2.5 Commit checkpoint: "Add passage retrieval"
+- [x] 2.1 Let the simulated Ollama answer chosen texts with fixed vectors, and verify a test proves it and that the deterministic default still works for other texts
+- [x] 2.2 Add `retrievePassages` (clean the question, require a complete index, embed with the configured model, read the saved vectors, score, rank, attach text and locators), and verify tests cover ranking order, locators equal to the chapter text at the range, an exact-text question ranking first, the default and small limits, and repeatable results
+- [x] 2.3 Add the relevance verdict from the cutoff, and verify tests cover scores just below, at and above the cutoff, passages returned in both cases, and the verdict following the best passage only
+- [x] 2.4 Cover the typed failures and cleaning: empty and untidy and very long questions, not indexed and partly indexed with no request sent, unreachable, model not found, unusable answer, index mismatch, abort, question sent only to the configured address, and nothing written to the store; verify all pass
+- [x] 2.5 Commit checkpoint: "Add passage retrieval"
 
 ## 3. Real-world measurement
 
