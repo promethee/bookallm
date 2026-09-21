@@ -23,6 +23,6 @@
 
 ## 4. Wrap-up
 
-- [ ] 4.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate passage-retrieval --strict` passes
+- [x] 4.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate passage-retrieval --strict` passes
 - [ ] 4.2 With the user's approval to push, verify CI is green on the pushed branch
 - [ ] 4.3 Commit checkpoint: "Finish passage-retrieval", then archive the change

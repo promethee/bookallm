@@ -248,4 +248,6 @@ works end to end in English and French: Ollama detection and guidance,
 model download, EPUB import (with DRM and duplicate detection), local
 storage of books, and indexing of the active book with the local
 embedding model (resumable, with live progress and a time estimate).
-Searching the index, Ask mode and chat are not built yet.
+Finding the passages that answer a question (with exact locators and a
+measured relevance verdict) works as a library. The answer with
+citations, Ask mode's screen and chat are not built yet.
