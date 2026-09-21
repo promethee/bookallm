@@ -8,10 +8,10 @@
 
 ## 2. Interface language foundation
 
-- [ ] 2.1 Create the language state and `t(key, params)` in `src/lib/i18n/` with English as the source table, French typed against the same keys, an English fallback, and a start set of shared keys; verify tests for lookup, `{name}` slots, plural functions, the English fallback and that a missing key never renders as a key
-- [ ] 2.2 Implement language detection from `navigator.languages` (French if the first matching entry starts with `fr`, else English) and `formatBytes` using `Intl.NumberFormat` byte units; verify tests that 4.9 GB reads "4.9 GB" in English and "4,9 Go" in French, and that unknown system languages give English
-- [ ] 2.3 Add a test that compares the key sets of both languages and fails on any difference; verify it passes now and fails when a key is removed from one table
-- [ ] 2.4 Commit checkpoint: "Add interface language foundation"
+- [x] 2.1 Create the language state and `t(key, params)` in `src/lib/i18n/` with English as the source table, French typed against the same keys, an English fallback, and a start set of shared keys; verify tests for lookup, `{name}` slots, plural functions, the English fallback and that a missing key never renders as a key
+- [x] 2.2 Implement language detection from `navigator.languages` (French if the first matching entry starts with `fr`, else English) and `formatBytes` using `Intl.NumberFormat` byte units; verify tests that 4.9 GB reads "4.9 GB" in English and "4,9 Go" in French, and that unknown system languages give English
+- [x] 2.3 Add a test that compares the key sets of both languages and fails on any difference; verify it passes now and fails when a key is removed from one table
+- [x] 2.4 Commit checkpoint: "Add interface language foundation"
 
 ## 3. Persistence
 
