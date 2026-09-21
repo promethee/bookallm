@@ -73,3 +73,12 @@ Kept from the decision on a changed embedding model, not built now:
 - Correctness: all 38 chunks got one vector each, 1,024 numbers long. The integrity proxy found 34 of 34 sampled chunks by their opening sentence in the top 3 (31 as the top result).
 - Found and fixed: a flat two-minute request limit falsely reported "Ollama stopped" (16 chunks take about 6 minutes here) and 16-chunk requests left the progress bar still for that long. Requests now hold 4 chunks and the limit grows with the number of texts.
 - Found and resolved with the user (option A): the screen said indexing "can take a few minutes for a long book", which is false on a slow computer. The note now says "from a few minutes to a few hours", and after 8 chunks the screen shows a rounded estimate of the time left (decision 11).
+
+### The real app in the browser against the real Ollama
+
+Checked with a 3-chapter, 13-chunk EPUB made from the first chapters of the real Pride and Prejudice, in a fresh browser profile.
+
+- Import led to the indexing screen: "Getting to know your book", "Chapter 1 of 3", the "from a few minutes to a few hours" note, and "Working out how long this will take…". The bar first moved after about 2.5 minutes (model load plus the first four chunks) and then after each batch.
+- Reloading part-way resumed with "Continuing where it stopped." on chapter 3 of 3 (chapters 1 and 2 were kept), then finished and went to the landing screen. IndexedDB was at version 2 with three chapter records for `bge-m3:latest`, 13 chunks in all, each vector 1,024 numbers long.
+- Time left: it appeared once 9 chunks were done (the first count of 8 or more, since the batch is 4 chunks), saying "About 2 minutes left." with 4 chunks to go. The rest took about 110 seconds.
+- Changing the saved search model to `qwen2.5:0.5b` and reloading showed the rebuild note ("The search model was changed…"). That model cannot make embeddings (Ollama answers 501 "This server does not support embeddings"), so the real failure path showed "The book could not be prepared." with Ollama's message under Details, the old `bge-m3` index was still there afterwards, and switching the setting back went straight to the landing screen with no embedding request. A successful rebuild with a real second embedding model was not run here (none is installed, and downloading one was not approved); it is covered by the unit and end-to-end tests.
