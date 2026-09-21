@@ -102,7 +102,7 @@ The system SHALL move keyboard focus to the new screen's heading whenever the sc
 
 ### Requirement: The window is never blank while the app starts
 
-The system SHALL show a splash with the app name, an activity indicator and a short "starting" message from the first paint until the first screen is ready, in the system's language when it is French and in English otherwise. It SHALL replace the splash with the first screen once the app is running. If the app cannot start, it SHALL replace the indicator with a message asking the reader to close and reopen the app.
+The system SHALL show a splash with the app name, an activity indicator and a short "starting" message from the first paint until the first screen is ready, in the system's language when it is French and in English otherwise. It SHALL replace the splash with the first screen once the app is running. The desktop window SHALL stay hidden until that splash has loaded, and SHALL appear anyway after three seconds if the page has not finished loading. If the app cannot start, it SHALL replace the indicator with a message asking the reader to close and reopen the app.
 
 #### Scenario: Slow start
 
@@ -118,3 +118,13 @@ The system SHALL show a splash with the app name, an activity indicator and a sh
 
 - **WHEN** the app cannot start
 - **THEN** the splash says so and asks the reader to close and reopen the app
+
+#### Scenario: Window appears with content
+
+- **WHEN** the desktop app is launched
+- **THEN** its window appears with the splash already showing, never as an empty window
+
+#### Scenario: Page slow to load
+
+- **WHEN** the page has not finished loading three seconds after launch
+- **THEN** the window is shown anyway

@@ -15,7 +15,8 @@
         "title": "BookaLLM",
         "width": 900,
         "height": 700,
-        "dragDropEnabled": false
+        "dragDropEnabled": false,
+        "visible": false
       }
     ],
     "security": {
