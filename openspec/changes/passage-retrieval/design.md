@@ -28,7 +28,7 @@ Books are indexed chapter by chapter: for each chapter with chunks, the vector s
 
 5. **The verdict.** `relevant` when the best score is at or above `RELEVANCE_CUTOFF`, else `nothing-relevant`. The passages are returned either way, so the caller can still show them or use them for the README's "point me to where it comes up" flow. The verdict is deliberately about the best passage only: a good answer needs one good passage. The wording shown to the reader ("I can't find anything about that", never "this isn't in the book") belongs to the Ask-mode change.
 
-6. **Choosing the cutoff from data.** A manual, environment-guarded test indexes the first chapters of the real Pride and Prejudice with the real `bge-m3`, caches the vectors in a file (an index that stops can resume, and tuning costs no more embedding), and prints for each question the best scores and passages. Questions come in three groups: answered by the indexed chapters (with a keyword the best passage should contain), unrelated to the book, and about the book's subject but not in the indexed part. The cutoff goes in the gap between the lowest answered best score and the highest unrelated best score, and the third group shows how fuzzy that gap is. The values, the gap and the limits (one book, part of it, one language, one model) go into this design. The constant is provisional until then.
+6. **Choosing the cutoff from data.** A manual, environment-guarded test indexes the first chapters of the real Pride and Prejudice with the real `bge-m3`, caches the vectors in a file (an index that stops can resume, and tuning costs no more embedding), and prints for each question the best scores and passages. Questions come in three groups: answered by the indexed chapters (with the chapter that should come back), unrelated to the book, and about the book's subject but not in the indexed part. The cutoff goes in the gap between the lowest answered best score and the highest unrelated best score, and the third group shows how fuzzy that gap is. The values, the gap and the limits (one book, part of it, one language, one model) go into this design. The measurement is recorded below and the constant now holds the measured value.
 
 7. **Tests and fakes.** The simulated Ollama can be given fixed vectors for chosen texts, so unit tests control every score: ranking order, ties, the default and small limits, exact-text questions ranking first, the verdict on either side of the cutoff, index mismatch, the typed failures, an aborted request, and nothing being written to the store. The retrieval function itself needs no Ollama and no browser.
 
@@ -44,6 +44,22 @@ Books are indexed chapter by chapter: for each chapter with chunks, the vector s
 
 None. No stored data or storage format changes.
 
-## Open Questions
+## Real-world measurement (the user's Ollama 0.34.0, real `bge-m3`, real Pride and Prejudice)
 
-- The exact cutoff value and the default number of passages are settled by the real measurement and recorded here afterwards; they do not change the specs or the task breakdown.
+**Setup.** Chapters I to XIII of the real EPUB (table-of-contents entries 3 to 15, the front matter left out): 100 chunks, embedded in about 20 minutes (about 14 seconds a chunk after the CPU hogs on the machine were ended). Scores are the best cosine similarity per question, from `real-retrieval.manual.test.ts`, which keeps the vectors in a cache file so it can be rerun without embedding the book again.
+
+**Answered by the indexed chapters (10 questions), best score:** 0.5323 who has taken Netherfield Park; 0.6003 why Darcy refused to dance; 0.6679 what Darcy says about Elizabeth at the ball; 0.5953 where Bingley's fortune came from; 0.5470 who Sir William Lucas is; 0.6355 why Jane goes on horseback in the rain; 0.5247 Mr. Bennet's estate and heir; 0.5755 Charlotte Lucas on showing affection; 0.6202 how the Bingley sisters treat Elizabeth; 0.5919 what Mr. Collins writes. Range 0.5247 to 0.6679. The expected chapter was among the top 3 passages for 9 of 10; the miss was Darcy's remark about Elizabeth (the top 3 came from chapters VI and IX, not chapter III).
+
+**Unrelated (6 questions), best score:** photosynthesis 0.3604; capital of Japan 0.3450; installing a Python package 0.3287; boiling point of water 0.3482; the 2018 football world cup 0.3806; a chocolate cake recipe 0.3869. Range 0.3287 to 0.3869.
+
+**About the book but not in the indexed part (4 questions), best score:** Pemberley 0.5884; who Lydia runs away with 0.4676; Elizabeth's answer to Darcy's first proposal 0.6716; Lady Catherine de Bourgh in her garden 0.5058. Range 0.4676 to 0.6716.
+
+**Result.** The gap between the lowest answered (0.5247) and the highest unrelated (0.3869) is 0.1378, with its midpoint at 0.4558. The cutoff is set to 0.46: 0.0653 above the highest unrelated question and 0.0647 below the lowest answered one.
+
+**Limits, stated plainly.**
+
+- One English novel, 100 chunks of it, one model, 20 hand-written questions. A different book, language or model means measuring again.
+- The verdict separates "about something else" from "about this book". It does not separate "about this book but not answered here": three of the four such questions scored as high as answered ones, because they share the book's names and vocabulary (Darcy, Elizabeth, Pemberley). Only the answer step, reading the passages, can judge that, and the Ask-mode change must not treat `relevant` as "the answer is here".
+- The best passage was in the top 3 for 9 of 10 answered questions; the number of passages (5) was not tuned separately and only the top 3 were printed.
+- Ranking quality is the model's: the missed question shows a real weakness of embeddings for a remark like "she is tolerable", which is why every passage carries its exact locator for the reader to check.
+

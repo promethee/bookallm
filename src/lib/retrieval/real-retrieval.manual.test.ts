@@ -6,6 +6,7 @@ import type { ChapterVectors } from '../indexing';
 import { ingestEpub, InMemoryRegistry } from '../ingest';
 import { createOllamaClient } from '../ollama';
 import { MemoryVectorStore } from '../storage/memory-vectors';
+import { RELEVANCE_CUTOFF } from './defaults';
 import { retrievePassages } from './retrieve';
 import type { RetrievalResult } from './types';
 
@@ -241,6 +242,9 @@ describe.skipIf(!baseUrl || !epubPath)(
           `gap between the lowest answered (${lowestAnswered.toFixed(4)}) and the highest unrelated (${highestUnrelated.toFixed(4)}): ${(lowestAnswered - highestUnrelated).toFixed(4)}; midpoint ${((lowestAnswered + highestUnrelated) / 2).toFixed(4)}`,
         );
         expect(lowestAnswered).toBeGreaterThan(highestUnrelated);
+        // The cutoff in use sits in that gap, so the verdict agrees with the measurement.
+        expect(lowestAnswered).toBeGreaterThanOrEqual(RELEVANCE_CUTOFF);
+        expect(highestUnrelated).toBeLessThan(RELEVANCE_CUTOFF);
       },
     );
   },
