@@ -41,6 +41,20 @@ export function formatMinutes(minutes: number, language: Language): string {
     .join(' ');
 }
 
+/**
+ * Progress as a percentage with two decimals ("13.74%", French "13,74 %"). The value is
+ * rounded down, never up, so a nearly finished job never reads "100.00%" before it is
+ * done. The result is clamped between 0 and 1.
+ */
+export function formatProgress(fraction: number, language: Language): string {
+  const clamped = Math.min(1, Math.max(0, fraction));
+  return new Intl.NumberFormat(language, {
+    style: 'percent',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Math.floor(clamped * 10_000 + 1e-9) / 10_000);
+}
+
 /** A whole-number percentage such as "28 %" (French) or "28%" (English). */
 export function formatPercent(fraction: number, language: Language): string {
   return new Intl.NumberFormat(language, {

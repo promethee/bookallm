@@ -1,4 +1,9 @@
-export { formatBytes, formatMinutes, formatPercent } from './format';
+export {
+  formatBytes,
+  formatMinutes,
+  formatPercent,
+  formatProgress,
+} from './format';
 export {
   detectLanguage,
   isLanguage,

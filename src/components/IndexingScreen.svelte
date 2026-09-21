@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatMinutes, getLanguage, t } from '../lib/i18n';
+  import { formatMinutes, formatProgress, getLanguage, t } from '../lib/i18n';
   import { roundRemaining } from '../lib/indexing';
   import { getController } from '../lib/onboarding/context';
   import Button from './Button.svelte';
@@ -60,14 +60,31 @@
       <p class="text-sm text-slate-700">{t('indexing.resumed')}</p>
     {/if}
 
-    <p class="font-medium text-slate-900">
-      {progress
-        ? t('indexing.chapter', {
-            current: progress.chapterPosition,
-            total: progress.chapterTotal,
-          })
-        : t('indexing.starting')}
-    </p>
+    <div class="flex items-center justify-between gap-3 text-slate-900">
+      <p class="flex items-center gap-2 font-medium">
+        {#if run.kind === 'running'}
+          <!-- Shows the work is going on between updates; still for reduced motion. -->
+          <span
+            aria-hidden="true"
+            class="inline-block size-4 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-700 motion-reduce:animate-none"
+          ></span>
+        {/if}
+        {progress
+          ? t('indexing.chapter', {
+              current: progress.chapterPosition,
+              total: progress.chapterTotal,
+            })
+          : t('indexing.starting')}
+      </p>
+      <p class="font-medium tabular-nums">
+        {formatProgress(
+          progress && progress.chunksTotal > 0
+            ? progress.chunksDone / progress.chunksTotal
+            : 0,
+          getLanguage(),
+        )}
+      </p>
+    </div>
     <progress
       class="w-full"
       aria-label={t('indexing.progressLabel')}

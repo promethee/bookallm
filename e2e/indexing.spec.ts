@@ -67,6 +67,9 @@ test.describe('indexing a book', () => {
     const bar = page.getByRole('progressbar', { name: 'Preparation progress' });
     await expect(bar).toBeVisible();
     await expect(bar).toHaveAttribute('max', '4');
+    // One chunk per chapter here, so the percentage climbs in steps of 25.00%.
+    await expect(page.getByText('25.00%')).toBeVisible(LATER);
+    await expect(page.getByText('50.00%')).toBeVisible(LATER);
     await expect(heading(page, 'Book added')).toBeVisible(LATER);
     await expect(page.getByText('Candide', { exact: true })).toBeVisible();
     expect(embedBodies(ollama.requests)).toHaveLength(4);

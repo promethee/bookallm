@@ -8,12 +8,17 @@ Shows the reader that BookaLLM is getting to know their book, how far along it i
 
 ### Requirement: The reader sees real progress while a book is indexed
 
-The system SHALL, while the active book is being indexed, show the book's title, which chapter is being indexed out of how many, and a progress bar that assistive technology can read. It SHALL say in plain words that this is a one-time step that can take from a few minutes to a few hours depending on the computer and the length of the book, and that closing the app is safe because it continues where it stopped. Numbers SHALL follow the reader's language.
+The system SHALL, while the active book is being indexed, show the book's title, which chapter is being indexed out of how many, the share of chunks done as a percentage with two decimals, a progress bar that assistive technology can read, and a small activity animation that shows the work is going on between updates (still, for readers who prefer reduced motion). It SHALL say in plain words that this is a one-time step that can take from a few minutes to a few hours depending on the computer and the length of the book, and that closing the app is safe because it continues where it stopped. Numbers SHALL follow the reader's language.
 
 #### Scenario: Watching an index
 
 - **WHEN** a book is being indexed
 - **THEN** the screen shows its title, "chapter 4 of 22" style progress, a progress bar and the one-time note that says how long it can take
+
+#### Scenario: A percentage that moves with the work
+
+- **WHEN** another chunk has been embedded
+- **THEN** the percentage shown is that number of chunks out of all the chunks that need vectors, to two decimals, rounded down so it never shows 100.00% before the work is done
 
 #### Scenario: Progress bar for assistive technology
 

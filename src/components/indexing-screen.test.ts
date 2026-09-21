@@ -48,7 +48,8 @@ async function halfIndexed(counts = [3, 3, 3]) {
   const book = makeIndexableBook(counts);
   const library = new MemoryLibrary();
   await library.saveBook(book);
-  const earlier = simulateOllama({ ...READY, embedDropAfter: 1 });
+  // One chunk per request: three requests save the first chapter of three chunks.
+  const earlier = simulateOllama({ ...READY, embedDropAfter: 3 });
   await indexBook({
     book,
     model: 'bge-m3',
@@ -205,7 +206,8 @@ describe('IndexingScreen: failures', () => {
   });
 
   it('keeps what was done and finishes when the reader presses try again', async () => {
-    const state: OllamaState = { ...READY, embedDropAfter: 1 };
+    // Three requests save the first chapter of three chunks; the fourth fails.
+    const state: OllamaState = { ...READY, embedDropAfter: 3 };
     const { controller, library, book } = await setup(state);
     await controller.start();
     render(IndexingScreen, withController(controller));
@@ -357,6 +359,94 @@ describe('IndexingScreen: the time left', () => {
     expect(
       screen.getByText(/Elle peut durer de quelques minutes à quelques heures/),
     ).toBeTruthy();
+    controller.destroy();
+  });
+});
+
+describe('IndexingScreen: percentage and activity', () => {
+  async function showing(
+    chunksDone: number,
+    chunksTotal: number,
+    language: 'en' | 'fr' = 'en',
+    kind: 'running' | 'failed' = 'running',
+  ) {
+    const { controller } = await setup({ ...READY }, { language });
+    setLanguage(language);
+    controller.indexState =
+      kind === 'running'
+        ? {
+            kind: 'running',
+            resumed: false,
+            rebuild: false,
+            progress: {
+              chapterPosition: 2,
+              chapterTotal: 5,
+              chunksDone,
+              chunksTotal,
+            },
+          }
+        : { kind: 'failed', error: { code: 'unreachable' } };
+    render(IndexingScreen, withController(controller));
+    return controller;
+  }
+
+  const bodyText = () => document.body.textContent!.replace(/\s/g, ' ');
+
+  it('shows the share of chunks done with two decimals', async () => {
+    const controller = await showing(1374, 10_000);
+
+    expect(bodyText()).toContain('13.74%');
+    controller.destroy();
+  });
+
+  it('follows every finished chunk', async () => {
+    const controller = await showing(90, 657);
+    expect(bodyText()).toContain('13.69%');
+    controller.destroy();
+    cleanup();
+
+    const next = await showing(91, 657);
+    expect(bodyText()).toContain('13.85%');
+    next.destroy();
+  });
+
+  it('never shows 100.00% before the work is done', async () => {
+    const controller = await showing(656, 657);
+
+    expect(bodyText()).toContain('99.84%');
+    expect(bodyText()).not.toContain('100.00%');
+    controller.destroy();
+  });
+
+  it('starts at 0.00% before any chunk is done', async () => {
+    const { controller } = await setup({ ...READY });
+    render(IndexingScreen, withController(controller));
+
+    expect(bodyText()).toContain('0.00%');
+    controller.destroy();
+  });
+
+  it('writes the percentage the French way', async () => {
+    const controller = await showing(1374, 10_000, 'fr');
+
+    expect(bodyText()).toContain('13,74 %');
+    controller.destroy();
+  });
+
+  it('shows an activity animation that assistive technology skips, and stops it for reduced motion', async () => {
+    const controller = await showing(10, 100);
+
+    const spinner = document.querySelector('.animate-spin');
+    expect(spinner).not.toBeNull();
+    expect(spinner!.getAttribute('aria-hidden')).toBe('true');
+    expect(spinner!.className).toContain('motion-reduce:animate-none');
+    controller.destroy();
+  });
+
+  it('shows no animation once it has failed', async () => {
+    const controller = await showing(10, 100, 'en', 'failed');
+
+    expect(document.querySelector('.animate-spin')).toBeNull();
     controller.destroy();
   });
 });

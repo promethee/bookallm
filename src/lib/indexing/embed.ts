@@ -5,10 +5,12 @@ import type { EmbedResult, IndexError } from './types';
  * How many texts go in one request. Embedding time grows in step with the number of
  * texts, so a bigger batch is not faster; it only makes progress move less often. On a
  * real, busy laptop without a graphics card one 1,000-character chunk took about 21
- * seconds, and 16 of them took almost 6 minutes with nothing to show. Four keeps the
- * progress bar moving on slow machines and costs little on fast ones.
+ * seconds, and 16 of them took almost 6 minutes with nothing to show. One per request
+ * lets the progress change each time a chunk really finishes. The price is one request of
+ * overhead per chunk, which has not been measured on a computer with a graphics card, so
+ * this stays one constant that is easy to raise.
  */
-export const EMBED_BATCH_SIZE = 4;
+export const EMBED_BATCH_SIZE = 1;
 
 /** The least time one request may take before Ollama counts as not answering. */
 export const EMBED_MIN_TIMEOUT_MS = 120_000;

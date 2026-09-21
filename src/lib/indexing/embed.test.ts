@@ -211,8 +211,8 @@ describe('embedTexts', () => {
     expect(fake.requests).toHaveLength(0);
   });
 
-  it('sends 4 texts at most per request, so progress moves on slow computers', () => {
-    expect(EMBED_BATCH_SIZE).toBe(4);
+  it('sends one text per request, so progress moves with every finished chunk', () => {
+    expect(EMBED_BATCH_SIZE).toBe(1);
   });
 
   it('allows more time for more texts, so a slow but working Ollama is not called stopped', () => {

@@ -48,9 +48,10 @@
 - [x] 7.1 With the user's approval to start their Ollama, add `real-index.manual.test.ts` (skipped unless an environment variable is set), run it against the real `bge-m3` and the real Pride and Prejudice, and record the timing, the vector length and the integrity result (opening sentence of sampled chunks finds its own chunk in the top 3)
 - [x] 7.2 Fix what the first real run found: with about 21 seconds per chunk on the user's busy laptop, a flat two-minute request limit falsely reported "Ollama stopped" and 16-chunk requests left the bar still for about 6 minutes, so requests hold 4 chunks and the limit grows with the number of texts, and verify the unit tests cover the new limits
 - [x] 7.3 Drive the running app in the browser against the real Ollama: import the real book, watch real progress, reload part way and confirm it resumes, swap the embedding model name and confirm the rebuild, then stop the server and record the result
-- [ ] 7.4 With the user, run `pnpm tauri dev` and confirm in the real window that indexing shows, that closing part way and reopening resumes, and that a book imported before this change is indexed at start; record the result
-- [ ] 7.5 Ask the user to skim the new French text and record any corrections
-- [ ] 7.6 Commit checkpoint: "Record real-world indexing checks"
+- [x] 7.4 Show finer progress as the user asked: one chunk per request, a percentage with two decimals (rounded down) next to the chapter, and a small activity animation that stops for reduced motion, and verify unit, component and end-to-end tests cover the percentage moving per chunk, never showing 100.00% early, both languages and the animation being hidden from assistive technology
+- [ ] 7.5 With the user, run `pnpm tauri dev` and confirm in the real window that indexing shows, that closing part way and reopening resumes, and that a book imported before this change is indexed at start; record the result
+- [ ] 7.6 Ask the user to skim the new French text and record any corrections
+- [ ] 7.7 Commit checkpoint: "Record real-world indexing checks"
 
 ## 8. Wrap-up
 

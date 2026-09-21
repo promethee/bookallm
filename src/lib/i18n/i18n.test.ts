@@ -1,6 +1,11 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatBytes, formatMinutes, formatPercent } from './format';
+import {
+  formatBytes,
+  formatMinutes,
+  formatPercent,
+  formatProgress,
+} from './format';
 import { detectLanguage, isLanguage } from './language';
 import { en, fr, type MessageKey } from './messages';
 import { getLanguage, setLanguage, t } from './state.svelte';
@@ -114,6 +119,31 @@ describe('formatBytes and formatPercent', () => {
   it('keeps a percentage between 0 and 100', () => {
     expect(plain(formatPercent(1.4, 'en'))).toBe('100%');
     expect(plain(formatPercent(-1, 'en'))).toBe('0%');
+  });
+});
+
+describe('formatProgress', () => {
+  it.each([
+    [0, 'en', '0.00%'],
+    [0.1374, 'en', '13.74%'],
+    [0.13749, 'en', '13.74%'],
+    [0.5, 'fr', '50,00 %'],
+    [0.1374, 'fr', '13,74 %'],
+    [1, 'en', '100.00%'],
+    [1.5, 'en', '100.00%'],
+    [-1, 'en', '0.00%'],
+  ] as const)('writes %f in %s as "%s"', (fraction, language, expected) => {
+    expect(plain(formatProgress(fraction, language))).toBe(expected);
+  });
+
+  it('never rounds up to 100.00% before the work is done', () => {
+    expect(plain(formatProgress(999_999 / 1_000_000, 'en'))).toBe('99.99%');
+    expect(plain(formatProgress(656 / 657, 'en'))).toBe('99.84%');
+  });
+
+  it('shows a whole number of chunks out of 657 exactly, not a rounded neighbour', () => {
+    // 90 / 657 = 13.698...%
+    expect(plain(formatProgress(90 / 657, 'en'))).toBe('13.69%');
   });
 });
 
