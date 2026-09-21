@@ -417,6 +417,7 @@ describe('ImportScreen: a failed save leaves nothing half-saved', () => {
       memory,
       library: {
         registry: memory.registry,
+        vectors: memory.vectors,
         saveBook: () => Promise.reject(error),
         getBook: (hash) => memory.getBook(hash),
         close: () => undefined,

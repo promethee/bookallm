@@ -702,6 +702,7 @@ describe('importing a book', () => {
     const memory = new MemoryLibrary();
     const full: BookLibrary = {
       registry: memory.registry,
+      vectors: memory.vectors,
       saveBook: () => Promise.reject(new StorageFullError()),
       getBook: (hash) => memory.getBook(hash),
       close: () => undefined,
@@ -727,6 +728,7 @@ describe('importing a book', () => {
     const memory = new MemoryLibrary();
     const broken: BookLibrary = {
       registry: memory.registry,
+      vectors: memory.vectors,
       saveBook: () => Promise.reject(new Error('boom')),
       getBook: (hash) => memory.getBook(hash),
       close: () => undefined,

@@ -1,5 +1,6 @@
 export { openLibrary, StorageFullError, type BookLibrary } from './library';
 export { MemoryLibrary } from './memory-library';
+export { MemoryVectorStore } from './memory-vectors';
 export {
   openStorage,
   storageProblem,

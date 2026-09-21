@@ -9,10 +9,10 @@
 
 ## 2. Vector storage
 
-- [ ] 2.1 Add the in-memory `VectorStore` and a shared contract test suite (save and list chapters, load back the same values, models kept apart, discard, discard other models, a failed save leaves nothing), and verify it passes on the in-memory store
-- [ ] 2.2 Upgrade the IndexedDB library to version 2 with a `vectors` store and a `hash` index, expose `vectors` on `BookLibrary` and `MemoryLibrary`, make removing a book delete its vectors in the same transaction, and verify the contract suite passes on `fake-indexeddb` too
-- [ ] 2.3 Verify with a test that a version 1 database with saved books opens at version 2 with every book and registry entry intact and no vectors, and that a quota error on save becomes `StorageFullError` and stores no part of the chapter
-- [ ] 2.4 Commit checkpoint: "Store vectors on the device"
+- [x] 2.1 Add the in-memory `VectorStore` and a shared contract test suite (save and list chapters, load back the same values, models kept apart, discard, discard other models, a failed save leaves nothing), and verify it passes on the in-memory store
+- [x] 2.2 Upgrade the IndexedDB library to version 2 with a `vectors` store keyed by book, model and chapter, expose `vectors` on `BookLibrary` and `MemoryLibrary`, make removing a book delete its vectors in the same transaction, and verify the contract suite passes on `fake-indexeddb` too
+- [x] 2.3 Verify with a test that a version 1 database with saved books opens at version 2 with every book and registry entry intact and no vectors, and that a quota error on save becomes `StorageFullError` and stores no part of the chapter
+- [x] 2.4 Commit checkpoint: "Store vectors on the device"
 
 ## 3. The indexer
 
