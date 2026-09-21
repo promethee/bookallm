@@ -48,6 +48,6 @@
 
 ## 7. Wrap-up
 
-- [ ] 7.1 Verify `pnpm check` passes end to end
+- [x] 7.1 Verify `pnpm check` passes end to end
 - [ ] 7.2 With the user's approval to push, verify CI is green on the pushed branch
 - [ ] 7.3 Commit checkpoint: "Finish ollama-setup", then archive the change
