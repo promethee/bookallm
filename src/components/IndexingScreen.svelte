@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '../lib/i18n';
+  import { formatMinutes, getLanguage, t } from '../lib/i18n';
+  import { roundRemaining } from '../lib/indexing';
   import { getController } from '../lib/onboarding/context';
   import Button from './Button.svelte';
   import Heading from './Heading.svelte';
@@ -9,6 +10,11 @@
   const book = $derived(controller.activeBook);
   const title = $derived(book?.title || book?.sourceFilename || '');
   const progress = $derived(run.kind === 'running' ? run.progress : undefined);
+  const remaining = $derived(
+    run.kind === 'running' && run.remainingMs !== undefined
+      ? roundRemaining(run.remainingMs)
+      : undefined,
+  );
 </script>
 
 <section class="space-y-4" aria-busy={run.kind !== 'failed' || undefined}>
@@ -68,6 +74,19 @@
       value={progress?.chunksDone ?? 0}
       max={progress?.chunksTotal || 1}
     ></progress>
+    {#if run.kind === 'running'}
+      <p class="text-sm font-medium text-slate-900">
+        {#if !remaining}
+          {t('indexing.estimating')}
+        {:else if remaining.kind === 'under-a-minute'}
+          {t('indexing.remainingSoon')}
+        {:else}
+          {t('indexing.remaining', {
+            time: formatMinutes(remaining.minutes, getLanguage()),
+          })}
+        {/if}
+      </p>
+    {/if}
     <p class="text-sm text-slate-700">{t('indexing.intro')}</p>
   {/if}
 </section>

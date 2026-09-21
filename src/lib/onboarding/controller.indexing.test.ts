@@ -399,3 +399,90 @@ describe('stopping', () => {
     ).toEqual([]);
   });
 });
+
+describe('the time left', () => {
+  /** A clock that moves 30 seconds every time it is read, so every report is 30 s later. */
+  const steppingClock = () => {
+    let time = 0;
+    return () => (time += 30_000);
+  };
+
+  it('says nothing before 8 chunks are done in this run', async () => {
+    const book = makeIndexableBook([4, 4, 4, 4]);
+    // Two requests answer (8 chunks would need three of 4-chunk chapters); stall after one.
+    const { controller } = await start(
+      { ...READY, embedStallAfter: 1 },
+      { books: [book], now: steppingClock() },
+    );
+    const started = controller.start();
+
+    await vi.waitFor(() =>
+      expect(controller.indexState).toMatchObject({
+        kind: 'running',
+        progress: { chunksDone: 4 },
+      }),
+    );
+    expect(
+      controller.indexState.kind === 'running' &&
+        controller.indexState.remainingMs,
+    ).toBeUndefined();
+    controller.destroy();
+    await started;
+  });
+
+  it('gives an estimate from the pace once 8 chunks are done', async () => {
+    const book = makeIndexableBook([4, 4, 4, 4]);
+    const { controller } = await start(
+      { ...READY, embedStallAfter: 3 },
+      { books: [book], now: steppingClock() },
+    );
+    const started = controller.start();
+
+    await vi.waitFor(() =>
+      expect(controller.indexState).toMatchObject({
+        kind: 'running',
+        progress: { chunksDone: 12 },
+      }),
+    );
+    const state = controller.indexState;
+    // Each report is 30 s after the last. After the first batch (4 chunks) came two more
+    // batches, 8 chunks in 2 x 30 s reports plus the chapter-saved report between them;
+    // whatever the exact count, the estimate is positive and covers the last 4 chunks.
+    expect(state.kind === 'running' && state.remainingMs).toBeGreaterThan(0);
+    controller.destroy();
+    await started;
+  });
+
+  it('counts only this run when an index resumes', async () => {
+    const book = makeIndexableBook([4, 4, 4, 4, 4, 4]);
+    const library = new MemoryLibrary();
+    await library.saveBook(book);
+    const earlier = simulateOllama({ ...READY, embedDropAfter: 2 });
+    await indexBook({
+      book,
+      model: 'bge-m3',
+      client: createOllamaClient({ fetch: earlier.fetch }),
+      store: library.vectors,
+    });
+    const { controller } = await start(
+      { ...READY, embedStallAfter: 1 },
+      { library, now: steppingClock() },
+    );
+    const started = controller.start();
+
+    // 8 chunks were saved by the earlier session; only 4 are done in this run.
+    await vi.waitFor(() =>
+      expect(controller.indexState).toMatchObject({
+        kind: 'running',
+        resumed: true,
+        progress: { chunksDone: 12 },
+      }),
+    );
+    expect(
+      controller.indexState.kind === 'running' &&
+        controller.indexState.remainingMs,
+    ).toBeUndefined();
+    controller.destroy();
+    await started;
+  });
+});

@@ -132,7 +132,10 @@ export const en = {
   'indexing.title': 'Getting to know your book',
   'indexing.forBook': 'Preparing “{title}” so you can ask questions about it.',
   'indexing.intro':
-    'This is a one-time step and can take a few minutes for a long book. You can close BookaLLM at any time: it will continue where it stopped.',
+    'This is a one-time step. It can take from a few minutes to a few hours, depending on your computer and the length of the book. You can close BookaLLM at any time: it will continue where it stopped.',
+  'indexing.estimating': 'Working out how long this will take…',
+  'indexing.remaining': 'About {time} left.',
+  'indexing.remainingSoon': 'Less than a minute left.',
   'indexing.starting': 'Getting ready…',
   'indexing.chapter': 'Chapter {current} of {total}',
   'indexing.progressLabel': 'Preparation progress',
@@ -300,7 +303,10 @@ export const fr: Record<MessageKey, Message> = {
   'indexing.forBook':
     'Préparation de « {title} » pour que vous puissiez poser des questions dessus.',
   'indexing.intro':
-    'C’est une étape à faire une seule fois, qui peut prendre quelques minutes pour un long livre. Vous pouvez fermer BookaLLM à tout moment : il reprendra là où il s’était arrêté.',
+    'C’est une étape à faire une seule fois. Elle peut durer de quelques minutes à quelques heures, selon votre ordinateur et la longueur du livre. Vous pouvez fermer BookaLLM à tout moment : il reprendra là où il s’était arrêté.',
+  'indexing.estimating': 'Estimation de la durée…',
+  'indexing.remaining': 'Il reste environ {time}.',
+  'indexing.remainingSoon': 'Il reste moins d’une minute.',
   'indexing.starting': 'Préparation…',
   'indexing.chapter': 'Chapitre {current} sur {total}',
   'indexing.progressLabel': 'Progression de la préparation',

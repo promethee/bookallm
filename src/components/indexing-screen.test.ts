@@ -1,5 +1,12 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
+import { setLanguage } from '../lib/i18n';
 import { indexBook } from '../lib/indexing';
 import { makeIndexableBook } from '../lib/indexing/testing/books';
 import { createOllamaClient } from '../lib/ollama';
@@ -77,7 +84,9 @@ describe('IndexingScreen: progress', () => {
     expect(await screen.findByText('Chapter 2 of 3')).toBeTruthy();
     expect(screen.getByText('Continuing where it stopped.')).toBeTruthy();
     expect(
-      screen.getByText(/one-time step and can take a few minutes/),
+      screen.getByText(
+        /one-time step\. It can take from a few minutes to a few hours/,
+      ),
     ).toBeTruthy();
     expect(screen.getByText(/You can close BookaLLM at any time/)).toBeTruthy();
     const progress = screen.getByRole('progressbar', {
@@ -257,6 +266,97 @@ describe('IndexingScreen: in French', () => {
       'Ollama semble s’être arrêté.',
     );
     expect(screen.getByRole('button', { name: 'Réessayer' })).toBeTruthy();
+    controller.destroy();
+  });
+});
+
+describe('IndexingScreen: the time left', () => {
+  /** Shows the screen in a running state with the given time left. */
+  async function running(
+    remainingMs: number | undefined,
+    language: 'en' | 'fr' = 'en',
+  ) {
+    const { controller } = await setup({ ...READY }, { language });
+    // The language is applied when the app starts; this screen is shown on its own.
+    setLanguage(language);
+    controller.indexState = {
+      kind: 'running',
+      resumed: false,
+      rebuild: false,
+      progress: {
+        chapterPosition: 3,
+        chapterTotal: 10,
+        chunksDone: 20,
+        chunksTotal: 100,
+      },
+      remainingMs,
+    };
+    render(IndexingScreen, withController(controller));
+    return controller;
+  }
+
+  const MINUTE = 60_000;
+
+  it('says it is working out how long this will take until there is an estimate', async () => {
+    const controller = await running(undefined);
+
+    expect(
+      screen.getByText('Working out how long this will take…'),
+    ).toBeTruthy();
+    expect(screen.queryByText(/left\./)).toBeNull();
+    controller.destroy();
+  });
+
+  it('shows a rounded estimate in minutes', async () => {
+    const controller = await running(24 * MINUTE);
+
+    expect(screen.getByText('About 25 minutes left.')).toBeTruthy();
+    expect(
+      screen.queryByText('Working out how long this will take…'),
+    ).toBeNull();
+    controller.destroy();
+  });
+
+  it('shows hours and minutes on a slow computer', async () => {
+    const controller = await running(272 * MINUTE);
+
+    expect(screen.getByText('About 4 hours 30 minutes left.')).toBeTruthy();
+    controller.destroy();
+  });
+
+  it('says less than a minute is left when it is almost done', async () => {
+    const controller = await running(20_000);
+
+    expect(screen.getByText('Less than a minute left.')).toBeTruthy();
+    controller.destroy();
+  });
+
+  it('shows the estimate in French', async () => {
+    const controller = await running(272 * MINUTE, 'fr');
+
+    expect(
+      screen.getByText('Il reste environ 4 heures 30 minutes.'),
+    ).toBeTruthy();
+    controller.destroy();
+  });
+
+  it('says the French words while working it out and when almost done', async () => {
+    const first = await running(undefined, 'fr');
+    expect(screen.getByText('Estimation de la durée…')).toBeTruthy();
+    first.destroy();
+    cleanup();
+
+    const second = await running(10_000, 'fr');
+    expect(screen.getByText('Il reste moins d’une minute.')).toBeTruthy();
+    second.destroy();
+  });
+
+  it('says how long it can take, in French too', async () => {
+    const controller = await running(undefined, 'fr');
+
+    expect(
+      screen.getByText(/Elle peut durer de quelques minutes à quelques heures/),
+    ).toBeTruthy();
     controller.destroy();
   });
 });

@@ -40,6 +40,8 @@ Books are saved in IndexedDB (`books` and `registry` stores, database `bookallm`
 
 10. **Tests and fakes.** The simulated Ollama and the Playwright mock gain a deterministic `/api/embed` (a small vector derived from each text's words, so equal texts give equal vectors) with switches for a wrong count, a dropped connection after N requests, a missing model and a stall. Unit tests cover the embedding call, the indexer (resume, abort, model swap, dimension change, every failure), the status table, the store contract on memory and on `fake-indexeddb`, `decideScreen` as a table and the controller with fake services. Component tests render the screen in both languages. Playwright covers import to "Book added", resume after a reload (asserting only missing chapters are requested), a rebuild after a model swap, and failure then retry. A manual, environment-guarded test (`real-index.manual.test.ts`) indexes the real Pride and Prejudice with the real `bge-m3` and checks the integrity proxy (the opening sentence of sampled chunks finds its own chunk in the top 3), with its similarity maths kept inside the test file.
 
+11. **Time estimate.** A pure function keeps a small pace record per run: the chunk count when the run started, and the time and count when the first batch came back (which absorbs the model loading time). Once 8 chunks are done in the run, the rate is the chunks done since that first batch divided by the time since it, and the time left is the chunks still to do divided by that rate. It is recomputed only when the chunk count changes, and stored on the running state next to the progress. The controller reads the time from an injected `now`, so tests control the clock. Rounding: under 45 seconds is "less than a minute", under 10 minutes rounds to the minute, under an hour to 5 minutes, and beyond that to 15 minutes. The estimate is formatted with `Intl.NumberFormat` units so it follows the language (hours and minutes). _Alternative: an estimate from the first batch alone, rejected: that batch includes the model load and would overstate the time._
+
 ## Risks / Trade-offs
 
 - [The first request is slow because Ollama loads `bge-m3` into memory] → The screen shows 0 of n and the one-time note from the start, and the real-world check measures it. If it looks frozen, add a "waking up the model" line.
@@ -63,10 +65,6 @@ Kept from the decision on a changed embedding model, not built now:
 - Ask before rebuilding, offering "keep the old models" as a way out.
 - Keep one index per embedding model side by side, with removal of a book removing all of them.
 
-## Open Questions
-
-- Whether "a few minutes" in the one-time note should be replaced by an estimate once real timings are known (answerable after the real-world check, without changing behaviour).
-
 ## Real-world results (the user's machine, real Ollama 0.34.0, real `bge-m3`)
 
 - Machine: a 4-thread laptop CPU (Ryzen 3 3200U), no graphics acceleration for the model (Ollama reported no VRAM use). During the runs the CPU was at 100% because of three unrelated `conhost` processes, so these timings are pessimistic.
@@ -74,4 +72,4 @@ Kept from the decision on a changed embedding model, not built now:
 - Speed: about 21 seconds for one 944-character chunk, and it grew in step with the batch (4 chunks 86 s, 16 chunks 355 s), so batching does not help. A 38-chunk run took 1,159 seconds (about 30 seconds a chunk). All of Pride and Prejudice (657 chunks, 64 chapters) would take roughly 4 to 5 hours here.
 - Correctness: all 38 chunks got one vector each, 1,024 numbers long. The integrity proxy found 34 of 34 sampled chunks by their opening sentence in the top 3 (31 as the top result).
 - Found and fixed: a flat two-minute request limit falsely reported "Ollama stopped" (16 chunks take about 6 minutes here) and 16-chunk requests left the progress bar still for that long. Requests now hold 4 chunks and the limit grows with the number of texts.
-- Found and not yet resolved: the screen says indexing "can take a few minutes for a long book", which is false on a slow computer. This changes the indexing screen's promise, so it needs a decision from the user.
+- Found and resolved with the user (option A): the screen said indexing "can take a few minutes for a long book", which is false on a slow computer. The note now says "from a few minutes to a few hours", and after 8 chunks the screen shows a rounded estimate of the time left (decision 11).

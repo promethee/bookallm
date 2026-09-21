@@ -13,8 +13,11 @@ import type {
   RegistryEntry,
 } from '../ingest';
 import {
+  estimateRemainingMs,
   indexBook,
   indexStatus,
+  updatePace,
+  type Pace,
   type IndexError,
   type IndexProgress,
   type IndexStatus,
@@ -78,6 +81,8 @@ export type IndexRunState =
       resumed: boolean;
       /** The index is being rebuilt because the embedding model changed. */
       rebuild: boolean;
+      /** Milliseconds left at this run's measured pace; undefined until it can be said. */
+      remainingMs?: number;
     }
   | { kind: 'failed'; error: IndexError };
 
@@ -543,6 +548,7 @@ export class OnboardingController {
         resumed: info.chapterDone > 0,
         rebuild: info.rebuild,
       };
+      let pace: Pace | undefined;
       const result = await indexBook({
         book,
         model: this.models().embedding,
@@ -550,8 +556,25 @@ export class OnboardingController {
         store: library.vectors,
         signal: abort.signal,
         onProgress: (progress) => {
-          if (this.indexState.kind === 'running')
-            this.indexState = { ...this.indexState, progress };
+          const current = this.indexState;
+          if (current.kind !== 'running') return;
+          const now = this.services.now();
+          pace = updatePace(pace, progress.chunksDone, now);
+          // Only new work changes the estimate; a report that repeats the count keeps it.
+          const estimate =
+            progress.chunksDone !== current.progress?.chunksDone
+              ? estimateRemainingMs(
+                  pace,
+                  progress.chunksDone,
+                  progress.chunksTotal,
+                  now,
+                )
+              : undefined;
+          this.indexState = {
+            ...current,
+            progress,
+            remainingMs: estimate ?? current.remainingMs,
+          };
         },
       });
 

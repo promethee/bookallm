@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatBytes, formatPercent } from './format';
+import { formatBytes, formatMinutes, formatPercent } from './format';
 import { detectLanguage, isLanguage } from './language';
 import { en, fr, type MessageKey } from './messages';
 import { getLanguage, setLanguage, t } from './state.svelte';
@@ -115,6 +115,24 @@ describe('formatBytes and formatPercent', () => {
     expect(plain(formatPercent(1.4, 'en'))).toBe('100%');
     expect(plain(formatPercent(-1, 'en'))).toBe('0%');
   });
+});
+
+describe('formatMinutes', () => {
+  it.each([
+    [1, 'en', '1 minute'],
+    [25, 'en', '25 minutes'],
+    [60, 'en', '1 hour'],
+    [75, 'en', '1 hour 15 minutes'],
+    [270, 'en', '4 hours 30 minutes'],
+    [25, 'fr', '25 minutes'],
+    [60, 'fr', '1 heure'],
+    [270, 'fr', '4 heures 30 minutes'],
+  ] as const)(
+    'writes %i minutes in %s as "%s"',
+    (minutes, language, expected) => {
+      expect(plain(formatMinutes(minutes, language))).toBe(expected);
+    },
+  );
 });
 
 describe('language parity', () => {

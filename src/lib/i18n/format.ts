@@ -23,6 +23,24 @@ export function formatBytes(bytes: number, language: Language): string {
   }).format(bytes / divisor);
 }
 
+/**
+ * A length of time in whole minutes as the language writes it: "25 minutes",
+ * "1 hour", "4 hours 30 minutes" (French: "4 heures 30 minutes").
+ */
+export function formatMinutes(minutes: number, language: Language): string {
+  const unit = (value: number, name: 'hour' | 'minute') =>
+    new Intl.NumberFormat(language, {
+      style: 'unit',
+      unit: name,
+      unitDisplay: 'long',
+    }).format(value);
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return [hours > 0 && unit(hours, 'hour'), rest > 0 && unit(rest, 'minute')]
+    .filter(Boolean)
+    .join(' ');
+}
+
 /** A whole-number percentage such as "28 %" (French) or "28%" (English). */
 export function formatPercent(fraction: number, language: Language): string {
   return new Intl.NumberFormat(language, {

@@ -33,6 +33,9 @@
 - [x] 5.2 Add `IndexingScreen.svelte` (title, "chapter k of n", progress bar with value, min and max, one-time note, resume and rebuild lines, failure block with details and retry) and wire it into `App.svelte`, and verify component tests in both languages cover progress, resume, rebuild, each failure and the readable progress bar
 - [x] 5.3 Update the "reading a book" wait wording only if it now contradicts the indexing screen, and verify the import screen tests still pass
 - [x] 5.4 Commit checkpoint: "Add the indexing screen"
+- [x] 5.5 Add the pace and remaining-time function (needs 8 chunks, skips the first batch, rounds as designed) and the duration formatting in English and French, and verify table-driven tests cover too early, the rounding bands, a resumed run, a stalled pace and both languages
+- [x] 5.6 Give the controller an injected clock, keep the estimate on the running state, and show it on the indexing screen with the honest one-time note and the "working out how long" line in both languages, and verify controller and component tests cover no estimate before 8 chunks, an estimate after, hours, under a minute and French
+- [x] 5.7 Commit checkpoint: "Tell the reader how long indexing will take"
 
 ## 6. End to end
 

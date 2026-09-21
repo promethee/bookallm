@@ -34,6 +34,8 @@ export interface OllamaState {
   embedDropAfter?: number;
   /** When set, embed requests never answer until they are aborted. */
   embedStall?: boolean;
+  /** After this many embed requests, further ones never answer until aborted. */
+  embedStallAfter?: number;
   /** How many embed requests have arrived. Kept by the simulator; tests may reset it. */
   embedCalls?: number;
 }
@@ -87,7 +89,12 @@ export function simulateOllama(state: OllamaState): FakeFetch {
         state.embedCalls > state.embedDropAfter
       )
         throw new TypeError('fetch failed');
-      if (state.embedStall) return neverAnswers(request, signal);
+      if (
+        state.embedStall ||
+        (state.embedStallAfter !== undefined &&
+          state.embedCalls > state.embedStallAfter)
+      )
+        return neverAnswers(request, signal);
       const installed = state.installed.map(normalizeModelName);
       if (!installed.includes(normalizeModelName(model)))
         return jsonResponse(

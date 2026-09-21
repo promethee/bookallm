@@ -20,6 +20,8 @@ export interface Services {
   pollIntervalMs: number;
   /** Resolves once the screen has had a chance to paint. */
   nextFrame(): Promise<void>;
+  /** The current time in milliseconds; replaceable so tests control the clock. */
+  now(): number;
 }
 
 const paint = (): Promise<void> =>
@@ -48,6 +50,7 @@ export async function createServices(
     ingest: ingestEpub,
     pollIntervalMs: 3000,
     nextFrame: paint,
+    now: () => Date.now(),
     ...overrides,
   };
 }

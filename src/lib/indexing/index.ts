@@ -8,6 +8,14 @@ export {
   validateEmbeddings,
   type EmbedOptions,
 } from './embed';
+export {
+  ESTIMATE_MIN_CHUNKS,
+  estimateRemainingMs,
+  roundRemaining,
+  updatePace,
+  type Pace,
+  type RemainingTime,
+} from './estimate';
 export { indexBook, type IndexBookOptions, type IndexResult } from './indexer';
 export { chunksByChapter, indexStatus, type IndexStatus } from './status';
 export type {

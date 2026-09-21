@@ -76,6 +76,7 @@ export interface HarnessOptions {
   library?: BookLibrary;
   ingest?: Services['ingest'];
   nextFrame?: Services['nextFrame'];
+  now?: Services['now'];
   platform?: Services['platform'];
 }
 
@@ -111,6 +112,7 @@ export async function harness(
     ingest: options.ingest ?? ingestEpub,
     pollIntervalMs: 3000,
     nextFrame: options.nextFrame ?? (async () => undefined),
+    now: options.now ?? (() => Date.now()),
   };
   const controller = new OnboardingController(services);
   return { controller, services, fake, storage, library, settings, opened };

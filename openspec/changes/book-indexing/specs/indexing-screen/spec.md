@@ -8,17 +8,46 @@ Shows the reader that BookaLLM is getting to know their book, how far along it i
 
 ### Requirement: The reader sees real progress while a book is indexed
 
-The system SHALL, while the active book is being indexed, show the book's title, which chapter is being indexed out of how many, and a progress bar that assistive technology can read. It SHALL say in plain words that this is a one-time step that can take a few minutes for a long book and that closing the app is safe because it continues where it stopped. Numbers SHALL follow the reader's language.
+The system SHALL, while the active book is being indexed, show the book's title, which chapter is being indexed out of how many, and a progress bar that assistive technology can read. It SHALL say in plain words that this is a one-time step that can take from a few minutes to a few hours depending on the computer and the length of the book, and that closing the app is safe because it continues where it stopped. Numbers SHALL follow the reader's language.
 
 #### Scenario: Watching an index
 
 - **WHEN** a book is being indexed
-- **THEN** the screen shows its title, "chapter 4 of 22" style progress, a progress bar and the one-time note
+- **THEN** the screen shows its title, "chapter 4 of 22" style progress, a progress bar and the one-time note that says how long it can take
 
 #### Scenario: Progress bar for assistive technology
 
 - **WHEN** a screen reader reads the progress bar
 - **THEN** it exposes the current value, the minimum and the maximum
+
+### Requirement: The reader is told how long it will take
+
+The system SHALL, once at least 8 chunks have been embedded in the current run, show an estimate of the time left, based on the pace measured during that run and leaving out the time the model took to load. Until then it SHALL say it is working out how long this will take. The estimate SHALL be rounded, so it never claims more precision than it has, SHALL say that less than a minute is left when it is under a minute, SHALL be updated as progress moves, and SHALL follow the reader's language.
+
+#### Scenario: Too early to say
+
+- **WHEN** fewer than 8 chunks have been embedded in this run
+- **THEN** the screen says it is working out how long this will take and shows no estimate
+
+#### Scenario: Estimate shown
+
+- **WHEN** at least 8 chunks have been embedded and the pace is known
+- **THEN** the screen says about how much time is left, rounded, for example "About 25 minutes left."
+
+#### Scenario: A slow computer
+
+- **WHEN** the measured pace means the rest will take hours
+- **THEN** the estimate is shown in hours and minutes, for example "About 4 hours 30 minutes left."
+
+#### Scenario: Almost done
+
+- **WHEN** less than a minute is left
+- **THEN** the screen says less than a minute is left
+
+#### Scenario: Resumed index
+
+- **WHEN** an index resumes with some chapters already saved
+- **THEN** the estimate uses only the pace of the current run and counts only the chunks still to do
 
 ### Requirement: Indexing starts and ends by itself
 
