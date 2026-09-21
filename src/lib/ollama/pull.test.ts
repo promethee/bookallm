@@ -69,7 +69,7 @@ describe('pullModel success and progress', () => {
       totalBytes: 100,
       fraction: 0.4,
     });
-    expect(updates.at(-1)?.phase).toBe('done');
+    expect(updates.at(-1)).toMatchObject({ phase: 'done', fraction: 1 });
   });
 
   it('is not disturbed by a progress listener that throws', async () => {

@@ -42,6 +42,53 @@ describe.skipIf(!baseUrl)('real Ollama (manual check)', () => {
   });
 
   it.skipIf(!pullModelName)(
+    'cancels a real download part-way and resumes it (the model must not be installed yet)',
+    async () => {
+      const controller = new AbortController();
+      let cancelledAtBytes = 0;
+      let totalAtCancel = 0;
+
+      const first = await pullModel(client, pullModelName!, {
+        signal: controller.signal,
+        onProgress: (progress) => {
+          const started =
+            progress.phase === 'downloading' && progress.completedBytes > 0;
+          const partway =
+            (progress.fraction ?? 0) > 0.1 && (progress.fraction ?? 0) < 0.9;
+          if (started && partway && !controller.signal.aborted) {
+            cancelledAtBytes = progress.completedBytes;
+            totalAtCancel = progress.totalBytes;
+            controller.abort();
+          }
+        },
+      });
+
+      const updates: PullProgress[] = [];
+      const second = await pullModel(client, pullModelName!, {
+        onProgress: (progress) => updates.push(progress),
+      });
+      const firstDownloading = updates.find(
+        (update) => update.phase === 'downloading',
+      );
+
+      console.log(
+        [
+          `first pull: ${JSON.stringify(first)} (cancelled at ${cancelledAtBytes} of ${totalAtCancel} bytes)`,
+          `second pull: ${JSON.stringify(second)}, ${updates.length} progress updates`,
+          `second pull's first downloading update: ${JSON.stringify(firstDownloading)}`,
+          `last update: ${JSON.stringify(updates.at(-1))}`,
+        ].join('\n'),
+      );
+
+      expect(first.status).toBe('cancelled');
+      expect(second.status).toBe('success');
+      // Resumed rather than restarted: the second pull begins with bytes already present.
+      expect(firstDownloading?.completedBytes).toBeGreaterThan(0);
+    },
+    120_000,
+  );
+
+  it.skipIf(!pullModelName)(
     'pulls the model named by OLLAMA_PULL_MODEL',
     async () => {
       const updates: PullProgress[] = [];

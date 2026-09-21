@@ -131,6 +131,21 @@ describe('createProgressTracker', () => {
     ]);
   });
 
+  it('counts every part as complete on success, even if the last updates stopped short', () => {
+    const tracker = createProgressTracker();
+    tracker.update({ digest: 'a', total: 1000, completed: 900 });
+    tracker.update({ digest: 'b', total: 100, completed: 95 });
+
+    const progress = tracker.update({ status: 'success' });
+
+    expect(progress).toEqual({
+      phase: 'done',
+      completedBytes: 1100,
+      totalBytes: 1100,
+      fraction: 1,
+    });
+  });
+
   it('treats removing unused parts as finishing', () => {
     const tracker = createProgressTracker();
 

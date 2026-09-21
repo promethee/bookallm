@@ -57,6 +57,9 @@ export function createProgressTracker(): ProgressTracker {
         phase = 'downloading';
       } else if (status === 'success') {
         phase = 'done';
+        // The closing line carries no byte counts, and the last per-part updates can stop
+        // slightly short (a real pull ended at 98.6%), but success means every part is in.
+        for (const part of parts.values()) part.completed = part.total;
       } else if (status.startsWith('pulling manifest')) {
         phase = 'preparing';
       } else if (status.startsWith('verifying')) {
