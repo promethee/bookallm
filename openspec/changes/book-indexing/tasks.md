@@ -56,5 +56,5 @@
 ## 8. Wrap-up
 
 - [x] 8.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate book-indexing --strict` passes
-- [ ] 8.2 With the user's approval to push, verify CI is green on the pushed branch
-- [ ] 8.3 Commit checkpoint: "Finish book-indexing", then archive the change
+- [x] 8.2 With the user's approval to push, verify CI is green on the pushed branch
+- [x] 8.3 Commit checkpoint: "Finish book-indexing", then archive the change
