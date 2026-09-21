@@ -15,11 +15,11 @@
 
 ## 3. Persistence
 
-- [ ] 3.1 Implement the settings store over `localStorage` with the versioned object, per-field validation and defaults, and an in-memory fallback that reports a problem; verify tests for restore after "restart", nothing saved, corrupt JSON, one invalid field among valid ones, and blocked storage
-- [ ] 3.2 Implement the IndexedDB library in `src/lib/storage/` (`books` and `registry` stores, `seq` index, `IndexedDbRegistry`, atomic `saveBook`, `getBook`, `remove` of record plus content); verify the shared registry contract suite passes against it using `fake-indexeddb`
-- [ ] 3.3 Verify atomicity and errors: a save that fails part-way leaves neither entry nor content, a duplicate hash is rejected with `DuplicateHashError`, removing an entry removes its content, `list()` keeps insertion order, and an injected quota error becomes a typed storage-full error
-- [ ] 3.4 Implement `openStorage()` that falls back to in-memory stores and reports "unavailable" when storage cannot be opened, and asks the browser for persistent storage where supported; verify tests for both the normal and the blocked case
-- [ ] 3.5 Commit checkpoint: "Add settings and book persistence"
+- [x] 3.1 Implement the settings store over `localStorage` with the versioned object, per-field validation and defaults, and an in-memory fallback that reports a problem; verify tests for restore after "restart", nothing saved, corrupt JSON, one invalid field among valid ones, and blocked storage
+- [x] 3.2 Implement the IndexedDB library in `src/lib/storage/` (`books` and `registry` stores, `seq` index, `IndexedDbRegistry`, atomic `saveBook`, `getBook`, `remove` of record plus content); verify the shared registry contract suite passes against it using `fake-indexeddb`
+- [x] 3.3 Verify atomicity and errors: a save that fails part-way leaves neither entry nor content, a duplicate hash is rejected with `DuplicateHashError`, removing an entry removes its content, `list()` keeps insertion order, and an injected quota error becomes a typed storage-full error
+- [x] 3.4 Implement `openStorage()` that falls back to in-memory stores and reports "unavailable" when storage cannot be opened, and asks the browser for persistent storage where supported; verify tests for both the normal and the blocked case
+- [x] 3.5 Commit checkpoint: "Add settings and book persistence"
 
 ## 4. Flow logic
 

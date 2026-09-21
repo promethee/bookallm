@@ -8,6 +8,27 @@ import type { Registry, RegistryEntry } from './types';
 export const normalizeForMatch = (text: string): string =>
   text.normalize('NFC').toLowerCase().replace(/\s+/g, ' ').trim();
 
+/**
+ * Whether an entry matches a title or a source filename under `normalizeForMatch`.
+ * An empty title or filename never matches, so untitled books are not duplicates.
+ * Every registry implementation uses this so "matching" means the same everywhere.
+ */
+export function matchesTitleOrFilename(
+  entry: RegistryEntry,
+  title: string,
+  filename?: string,
+): boolean {
+  const wantedTitle = normalizeForMatch(title);
+  const wantedFilename = filename ? normalizeForMatch(filename) : '';
+  const sameTitle =
+    wantedTitle !== '' && normalizeForMatch(entry.title) === wantedTitle;
+  const sameFilename =
+    wantedFilename !== '' &&
+    entry.sourceFilename !== undefined &&
+    normalizeForMatch(entry.sourceFilename) === wantedFilename;
+  return sameTitle || sameFilename;
+}
+
 /** Thrown by `Registry.add` when an entry with the same hash already exists. */
 export class DuplicateHashError extends Error {
   constructor(readonly hash: string) {
@@ -29,19 +50,8 @@ export class InMemoryRegistry implements Registry {
     title: string,
     filename?: string,
   ): Promise<RegistryEntry[]> {
-    const wantedTitle = normalizeForMatch(title);
-    const wantedFilename = filename ? normalizeForMatch(filename) : '';
     return [...this.entries.values()]
-      .filter((entry) => {
-        // An empty title or filename never matches: untitled books are not duplicates.
-        const sameTitle =
-          wantedTitle !== '' && normalizeForMatch(entry.title) === wantedTitle;
-        const sameFilename =
-          wantedFilename !== '' &&
-          entry.sourceFilename !== undefined &&
-          normalizeForMatch(entry.sourceFilename) === wantedFilename;
-        return sameTitle || sameFilename;
-      })
+      .filter((entry) => matchesTitleOrFilename(entry, title, filename))
       .map((entry) => structuredClone(entry));
   }
 
