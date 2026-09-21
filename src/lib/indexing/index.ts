@@ -1,6 +1,8 @@
 export {
   EMBED_BATCH_SIZE,
-  EMBED_TIMEOUT_MS,
+  EMBED_MIN_TIMEOUT_MS,
+  EMBED_TIMEOUT_PER_TEXT_MS,
+  embedTimeoutMs,
   classifyEmbedError,
   embedTexts,
   validateEmbeddings,

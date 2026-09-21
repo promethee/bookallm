@@ -11,6 +11,9 @@ import {
   classifyEmbedError,
   embedTexts,
   EMBED_BATCH_SIZE,
+  EMBED_MIN_TIMEOUT_MS,
+  EMBED_TIMEOUT_PER_TEXT_MS,
+  embedTimeoutMs,
   validateEmbeddings,
 } from './embed';
 
@@ -208,8 +211,18 @@ describe('embedTexts', () => {
     expect(fake.requests).toHaveLength(0);
   });
 
-  it('sends 16 texts at most per request', () => {
-    expect(EMBED_BATCH_SIZE).toBe(16);
+  it('sends 4 texts at most per request, so progress moves on slow computers', () => {
+    expect(EMBED_BATCH_SIZE).toBe(4);
+  });
+
+  it('allows more time for more texts, so a slow but working Ollama is not called stopped', () => {
+    // A real laptop without a graphics card took about 21 s per chunk of 1,000 characters.
+    const realSecondsPerChunk = 21;
+    expect(embedTimeoutMs(1)).toBe(EMBED_MIN_TIMEOUT_MS);
+    expect(embedTimeoutMs(EMBED_BATCH_SIZE)).toBeGreaterThan(
+      EMBED_BATCH_SIZE * realSecondsPerChunk * 1000,
+    );
+    expect(embedTimeoutMs(100)).toBe(100 * EMBED_TIMEOUT_PER_TEXT_MS);
   });
 });
 

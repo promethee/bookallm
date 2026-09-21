@@ -3,7 +3,7 @@
 ## 1. Embedding call
 
 - [x] 1.1 Add `src/lib/indexing/types.ts` with the typed failure codes, the vector record, the progress shape and the `VectorStore` contract, and verify `pnpm typecheck` passes
-- [x] 1.2 Add `embedTexts` (`POST /api/embed`, 16 chunks per request, two-minute time limit, abort signal) that validates the answer and returns typed results, and verify its unit tests pass for success, wrong count, empty or non-finite vectors, 404, other errors, connection failure, timeout and abort
+- [x] 1.2 Add `embedTexts` (`POST /api/embed`, 4 chunks per request, a time limit that grows with the number of texts, abort signal) that validates the answer and returns typed results, and verify its unit tests pass for success, wrong count, empty or non-finite vectors, 404, other errors, connection failure, timeout and abort
 - [x] 1.3 Add a deterministic `/api/embed` to the simulated Ollama with switches for a wrong count, a dropped connection after N requests, a missing model and a stall, and verify a test proves equal texts give equal vectors and each switch works
 - [x] 1.4 Commit checkpoint: "Add the embedding call"
 
@@ -42,11 +42,12 @@
 
 ## 7. Real-world checks
 
-- [ ] 7.1 With the user's approval to start their Ollama, add `real-index.manual.test.ts` (skipped unless an environment variable is set), run it against the real `bge-m3` and the real Pride and Prejudice, and record the timing, the vector length and the integrity result (opening sentence of sampled chunks finds its own chunk in the top 3)
-- [ ] 7.2 Drive the running app in the browser against the real Ollama: import the real book, watch real progress, reload part way and confirm it resumes, swap the embedding model name and confirm the rebuild, then stop the server and record the result
-- [ ] 7.3 With the user, run `pnpm tauri dev` and confirm in the real window that indexing shows, that closing part way and reopening resumes, and that a book imported before this change is indexed at start; record the result
-- [ ] 7.4 Ask the user to skim the new French text and record any corrections
-- [ ] 7.5 Commit checkpoint: "Record real-world indexing checks"
+- [x] 7.1 With the user's approval to start their Ollama, add `real-index.manual.test.ts` (skipped unless an environment variable is set), run it against the real `bge-m3` and the real Pride and Prejudice, and record the timing, the vector length and the integrity result (opening sentence of sampled chunks finds its own chunk in the top 3)
+- [x] 7.2 Fix what the first real run found: with about 21 seconds per chunk on the user's busy laptop, a flat two-minute request limit falsely reported "Ollama stopped" and 16-chunk requests left the bar still for about 6 minutes, so requests hold 4 chunks and the limit grows with the number of texts, and verify the unit tests cover the new limits
+- [ ] 7.3 Drive the running app in the browser against the real Ollama: import the real book, watch real progress, reload part way and confirm it resumes, swap the embedding model name and confirm the rebuild, then stop the server and record the result
+- [ ] 7.4 With the user, run `pnpm tauri dev` and confirm in the real window that indexing shows, that closing part way and reopening resumes, and that a book imported before this change is indexed at start; record the result
+- [ ] 7.5 Ask the user to skim the new French text and record any corrections
+- [ ] 7.6 Commit checkpoint: "Record real-world indexing checks"
 
 ## 8. Wrap-up
 

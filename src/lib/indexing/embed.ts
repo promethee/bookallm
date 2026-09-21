@@ -1,16 +1,33 @@
 import type { OllamaClient } from '../ollama';
 import type { EmbedResult, IndexError } from './types';
 
-/** How many texts go in one request: few enough that progress moves often. */
-export const EMBED_BATCH_SIZE = 16;
+/**
+ * How many texts go in one request. Embedding time grows in step with the number of
+ * texts, so a bigger batch is not faster; it only makes progress move less often. On a
+ * real, busy laptop without a graphics card one 1,000-character chunk took about 21
+ * seconds, and 16 of them took almost 6 minutes with nothing to show. Four keeps the
+ * progress bar moving on slow machines and costs little on fast ones.
+ */
+export const EMBED_BATCH_SIZE = 4;
 
-/** How long one request may take before Ollama counts as not answering. */
-export const EMBED_TIMEOUT_MS = 120_000;
+/** The least time one request may take before Ollama counts as not answering. */
+export const EMBED_MIN_TIMEOUT_MS = 120_000;
+
+/** Time allowed for each text in a request, on top of the minimum. */
+export const EMBED_TIMEOUT_PER_TEXT_MS = 60_000;
+
+/**
+ * How long a request for `count` texts may take before Ollama counts as not answering.
+ * It grows with the number of texts because slow computers really do take this long:
+ * a flat limit would call a busy Ollama "stopped" and stop a working index.
+ */
+export const embedTimeoutMs = (count: number): number =>
+  Math.max(EMBED_MIN_TIMEOUT_MS, count * EMBED_TIMEOUT_PER_TEXT_MS);
 
 export interface EmbedOptions {
   /** Aborting this cancels the request and gives `aborted`. */
   signal?: AbortSignal;
-  /** Replaces `EMBED_TIMEOUT_MS`; tests use a short one. */
+  /** Replaces `embedTimeoutMs(texts.length)`; tests use a short one. */
   timeoutMs?: number;
 }
 
@@ -95,7 +112,8 @@ export function validateEmbeddings(
  *
  * - The answer is validated before it is returned, so callers never see a half-usable one.
  * - Aborting the signal gives `aborted`, not a failure.
- * - A refused, dropped or unanswered connection is `unreachable`.
+ * - A refused, dropped or unanswered connection is `unreachable`; "unanswered" means no
+ *   answer within `embedTimeoutMs` for that many texts.
  * - The texts leave only for the address the client was configured with.
  */
 export async function embedTexts(
@@ -104,7 +122,7 @@ export async function embedTexts(
   texts: readonly string[],
   options: EmbedOptions = {},
 ): Promise<EmbedResult> {
-  const { signal, timeoutMs = EMBED_TIMEOUT_MS } = options;
+  const { signal, timeoutMs = embedTimeoutMs(texts.length) } = options;
   if (signal?.aborted) return { status: 'aborted' };
   if (texts.length === 0) return { status: 'ok', vectors: [] };
 
