@@ -2,9 +2,9 @@
 
 ## 1. Similarity and ranking
 
-- [ ] 1.1 Add `src/lib/retrieval/types.ts` and `defaults.ts` (default number of passages, question length limit, a provisional relevance cutoff with a comment saying it is not yet measured), and verify `pnpm typecheck` passes
-- [ ] 1.2 Add cosine similarity and top-k ranking with ties broken by chunk order, and verify table-driven tests cover identical, orthogonal, opposite and zero-length vectors, the ordering, ties, and a limit above the number of chunks
-- [ ] 1.3 Commit checkpoint: "Add similarity and ranking"
+- [x] 1.1 Add `src/lib/retrieval/types.ts` and `defaults.ts` (default number of passages, question length limit, a provisional relevance cutoff with a comment saying it is not yet measured), and verify `pnpm typecheck` passes
+- [x] 1.2 Add cosine similarity and top-k ranking with ties broken by chunk order, and verify table-driven tests cover identical, orthogonal, opposite and zero-length vectors, the ordering, ties, and a limit above the number of chunks
+- [x] 1.3 Commit checkpoint: "Add similarity and ranking"
 
 ## 2. The retrieval function
 
