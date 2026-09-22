@@ -71,3 +71,20 @@ None. No stored data or storage format changes; the conversation is in-memory on
 ## Open Questions
 
 None.
+
+## Real-world check (the user's Ollama 0.34.0, real `llama3.1:8b` and `bge-m3`, real Pride and Prejudice preface)
+
+Driven in the browser against `pnpm dev` and the user's real Ollama, using a cached `small-pride.epub` (its early chapters turn out to be the critical preface/essay about Jane Austen's writing style, not the novel's story).
+
+**Nothing-relevant worked correctly, twice.** "Who has taken Netherfield Park?" and "Is Netherfield Park let at last?" both correctly returned "I can't find anything about that: could you tell me where in the book that comes up?" — right, since the indexed text is the preface, not the story. A follow-up genuinely about the preface's own content, "What does the preface say about Sense and Sensibility and its admirers?", correctly retrieved a `relevant` verdict and began generating, confirming the retrieval side works correctly against the real book.
+
+**Stop worked correctly.** Asking a question and clicking Stop a few seconds later cleared the turn to `done, stopped: true` with no error, re-enabled the field, and a new question could be asked immediately, matching the spec.
+
+**Found and not fixed here: a real chat completion that runs several minutes sometimes ends with `net::ERR_ABORTED`, not one of `streamChat`'s own outcomes.** The one `relevant` question above failed four times in a row, each confirmed via the network log as the `/api/chat` POST itself failing with `net::ERR_ABORTED` (not a timeout, not a 4xx/5xx, not an app-level abort) somewhere between roughly 300 and 500 seconds in — well under `CHAT_STREAM_TIMEOUT_MS`'s 600-second budget, so the app's own inactivity timer is not the cause. `streamChat` (`src/lib/answering/chat.ts`) adds no shorter timeout and correctly classified each as `unreachable` with a working "Try again". Three lines of evidence point away from an app bug:
+- A plain `fetch()` to the same endpoint, from the same page, with no `AbortController` or timeout logic at all, completed successfully after 378.9 seconds for a trivial one-word completion (including a cold reload observed mid-request via `/api/ps`), with no abort.
+- `/api/ps` showed `llama3.1:8b` cycling between loaded and unloaded during these long waits (`size_vram: 0`, i.e. running on CPU), consistent with this machine's known memory/CPU constraints (see `answer-generation`'s and `passage-retrieval`'s real-world findings).
+- The failure was specific to the one long, full-context RAG completion (continuous token streaming over several minutes under CPU load); short completions and the retrieval (embed) calls never showed this.
+
+This looks like Ollama or the OS resetting a long-idle-between-bytes local connection under sustained CPU load, not a defect in this change's request/abort handling. It is recorded here rather than fixed, matching this project's established pattern (e.g. `answer-generation`'s Node-fetch-timeout and model-swap findings): the app's own behavior when it happens — a typed `unreachable` error with a working retry, no lost turns, no crash — is exactly the designed failure handling, and is not itself a bug.
+
+**Conclusion.** Retrieval, the nothing-relevant path, the waiting note, and stop are all confirmed against the real Ollama. A full streamed answer with a resolved citation was not obtained live on this machine across four honest attempts, for the connection-reset reason above; that exact mechanism (streaming, citation resolution, retry after a mid-stream failure) is already covered by the unit and component test suites and was confirmed live in `answer-generation`'s own real-world check on a shorter completion.

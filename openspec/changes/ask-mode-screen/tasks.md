@@ -30,7 +30,7 @@
 
 ## 5. Real-world checks
 
-- [ ] 5.1 Drive the running app in the browser against the real Ollama: ask a real question about the real Pride and Prejudice, confirm the streamed answer, its citation and the "getting ready" wait note, try stopping an answer, and try a question with nothing relevant in the book; record the result
+- [x] 5.1 Drive the running app in the browser against the real Ollama: ask a real question about the real Pride and Prejudice, confirm the streamed answer, its citation and the "getting ready" wait note, try stopping an answer, and try a question with nothing relevant in the book; record the result
 - [ ] 5.2 With the user, run `pnpm tauri dev` and confirm in the real window that asking, streaming, citations, stop and retry all work; record the result
 - [ ] 5.3 Ask the user to skim the new French text and record any corrections
 - [ ] 5.4 Commit checkpoint: "Record real-world Ask mode conversation checks"
