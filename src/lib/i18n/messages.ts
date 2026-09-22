@@ -173,6 +173,9 @@ export const en = {
 
   'common.chapters': ({ count }) =>
     count === 1 ? '1 chapter' : `${count} chapters`,
+
+  'answering.nothingFound':
+    'I can’t find anything about that: could you tell me where in the book that comes up?',
 } as const satisfies Record<string, Message>;
 
 export type MessageKey = keyof typeof en;
@@ -344,4 +347,7 @@ export const fr: Record<MessageKey, Message> = {
 
   'common.chapters': ({ count }) =>
     count === 1 ? '1 chapitre' : `${count} chapitres`,
+
+  'answering.nothingFound':
+    'Je ne trouve rien à ce sujet : pouvez-vous me dire à quel endroit du livre cela se trouve ?',
 };

@@ -9,11 +9,11 @@
 
 ## 2. Citations and the answer function
 
-- [ ] 2.1 Add `citations.ts`: parse `[n]` / `[n, m]` markers from complete text, resolve each number against a given ordered passage list (1-based), drop numbers outside that range, and return the citations with each cited passage's locator and the marker's character offset; verify table-driven tests cover a single marker, several markers, out-of-range numbers, malformed brackets, no markers, and markers at the start/end of the text
-- [ ] 2.2 Add `generateAnswer` (verdict, question, ranked passages, model, client, signal → streamed chunks plus a `citations()` read after the stream ends), numbering passages in the prompt in the order given, and verify tests cover the prompt containing every passage, chunks joining to the full answer text in order, and citations matching the markers actually produced
-- [ ] 2.3 Add the `nothing-relevant` path (no Ollama call, the fixed reply streamed as one chunk, `citations()` empty) in English and French via `answering.nothingFound` in `src/lib/i18n/messages.ts`, and verify a test proves no request is sent and the returned text matches `t()` in each language
-- [ ] 2.4 Cover the remaining typed failures and the "nothing written, nothing sent elsewhere" requirements (unreachable, model not found, a mid-stream error, abort before and during the stream, only the configured address contacted, no write to any store or settings during a call), and verify all pass
-- [ ] 2.5 Commit checkpoint: "Add answer generation"
+- [x] 2.1 Add `citations.ts`: parse `[n]` / `[n, m]` markers from complete text, resolve each number against a given ordered passage list (1-based), drop numbers outside that range, and return the citations with each cited passage's locator and the marker's character offset; verify table-driven tests cover a single marker, several markers, out-of-range numbers, malformed brackets, no markers, and markers at the start/end of the text
+- [x] 2.2 Add `generateAnswer` (verdict, question, ranked passages, model, client, signal → streamed chunks plus a `citations()` read after the stream ends), numbering passages in the prompt in the order given, and verify tests cover the prompt containing every passage, chunks joining to the full answer text in order, and citations matching the markers actually produced
+- [x] 2.3 Add the `nothing-relevant` path (no Ollama call, the fixed reply streamed as one chunk, `citations()` empty) in English and French via `answering.nothingFound` in `src/lib/i18n/messages.ts`, and verify a test proves no request is sent and the returned text matches `t()` in each language
+- [x] 2.4 Cover the remaining typed failures and the "nothing written, nothing sent elsewhere" requirements (unreachable, model not found, a mid-stream error, abort before and during the stream, only the configured address contacted, no write to any store or settings during a call), and verify all pass
+- [x] 2.5 Commit checkpoint: "Add answer generation"
 
 ## 3. Real-world check
 

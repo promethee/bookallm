@@ -14,6 +14,7 @@ import {
   simulateOllama,
   type OllamaState,
 } from './simulated-ollama';
+import { readNdjson } from '../ndjson';
 import { sendChunks, startTestServer } from './test-server';
 
 describe('createFakeFetch', () => {
@@ -421,5 +422,42 @@ describe('simulated chat', () => {
     await readChunks(await chat(state));
 
     expect(Date.now() - started).toBeGreaterThanOrEqual(10);
+  });
+});
+
+describe('simulated chat mid-stream stall', () => {
+  it('sends only the first chunks, then hangs until the signal aborts', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+      chatChunks: ['one', ' two', ' three'],
+      chatStallAfterChunks: 2,
+    };
+    const controller = new AbortController();
+
+    const response = await simulateOllama(state).fetch(
+      'http://localhost:11434/api/chat',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          model: 'llama3.1:8b',
+          messages: [{ role: 'user', content: 'x' }],
+        }),
+        signal: controller.signal,
+      },
+    );
+    const seen: unknown[] = [];
+    setTimeout(() => controller.abort(), 15);
+    await expect(
+      (async () => {
+        for await (const line of readNdjson(response.body!)) seen.push(line);
+      })(),
+    ).rejects.toBeDefined();
+
+    expect(
+      seen.map(
+        (line) => (line as { message: { content: string } }).message.content,
+      ),
+    ).toEqual(['one', ' two']);
   });
 });

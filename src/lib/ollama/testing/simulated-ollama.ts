@@ -50,6 +50,8 @@ export interface OllamaState {
   chatDropAfter?: number;
   /** When set, chat requests never answer until they are aborted. */
   chatStall?: boolean;
+  /** After this many streamed chat chunks, the rest of the stream hangs until aborted. */
+  chatStallAfterChunks?: number;
   /** How many chat requests have arrived. Kept by the simulator; tests may reset it. */
   chatCalls?: number;
 }
@@ -123,6 +125,13 @@ export function simulateOllama(state: OllamaState): FakeFetch {
       const lines = chunks.map((content) =>
         ndjson({ message: { role: 'assistant', content }, done: false }),
       );
+      if (state.chatStallAfterChunks !== undefined) {
+        return streamResponse(lines.slice(0, state.chatStallAfterChunks), {
+          delayMs: state.chatDelayMs,
+          stall: true,
+          signal,
+        });
+      }
       lines.push(
         state.chatError
           ? ndjson({ error: state.chatError })
