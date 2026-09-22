@@ -24,5 +24,5 @@
 ## 4. Wrap-up
 
 - [x] 4.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate answer-generation --strict` passes
-- [ ] 4.2 With the user's approval to push, verify CI is green on the pushed branch
-- [ ] 4.3 Commit checkpoint: "Finish answer-generation", then archive the change
+- [x] 4.2 With the user's approval to push, verify CI is green on the pushed branch
+- [x] 4.3 Commit checkpoint: "Finish answer-generation", then archive the change
