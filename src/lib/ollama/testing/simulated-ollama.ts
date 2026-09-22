@@ -40,6 +40,27 @@ export interface OllamaState {
   embedFixed?: Record<string, number[]>;
   /** How many embed requests have arrived. Kept by the simulator; tests may reset it. */
   embedCalls?: number;
+  /** Scripted text chunks a chat answer streams, one ndjson line each. Overrides the default. */
+  chatChunks?: string[];
+  /** When set, the chat stream ends with this error line instead of a `done` line. */
+  chatError?: string;
+  /** Pause before each streamed chat chunk, in milliseconds. */
+  chatDelayMs?: number;
+  /** After this many chat requests, further ones fail like a dropped connection. */
+  chatDropAfter?: number;
+  /** When set, chat requests never answer until they are aborted. */
+  chatStall?: boolean;
+  /** How many chat requests have arrived. Kept by the simulator; tests may reset it. */
+  chatCalls?: number;
+}
+
+/** A deterministic default answer: echoes the question and cites the first passage. */
+function defaultChatChunks(
+  messages: { role: string; content: string }[],
+): string[] {
+  const question =
+    messages.find((message) => message.role === 'user')?.content ?? '';
+  return ['Answer: ', question, ' [1]'];
 }
 
 /** Default length of a simulated vector. */
@@ -79,6 +100,35 @@ export function simulateOllama(state: OllamaState): FakeFetch {
       return jsonResponse({
         models: state.installed.map((name) => ({ name })),
       });
+    },
+    'POST /api/chat': (request, signal) => {
+      const { model, messages } = JSON.parse(request.body!) as {
+        model: string;
+        messages: { role: string; content: string }[];
+      };
+      state.chatCalls = (state.chatCalls ?? 0) + 1;
+      if (
+        state.chatDropAfter !== undefined &&
+        state.chatCalls > state.chatDropAfter
+      )
+        throw new TypeError('fetch failed');
+      if (state.chatStall) return neverAnswers(request, signal);
+      const installed = state.installed.map(normalizeModelName);
+      if (!installed.includes(normalizeModelName(model)))
+        return jsonResponse(
+          { error: `model "${model}" not found, try pulling it first` },
+          404,
+        );
+      const chunks = state.chatChunks ?? defaultChatChunks(messages);
+      const lines = chunks.map((content) =>
+        ndjson({ message: { role: 'assistant', content }, done: false }),
+      );
+      lines.push(
+        state.chatError
+          ? ndjson({ error: state.chatError })
+          : ndjson({ message: { role: 'assistant', content: '' }, done: true }),
+      );
+      return streamResponse(lines, { delayMs: state.chatDelayMs, signal });
     },
     'POST /api/embed': (request, signal) => {
       const { model, input } = JSON.parse(request.body!) as {

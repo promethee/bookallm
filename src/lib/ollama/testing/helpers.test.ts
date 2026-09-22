@@ -285,3 +285,141 @@ describe('simulated embeddings', () => {
     await expect(pending).rejects.toBeDefined();
   });
 });
+
+describe('simulated chat', () => {
+  const chat = (
+    state: OllamaState,
+    question = 'a question',
+    model = 'llama3.1:8b',
+    signal?: AbortSignal,
+  ) =>
+    simulateOllama(state).fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: 'passages...' },
+          { role: 'user', content: question },
+        ],
+      }),
+      signal,
+    });
+
+  it('streams a default answer that echoes the question and cites passage 1', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+    };
+
+    const response = await chat(state, 'why does she say that');
+    const lines = (await readChunks(response))
+      .join('')
+      .split('\n')
+      .filter(Boolean)
+      .map(
+        (line) =>
+          JSON.parse(line) as { message?: { content: string }; done?: boolean },
+      );
+
+    expect(
+      lines
+        .slice(0, -1)
+        .map((line) => line.message!.content)
+        .join(''),
+    ).toBe('Answer: why does she say that [1]');
+    expect(lines.at(-1)).toEqual({
+      message: { role: 'assistant', content: '' },
+      done: true,
+    });
+  });
+
+  it('streams the scripted chunks instead, when given', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+      chatChunks: ['one', ' two', ' three'],
+    };
+
+    const response = await chat(state);
+    const lines = (await readChunks(response)).join('').trim().split('\n');
+
+    expect(lines).toHaveLength(4);
+    expect(
+      lines
+        .slice(0, 3)
+        .map(
+          (line) =>
+            (JSON.parse(line) as { message: { content: string } }).message
+              .content,
+        ),
+    ).toEqual(['one', ' two', ' three']);
+  });
+
+  it('answers 404 for a model that is not installed', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['bge-m3:latest'],
+    };
+
+    const response = await chat(state, 'x', 'llama3.1:8b');
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({
+      error: 'model "llama3.1:8b" not found, try pulling it first',
+    });
+  });
+
+  it('can end the stream with an error line instead of done', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+      chatChunks: ['partial'],
+      chatError: 'boom',
+    };
+
+    const response = await chat(state);
+    const lines = (await readChunks(response)).join('').trim().split('\n');
+
+    expect(JSON.parse(lines.at(-1)!)).toEqual({ error: 'boom' });
+  });
+
+  it('drops the connection after the chosen number of requests and counts them', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+      chatDropAfter: 1,
+    };
+
+    expect((await chat(state)).status).toBe(200);
+    await expect(chat(state)).rejects.toBeInstanceOf(TypeError);
+    expect(state.chatCalls).toBe(2);
+  });
+
+  it('stalls until the request is aborted', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+      chatStall: true,
+    };
+    const controller = new AbortController();
+
+    const pending = chat(state, 'x', 'llama3.1:8b', controller.signal);
+    controller.abort();
+
+    await expect(pending).rejects.toBeDefined();
+  });
+
+  it('paces the scripted chunks apart when a delay is set', async () => {
+    const state: OllamaState = {
+      version: '0.34.0',
+      installed: ['llama3.1:8b'],
+      chatChunks: ['a', 'b'],
+      chatDelayMs: 5,
+    };
+
+    const started = Date.now();
+    await readChunks(await chat(state));
+
+    expect(Date.now() - started).toBeGreaterThanOrEqual(10);
+  });
+});

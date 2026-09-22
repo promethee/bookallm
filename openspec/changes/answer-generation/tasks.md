@@ -2,10 +2,10 @@
 
 ## 1. The streaming chat call
 
-- [ ] 1.1 Add `src/lib/answering/types.ts` and `defaults.ts` (the system prompt template, the stream timeout constant, the citation marker pattern), and verify `pnpm typecheck` passes
-- [ ] 1.2 Add `chat.ts`: `POST /api/chat` with `stream: true`, reusing `readNdjson`, yielding each message chunk of text and surfacing Ollama's `done`/error lines, with a stream timeout and typed failures (unreachable, model-not-found, chat-failed) classified as `embed.ts` and `pull.ts` do; verify unit tests cover success streaming in order, an error line mid-stream (the generator throws), a dropped connection, a stall past the timeout, 404/model-not-found, and abort before and during the stream
-- [ ] 1.3 Add `POST /api/chat` to the simulated Ollama (a scripted list of text chunks, an error line, a drop-after-N switch, a stall switch, and a deterministic default answer that cites passage 1) and verify a test proves the default and each switch
-- [ ] 1.4 Commit checkpoint: "Add the streaming chat call"
+- [x] 1.1 Add `src/lib/answering/types.ts` and `defaults.ts` (the system prompt template, the stream timeout constant, the citation marker pattern), and verify `pnpm typecheck` passes
+- [x] 1.2 Add `chat.ts`: `POST /api/chat` with `stream: true`, reusing `readNdjson`, yielding each message chunk of text and surfacing Ollama's `done`/error lines, with a stream timeout and typed failures (unreachable, model-not-found, chat-failed) classified as `embed.ts` and `pull.ts` do; verify unit tests cover success streaming in order, an error line mid-stream (the generator throws), a dropped connection, a stall past the timeout, 404/model-not-found, and abort before and during the stream
+- [x] 1.3 Add `POST /api/chat` to the simulated Ollama (a scripted list of text chunks, an error line, a drop-after-N switch, a stall switch, and a deterministic default answer that cites passage 1) and verify a test proves the default and each switch
+- [x] 1.4 Commit checkpoint: "Add the streaming chat call"
 
 ## 2. Citations and the answer function
 
