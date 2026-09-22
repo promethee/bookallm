@@ -17,14 +17,36 @@ export interface MockOllama {
   embedDelayMs?: number;
   /** How many embed requests have arrived. */
   embedCalls: number;
+  /** Vectors to answer for exact texts; any other text gets the word-based fake vector. */
+  embedFixed?: Record<string, number[]>;
+  /** Scripted text chunks a chat answer streams, one ndjson line each. Overrides the default. */
+  chatChunks?: string[];
+  /** When set, the chat stream ends with this error line instead of a `done` line. */
+  chatError?: string;
+  /** Pause before each streamed chat chunk, in milliseconds. */
+  chatDelayMs?: number;
+  /** After this many chat requests, further ones fail like a dropped connection. */
+  chatDropAfter?: number;
+  /** How many chat requests have arrived. */
+  chatCalls: number;
 }
 
 export const newMock = (overrides: Partial<MockOllama> = {}): MockOllama => ({
   installed: [],
   requests: [],
   embedCalls: 0,
+  chatCalls: 0,
   ...overrides,
 });
+
+/** A deterministic default answer: echoes the question and cites the first passage. */
+function defaultChatChunks(
+  messages: { role: string; content: string }[],
+): string[] {
+  const question =
+    messages.find((message) => message.role === 'user')?.content ?? '';
+  return ['Answer: ', question, ' [1]'];
+}
 
 const withTag = (name: string) =>
   (name.includes(':') ? name : `${name}:latest`).toLowerCase();
@@ -85,8 +107,53 @@ export async function mockOllama(page: Page, state: MockOllama): Promise<void> {
           headers: cors,
         });
       return route.fulfill({
-        json: { model, embeddings: input.map((text) => fakeEmbedding(text)) },
+        json: {
+          model,
+          embeddings: input.map(
+            (text) => state.embedFixed?.[text] ?? fakeEmbedding(text),
+          ),
+        },
         headers: cors,
+      });
+    }
+    if (pathname === '/api/chat') {
+      const { model, messages } = JSON.parse(request.postData() ?? '{}') as {
+        model: string;
+        messages: { role: string; content: string }[];
+      };
+      state.chatCalls += 1;
+      if (
+        state.chatDropAfter !== undefined &&
+        state.chatCalls > state.chatDropAfter
+      )
+        return route.abort('connectionrefused');
+      if (!state.installed.map(withTag).includes(withTag(model)))
+        return route.fulfill({
+          status: 404,
+          json: { error: `model "${model}" not found, try pulling it first` },
+          headers: cors,
+        });
+      const chunks = state.chatChunks ?? defaultChatChunks(messages);
+      const lines = chunks.map((content) =>
+        JSON.stringify({
+          message: { role: 'assistant', content },
+          done: false,
+        }),
+      );
+      lines.push(
+        state.chatError
+          ? JSON.stringify({ error: state.chatError })
+          : JSON.stringify({
+              message: { role: 'assistant', content: '' },
+              done: true,
+            }),
+      );
+      if (state.chatDelayMs)
+        await new Promise((resolve) => setTimeout(resolve, state.chatDelayMs));
+      return route.fulfill({
+        status: 200,
+        headers: { ...cors, 'content-type': 'application/x-ndjson' },
+        body: lines.map((line) => `${line}\n`).join(''),
       });
     }
     if (pathname === '/api/pull') {

@@ -24,9 +24,9 @@
 
 ## 4. End to end
 
-- [ ] 4.1 Add `/api/chat` support to the Playwright Ollama mock (reusing the simulated-Ollama route's shape: scripted chunks, a citing default answer, an error line, a drop switch) and verify a Playwright test asks a question and sees the streamed answer and a citation with its chapter and passage text
-- [ ] 4.2 Add Playwright tests for stopping an answer mid-stream, a failed turn with retry succeeding, a `nothing-relevant` question showing the fixed reply, the conversation clearing after a reload, and the conversation clearing when a different book becomes active; verify they pass together with the existing suite
-- [ ] 4.3 Commit checkpoint: "Add Ask mode conversation end-to-end tests"
+- [x] 4.1 Add `/api/chat` support to the Playwright Ollama mock (reusing the simulated-Ollama route's shape: scripted chunks, a citing default answer, an error line, a drop switch) and verify a Playwright test asks a question and sees the streamed answer and a citation with its chapter and passage text
+- [x] 4.2 Add Playwright tests for stopping an answer mid-stream, a failed turn with retry succeeding, a `nothing-relevant` question showing the fixed reply, the conversation clearing after a reload, and the conversation clearing when a different book becomes active; verify they pass together with the existing suite
+- [x] 4.3 Commit checkpoint: "Add Ask mode conversation end-to-end tests"
 
 ## 5. Real-world checks
 
