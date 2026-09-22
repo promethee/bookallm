@@ -249,5 +249,6 @@ model download, EPUB import (with DRM and duplicate detection), local
 storage of books, and indexing of the active book with the local
 embedding model (resumable, with live progress and a time estimate).
 Finding the passages that answer a question (with exact locators and a
-measured relevance verdict) works as a library. The answer with
-citations, Ask mode's screen and chat are not built yet.
+measured relevance verdict) and generating a cited, streamed answer from
+them both work as libraries. Ask mode's screen, the conversation and
+Verify mode are not built yet.
