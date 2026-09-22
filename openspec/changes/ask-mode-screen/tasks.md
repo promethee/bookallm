@@ -12,8 +12,8 @@
 
 ## 2. Screen text
 
-- [ ] 2.1 Add English and French messages for the question field, submit, stop, retry, the "getting ready" wait note, the sources heading, each typed failure, and the two announcements, and verify the language table parity test passes and no message uses an em dash
-- [ ] 2.2 Commit checkpoint: "Add the Ask mode conversation text"
+- [x] 2.1 Add English and French messages for the question field, submit, stop, retry, the "getting ready" wait note, the sources heading, each typed failure, and the two announcements, and verify the language table parity test passes and no message uses an em dash
+- [x] 2.2 Commit checkpoint: "Add the Ask mode conversation text"
 
 ## 3. The screen
 
