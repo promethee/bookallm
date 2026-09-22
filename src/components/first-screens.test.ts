@@ -124,7 +124,9 @@ describe('LandingScreen', () => {
     expect(screen.getByText('Candide')).toBeTruthy();
     expect(screen.getByText('by Someone')).toBeTruthy();
     expect(screen.getByText('1 chapter')).toBeTruthy();
-    expect(screen.getByText(/arrives in a later step/)).toBeTruthy();
+    expect(
+      screen.getByPlaceholderText('Ask a question about this book…'),
+    ).toBeTruthy();
     controller.destroy();
   });
 

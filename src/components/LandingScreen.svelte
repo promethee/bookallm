@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t } from '../lib/i18n';
   import { getController } from '../lib/onboarding/context';
+  import AskConversation from './AskConversation.svelte';
   import Button from './Button.svelte';
   import Heading from './Heading.svelte';
 
@@ -32,15 +33,14 @@
         {t('common.chapters', { count: book.chapterCount })}
       </p>
     </div>
-    <p class="text-slate-700">{t('landing.comingSoon')}</p>
+    <Button variant="secondary" onclick={() => controller.requestImport()}>
+      {t('landing.import')}
+    </Button>
+    <AskConversation />
   {:else}
     <p class="text-slate-700">{t('landing.noBook')}</p>
+    <Button onclick={() => controller.requestImport()}>
+      {t('landing.import')}
+    </Button>
   {/if}
-
-  <Button
-    variant={book ? 'secondary' : 'primary'}
-    onclick={() => controller.requestImport()}
-  >
-    {t('landing.import')}
-  </Button>
 </section>

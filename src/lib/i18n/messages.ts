@@ -47,8 +47,6 @@ export const en = {
   'landing.activeBook': 'Active book',
   'landing.byAuthors': 'by {authors}',
   'landing.noBook': 'No book is selected yet. Import an EPUB to get started.',
-  'landing.comingSoon':
-    'Asking questions arrives in a later step. Your setup and your books are ready.',
   'landing.import': 'Import a book',
 
   'ollama.get.title': 'Let’s get Ollama running',
@@ -235,8 +233,6 @@ export const fr: Record<MessageKey, Message> = {
   'landing.byAuthors': 'de {authors}',
   'landing.noBook':
     'Aucun livre n’est sélectionné pour l’instant. Importez un EPUB pour commencer.',
-  'landing.comingSoon':
-    'Poser des questions arrivera dans une prochaine étape. Votre installation et vos livres sont prêts.',
   'landing.import': 'Importer un livre',
 
   'ollama.get.title': 'Mettons Ollama en marche',

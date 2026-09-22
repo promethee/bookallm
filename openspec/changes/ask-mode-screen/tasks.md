@@ -17,10 +17,10 @@
 
 ## 3. The screen
 
-- [ ] 3.1 Add `AskConversation.svelte` (question field and submit, disabled while busy; each turn's question, streamed answer text, waiting note, sources list with chapter and quoted passage text, failure block with retry; stop button while streaming) and show it from `LandingScreen.svelte` in place of the "coming soon" text whenever a book is active, and verify component tests cover a question being asked and its answer and citations appearing, the waiting note before the first piece of text, stopping an answer, a failed turn with retry, and the question field being disabled while busy
-- [ ] 3.2 Verify component tests cover keyboard reachability of the field, submit, stop and retry, and that completion and failure are announced (not every streamed piece)
-- [ ] 3.3 Verify component tests cover the same flow in French
-- [ ] 3.4 Commit checkpoint: "Add the Ask mode conversation screen"
+- [x] 3.1 Add `AskConversation.svelte` (question field and submit, disabled while busy; each turn's question, streamed answer text, waiting note, sources list with chapter and quoted passage text, failure block with retry; stop button while streaming) and show it from `LandingScreen.svelte` in place of the "coming soon" text whenever a book is active, and verify component tests cover a question being asked and its answer and citations appearing, the waiting note before the first piece of text, stopping an answer, a failed turn with retry, and the question field being disabled while busy
+- [x] 3.2 Verify component tests cover keyboard reachability of the field, submit, stop and retry, and that completion and failure are announced (not every streamed piece)
+- [x] 3.3 Verify component tests cover the same flow in French
+- [x] 3.4 Commit checkpoint: "Add the Ask mode conversation screen"
 
 ## 4. End to end
 

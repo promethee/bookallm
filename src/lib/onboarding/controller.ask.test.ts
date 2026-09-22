@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { setLanguage } from '../i18n';
+import { ingestEpub, InMemoryRegistry } from '../ingest';
 import {
   bookOf,
   epub,
@@ -17,12 +18,29 @@ beforeEach(() => setLanguage('en'));
 const start = (state: OllamaState, options: HarnessOptions = {}) =>
   harness(state, { language: 'en', ...options });
 
-/** A book with one distinctive chunk; asking its own text back gives a `relevant` verdict. */
+/**
+ * A book with one distinctive, plain-text chunk (no heading glued to it, so the text has
+ * no embedded newline); asking its own text back gives a `relevant` verdict.
+ */
+async function plainBook(
+  text = 'The old lighthouse keeper watched the storm from his window every single night.',
+) {
+  const result = await ingestEpub(
+    epub('Candide', undefined, {
+      documents: [{ href: 'a.xhtml', body: `<p>${text}</p>` }],
+      toc: [{ title: 'Candide', href: 'a.xhtml' }],
+    }),
+    { registry: new InMemoryRegistry() },
+  );
+  if (result.status !== 'new') throw new Error('expected a new book');
+  return result.book;
+}
+
 async function readyBook(
   state: OllamaState = { ...READY },
   text = 'The old lighthouse keeper watched the storm from his window every single night.',
 ) {
-  const book = await bookOf('Candide', text);
+  const book = await plainBook(text);
   const context = await start(state, { books: [book], indexed: true });
   await context.controller.start();
   return { ...context, book, state };
