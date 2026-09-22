@@ -91,6 +91,45 @@ describe.skipIf(!baseUrl || !epubPath || !cacheFile)(
           `book: "${book.title}", chapters ${first} to ${last === Infinity ? 'end' : last}, ${book.chunks.length} chunks, ${records.length} chapter records loaded from the cache`,
         );
 
+        // Loads the chat model before timing any real question. Measured on the real,
+        // busy machine this was tuned on: a cold llama3.1:8b took 252 and 327 seconds to
+        // answer one word on two separate runs (see CHAT_STREAM_TIMEOUT_MS). Node's own
+        // fetch (undici) has its own default ~300 second body timeout that is not ours to
+        // control and does not exist in the browser the real app runs in, so warming the
+        // model up here first keeps this test measuring Ollama, not Node's fetch client.
+        const warmStart = performance.now();
+        const warm = await generateAnswer({
+          verdict: 'relevant',
+          question: 'Say hello in one word.',
+          passages: [
+            {
+              chunkId: 'warmup',
+              text: 'This is a warm-up passage, not part of the book.',
+              locator: {
+                chapterNumber: 0,
+                chapterTitle: 'Warm-up',
+                paragraphStart: 0,
+                paragraphEnd: 0,
+                charStart: 0,
+                charEnd: 1,
+              },
+              score: 1,
+            },
+          ],
+          model: chatModel,
+          client,
+          language: 'en',
+        });
+        // Draining is enough; the warm-up text itself is not interesting.
+        if (warm.status === 'ok') {
+          let drained = '';
+          for await (const chunk of warm.chunks) drained += chunk;
+          void drained;
+        }
+        console.log(
+          `model warm-up: ${JSON.stringify({ status: warm.status })} in ${Math.round((performance.now() - warmStart) / 1000)} s`,
+        );
+
         for (const question of QUESTIONS) {
           const retrieved = await retrievePassages({
             book,

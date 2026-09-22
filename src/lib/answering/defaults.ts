@@ -1,9 +1,13 @@
 /**
  * How long a chat stream may go without a new piece of text before it counts as not
- * answering. Chat answers are typically much shorter than a batch of chunks to embed, so
- * this is deliberately its own constant rather than reusing the embedding timeout.
+ * answering. This has to cover Ollama loading the chat model into memory before the
+ * first token, which was measured, twice, on the real, busy machine this was tuned on:
+ * a cold `llama3.1:8b` (about 4.9 GB) took 252 and 327 seconds on two separate runs.
+ * Once loaded, later answers started immediately (a few seconds). Every piece of text
+ * received resets this timer, so a slow but genuinely working answer is never cut off
+ * once it has started; this value only bounds the wait for the very first token.
  */
-export const CHAT_STREAM_TIMEOUT_MS = 120_000;
+export const CHAT_STREAM_TIMEOUT_MS = 600_000;
 
 /** Matches one citation marker: `[2]` or `[1, 3]`, one or more comma-separated numbers. */
 export const CITATION_PATTERN = /\[(\d+(?:\s*,\s*\d+)*)\]/g;

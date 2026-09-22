@@ -18,8 +18,8 @@
 ## 3. Real-world check
 
 - [x] 3.1 Add `real-answer.manual.test.ts` (skipped unless `OLLAMA_URL` is set), reusing the passage data and questions from the `passage-retrieval` change's cached measurement, asking the real chat model to answer each and printing the streamed text and resolved citations; verify it is skipped in the normal run and typechecks
-- [ ] 3.2 With the user's Ollama, run it for the answered questions from that measurement and read the results: does the model stay inside the offered passages, are the citation markers well-formed and resolvable, do they point at passages that plausibly support the claim; record the transcript, what worked, and any prompt or parsing fix it revealed, in the design
-- [ ] 3.3 Commit checkpoint: "Record the answer-generation real-world check"
+- [x] 3.2 With the user's Ollama, run it for the answered questions from that measurement and read the results: does the model stay inside the offered passages, are the citation markers well-formed and resolvable, do they point at passages that plausibly support the claim; record the transcript, what worked, and any prompt or parsing fix it revealed, in the design
+- [x] 3.3 Commit checkpoint: "Record the answer-generation real-world check"
 
 ## 4. Wrap-up
 
