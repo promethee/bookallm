@@ -2,13 +2,13 @@
 
 ## 1. Conversation state on the controller
 
-- [ ] 1.1 Add the `Turn` type and `turns`/`askBusy` state to `OnboardingController`, and verify `pnpm typecheck` passes
-- [ ] 1.2 Add `askQuestion` (guards on `askBusy` and an empty question, loads the book, calls `retrievePassages` then `generateAnswer` with the configured models, streams into the turn, resolves citations on completion) and verify controller tests with fake services cover a full successful turn (text and citations match what was streamed), an empty question doing nothing, and a second question being refused while one is in flight
-- [ ] 1.3 Add `stopAnswer` and the abort/failure finalisation shared with it (distinguishing a user abort from a mid-stream failure only by checking the controller's own signal), and verify tests cover stopping mid-answer (partial text and citations kept, a new question can be asked at once) and a mid-stream failure (partial text kept, turn marked failed)
-- [ ] 1.4 Add `retryTurn` (re-runs the same question in place, same id and position) and verify a test covers a failed turn retried successfully and earlier turns left unchanged
-- [ ] 1.5 Clear `turns` at each of the three places the controller sets a new `activeBook`, and verify tests cover the conversation clearing when a new book is imported, an existing book is recognised, and a confirmed duplicate is added
-- [ ] 1.6 Cover the remaining typed failures for both steps (retrieval unreachable/model-not-found/embed-failed, generation unreachable/model-not-found/chat-failed) and verify each maps to a failed turn with that error kept
-- [ ] 1.7 Commit checkpoint: "Add the conversation to the controller"
+- [x] 1.1 Add the `Turn` type and `turns`/`askBusy` state to `OnboardingController`, and verify `pnpm typecheck` passes
+- [x] 1.2 Add `askQuestion` (guards on `askBusy` and an empty question, loads the book, calls `retrievePassages` then `generateAnswer` with the configured models, streams into the turn, resolves citations on completion) and verify controller tests with fake services cover a full successful turn (text and citations match what was streamed), an empty question doing nothing, and a second question being refused while one is in flight
+- [x] 1.3 Add `stopAnswer` and the abort/failure finalisation shared with it (distinguishing a user abort from a mid-stream failure only by checking the controller's own signal), and verify tests cover stopping mid-answer (partial text and citations kept, a new question can be asked at once) and a mid-stream failure (partial text kept, turn marked failed)
+- [x] 1.4 Add `retryTurn` (re-runs the same question in place, same id and position) and verify a test covers a failed turn retried successfully and earlier turns left unchanged
+- [x] 1.5 Clear `turns` at each of the three places the controller sets a new `activeBook`, and verify tests cover the conversation clearing when a new book is imported, an existing book is recognised, and a confirmed duplicate is added
+- [x] 1.6 Cover the remaining typed failures for both steps (retrieval unreachable/model-not-found/embed-failed, generation unreachable/model-not-found/chat-failed) and verify each maps to a failed turn with that error kept
+- [x] 1.7 Commit checkpoint: "Add the conversation to the controller"
 
 ## 2. Screen text
 

@@ -39,8 +39,23 @@ import {
   type Settings,
   type StorageProblem,
 } from '../storage';
+import { retrievePassages, type RetrievalError } from '../retrieval';
+import { generateAnswer, type AnswerError, type Citation } from '../answering';
 import { decideScreen, type IndexNeed, type Screen } from './screens';
 import type { Services } from './services';
+
+/** One question and its answer, kept only for this session. */
+export interface Turn {
+  id: string;
+  question: string;
+  /** `waiting`: no text yet. `streaming`: at least one piece arrived. */
+  state: 'waiting' | 'streaming' | 'done' | 'failed';
+  /** True once nothing more will be added to this turn, however it ended. */
+  stopped: boolean;
+  text: string;
+  citations: Citation[];
+  error?: RetrievalError | AnswerError;
+}
 
 /** A short note for screen readers, as a message key so it follows the language. */
 export interface Announcement {
@@ -155,9 +170,17 @@ export class OnboardingController {
       this.books.at(-1),
   );
 
+  turns = $state.raw<Turn[]>([]);
+  /** True while a question is being answered, so only one turn runs at a time. */
+  askBusy = $derived(
+    this.turns.at(-1)?.state === 'waiting' ||
+      this.turns.at(-1)?.state === 'streaming',
+  );
+
   private timer: ReturnType<typeof setInterval> | undefined;
   private pullAbort: AbortController | undefined;
   private indexAbort: AbortController | undefined;
+  private askAbort: AbortController | undefined;
   /** True from the moment an index run starts until it ends, so it is never started twice. */
   private indexing = false;
   /** Which book and model `index` was worked out for, so unchanged answers are reused. */
@@ -187,6 +210,7 @@ export class OnboardingController {
     this.destroyed = true;
     this.stopPolling();
     this.indexAbort?.abort();
+    this.askAbort?.abort();
   }
 
   // ---- language -----------------------------------------------------------------
@@ -403,6 +427,7 @@ export class OnboardingController {
     switch (result.status) {
       case 'existing':
         this.save({ activeBook: result.entry.hash });
+        this.turns = [];
         this.importState = {
           kind: 'imported',
           book: summaryOfEntry(result.entry),
@@ -454,6 +479,7 @@ export class OnboardingController {
       if (error instanceof DuplicateHashError) {
         // Saved by an earlier attempt: treat it as already imported.
         this.save({ activeBook: book.hash });
+        this.turns = [];
         this.importState = {
           kind: 'imported',
           book: summaryOf(book),
@@ -472,6 +498,7 @@ export class OnboardingController {
     }
     this.books = await library.registry.list();
     this.save({ activeBook: book.hash });
+    this.turns = [];
     this.importState = {
       kind: 'imported',
       book: summaryOf(book),
@@ -604,6 +631,140 @@ export class OnboardingController {
   async retryIndexing(): Promise<void> {
     this.indexState = { kind: 'idle' };
     await this.runCheck();
+  }
+
+  // ---- the Ask mode conversation ------------------------------------------------------
+
+  /** Replaces a turn by id, or appends it if the id is not present. */
+  private setTurn(turn: Turn): void {
+    const index = this.turns.findIndex((existing) => existing.id === turn.id);
+    this.turns =
+      index === -1
+        ? [...this.turns, turn]
+        : this.turns.map((existing, position) =>
+            position === index ? turn : existing,
+          );
+  }
+
+  /**
+   * Asks a question about the active book. Does nothing if a question is already being
+   * answered, or the question is empty. Retrieval runs first, then generation; both are
+   * against the models and address saved in settings.
+   */
+  async askQuestion(question: string): Promise<void> {
+    if (this.askBusy || question.trim() === '') return;
+    await this.runTurn({
+      id:
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`,
+      question,
+      state: 'waiting',
+      stopped: false,
+      text: '',
+      citations: [],
+    });
+  }
+
+  /** Stops the turn in progress, if any. What arrived so far is kept. */
+  stopAnswer(): void {
+    this.askAbort?.abort();
+  }
+
+  /** Re-asks a failed turn's own question, in its own place in the conversation. */
+  async retryTurn(id: string): Promise<void> {
+    const turn = this.turns.find((existing) => existing.id === id);
+    if (!turn || turn.state !== 'failed' || this.askBusy) return;
+    await this.runTurn({
+      id: turn.id,
+      question: turn.question,
+      state: 'waiting',
+      stopped: false,
+      text: '',
+      citations: [],
+    });
+  }
+
+  private async runTurn(start: Turn): Promise<void> {
+    this.setTurn(start);
+    const abort = new AbortController();
+    this.askAbort = abort;
+    const entry = this.activeBook;
+    try {
+      const { library } = this.services.storage;
+      const book = entry ? await library.getBook(entry.hash) : undefined;
+      if (!book) return;
+
+      const retrieved = await retrievePassages({
+        book,
+        question: start.question,
+        model: this.settings.embeddingModel,
+        client: this.services.createClient(this.settings.ollamaUrl),
+        store: library.vectors,
+        signal: abort.signal,
+      });
+      if (retrieved.status === 'aborted') {
+        this.setTurn({ ...start, state: 'done', stopped: true });
+        return;
+      }
+      if (retrieved.status === 'failed') {
+        this.setTurn({ ...start, state: 'failed', error: retrieved.error });
+        this.announce('announce.answerFailed');
+        return;
+      }
+
+      const generated = await generateAnswer({
+        verdict: retrieved.verdict,
+        question: start.question,
+        passages: retrieved.passages,
+        model: this.settings.chatModel,
+        client: this.services.createClient(this.settings.ollamaUrl),
+        language: getLanguage(),
+        signal: abort.signal,
+      });
+      if (generated.status === 'aborted') {
+        this.setTurn({ ...start, state: 'done', stopped: true });
+        return;
+      }
+      if (generated.status === 'failed') {
+        this.setTurn({ ...start, state: 'failed', error: generated.error });
+        this.announce('announce.answerFailed');
+        return;
+      }
+
+      let text = '';
+      try {
+        for await (const piece of generated.chunks) {
+          text += piece;
+          this.setTurn({
+            ...start,
+            state: 'streaming',
+            text,
+            citations: [],
+          });
+        }
+      } catch (error) {
+        this.setTurn({
+          ...start,
+          state: 'failed',
+          text,
+          citations: generated.citations(),
+          error: error as AnswerError,
+        });
+        this.announce('announce.answerFailed');
+        return;
+      }
+      this.setTurn({
+        ...start,
+        state: 'done',
+        stopped: abort.signal.aborted,
+        text,
+        citations: generated.citations(),
+      });
+      this.announce('announce.answerDone');
+    } finally {
+      this.askAbort = undefined;
+    }
   }
 
   // ---- helpers ----------------------------------------------------------------------

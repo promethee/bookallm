@@ -176,6 +176,21 @@ export const en = {
 
   'answering.nothingFound':
     'I can’t find anything about that: could you tell me where in the book that comes up?',
+
+  'ask.questionLabel': 'Your question',
+  'ask.placeholder': 'Ask a question about this book…',
+  'ask.submit': 'Ask',
+  'ask.stop': 'Stop',
+  'ask.waiting':
+    'Getting the AI ready. The first answer can take a few minutes.',
+  'ask.sources': 'Sources',
+  'ask.error.unreachable':
+    'Ollama seems to have stopped. Make sure it is running, then try again.',
+  'ask.error.modelNotFound':
+    'Ollama does not have one of the configured models anymore. Check the model names, then try again.',
+  'ask.error.other': 'This question could not be answered.',
+  'announce.answerDone': 'The answer is ready.',
+  'announce.answerFailed': 'The question could not be answered.',
 } as const satisfies Record<string, Message>;
 
 export type MessageKey = keyof typeof en;
@@ -350,4 +365,19 @@ export const fr: Record<MessageKey, Message> = {
 
   'answering.nothingFound':
     'Je ne trouve rien à ce sujet : pouvez-vous me dire à quel endroit du livre cela se trouve ?',
+
+  'ask.questionLabel': 'Votre question',
+  'ask.placeholder': 'Posez une question sur ce livre…',
+  'ask.submit': 'Demander',
+  'ask.stop': 'Arrêter',
+  'ask.waiting':
+    'Préparation de l’IA. La première réponse peut prendre quelques minutes.',
+  'ask.sources': 'Sources',
+  'ask.error.unreachable':
+    'Ollama semble s’être arrêté. Vérifiez qu’il est lancé, puis réessayez.',
+  'ask.error.modelNotFound':
+    'Ollama n’a plus l’un des modèles configurés. Vérifiez les noms des modèles, puis réessayez.',
+  'ask.error.other': 'Cette question n’a pas pu obtenir de réponse.',
+  'announce.answerDone': 'La réponse est prête.',
+  'announce.answerFailed': 'La question n’a pas pu obtenir de réponse.',
 };
