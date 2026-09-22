@@ -45,6 +45,11 @@ import { decideScreen, type IndexNeed, type Screen } from './screens';
 import type { Services } from './services';
 
 /** One question and its answer, kept only for this session. */
+/** A citation with the cited passage's own text, so the reader can check it without opening the book. */
+export interface AskCitation extends Citation {
+  text: string;
+}
+
 export interface Turn {
   id: string;
   question: string;
@@ -53,7 +58,7 @@ export interface Turn {
   /** True once nothing more will be added to this turn, however it ended. */
   stopped: boolean;
   text: string;
-  citations: Citation[];
+  citations: AskCitation[];
   error?: RetrievalError | AnswerError;
 }
 
@@ -732,6 +737,16 @@ export class OnboardingController {
         return;
       }
 
+      // A citation carries only the chunk id and locator; the passage's own text, so the
+      // reader can check the claim without opening the book, comes from what was retrieved.
+      const withText = (): AskCitation[] =>
+        generated.citations().map((citation) => ({
+          ...citation,
+          text:
+            retrieved.passages.find((p) => p.chunkId === citation.chunkId)
+              ?.text ?? '',
+        }));
+
       let text = '';
       try {
         for await (const piece of generated.chunks) {
@@ -748,7 +763,7 @@ export class OnboardingController {
           ...start,
           state: 'failed',
           text,
-          citations: generated.citations(),
+          citations: withText(),
           error: error as AnswerError,
         });
         this.announce('announce.answerFailed');
@@ -759,7 +774,7 @@ export class OnboardingController {
         state: 'done',
         stopped: abort.signal.aborted,
         text,
-        citations: generated.citations(),
+        citations: withText(),
       });
       this.announce('announce.answerDone');
     } finally {

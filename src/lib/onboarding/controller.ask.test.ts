@@ -46,6 +46,7 @@ describe('asking a question: a full successful turn', () => {
         passageIndex: 1,
         chunkId: book.chunks[0].id,
         locator: book.chunks[0].locator,
+        text: book.chunks[0].text,
         offset: turn.text.indexOf('[1]'),
       },
     ]);
