@@ -47,3 +47,9 @@ None. New library, no stored data, no schema.
 ## Open Questions
 
 None. The exact wording of the three prompts (extraction, mutation, verification) is an implementation detail refined during tasks and checked against real model behaviour, the same way `answer-generation`'s own prompt wording was - it does not change the spec, the result shape, or the task breakdown.
+
+## Real-world check (partial; the user's Ollama 0.34.3, real `llama3.1:8b`, cached `small-pride.epub`)
+
+One real claim attempt, no cached vector needed (chunk selection is local). Result: `unverified` after 822.8 seconds (7 real chat calls: 1 extraction + `MUTATION_VERIFY_RETRIES` + 1 = 3 mutate/verify pairs, none confirmed). CPU-only throughout (`size_vram: 0`), consistent with this machine's already-documented constraints.
+
+**Not yet root-caused.** Candidates, untested: the verification prompt may be too strict for this small local model to confidently answer CONTRADICTS even on a real change; the mutation prompt may be producing changes too subtle to register as contradictions; or this specific cached book (its early chunks are Pride and Prejudice's critical preface, not the story - see `answer-generation`'s own real-world finding) may be unusually hard to extract clean cause/order/who/where claims from. Stopped at one attempt (session time budget), rather than burning another 15+ minutes per retry guessing at a fix. Follow-up before this is considered validated: (a) print each of the three calls' raw text, not just the final outcome, so a failed run is diagnosable without re-running; (b) try a clearer, non-preface book; (c) reconsider whether the verification prompt's wording is asking a harder question than the mutation prompt is answering.
