@@ -29,6 +29,11 @@ export interface MockOllama {
   chatDropAfter?: number;
   /** How many chat requests have arrived. */
   chatCalls: number;
+  /**
+   * `/api/ps`'s running models. Undefined (the default) reports every installed model as
+   * fully GPU-resident; set to `[]` or a specific list to test the hardware check itself.
+   */
+  runningModels?: { model: string; size: number; size_vram: number }[];
 }
 
 export const newMock = (overrides: Partial<MockOllama> = {}): MockOllama => ({
@@ -63,8 +68,29 @@ const ndjson = (...lines: unknown[]) =>
 /**
  * Answers every request the app makes to Ollama's default address, so a test never
  * depends on (or touches) a real Ollama, even if one is running on this machine.
+ *
+ * Also seeds the hardware check as already resolved (`hardwareCheckResolved: true`),
+ * unless told otherwise, so a test that does not care about it is unaffected by its one
+ * extra `/api/embed` request. Pass `hardwareCheckResolved: false` to test the check
+ * itself.
  */
-export async function mockOllama(page: Page, state: MockOllama): Promise<void> {
+export async function mockOllama(
+  page: Page,
+  state: MockOllama,
+  { hardwareCheckResolved = true }: { hardwareCheckResolved?: boolean } = {},
+): Promise<void> {
+  if (hardwareCheckResolved) {
+    // Only seeds when nothing is saved yet: this runs on every navigation, including a
+    // reload, and must never clobber settings the app has since saved for real.
+    await page.addInitScript(() => {
+      if (!localStorage.getItem('bookallm.settings')) {
+        localStorage.setItem(
+          'bookallm.settings',
+          JSON.stringify({ version: 1, hardwareCheckResolved: true }),
+        );
+      }
+    });
+  }
   await page.route('http://127.0.0.1:11434/**', async (route) => {
     const request = route.request();
     if (request.method() === 'OPTIONS')
@@ -86,6 +112,16 @@ export async function mockOllama(page: Page, state: MockOllama): Promise<void> {
         json: { models: state.installed.map((name) => ({ name })) },
         headers: cors,
       });
+    }
+    if (pathname === '/api/ps') {
+      const models =
+        state.runningModels ??
+        state.installed.map((name) => ({
+          model: withTag(name),
+          size: 1_000_000,
+          size_vram: 1_000_000,
+        }));
+      return route.fulfill({ json: { models }, headers: cors });
     }
     if (pathname === '/api/embed') {
       const { model, input } = JSON.parse(request.postData() ?? '{}') as {

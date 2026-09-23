@@ -23,9 +23,9 @@
 
 ## 4. End to end
 
-- [ ] 4.1 Add `size_vram`/`size` control to the Playwright Ollama mock's `/api/ps` and `/api/embed` handling (reusing the existing mock's shape), and verify a Playwright test drives a not-accelerated machine through the warning screen to "Continue anyway" and confirms the next screen (book import) is reached
-- [ ] 4.2 Add Playwright tests for: an accelerated machine never showing the warning; the warning not reappearing after a reload once acknowledged; and a different, still-unaccelerated book import path being unaffected (the warning only ever appears once per install, not per screen visit)
-- [ ] 4.3 Commit checkpoint: "Add hardware check end-to-end tests"
+- [x] 4.1 Add `size_vram`/`size` control to the Playwright Ollama mock's `/api/ps` and `/api/embed` handling (reusing the existing mock's shape), and verify a Playwright test drives a not-accelerated machine through the warning screen to "Continue anyway" and confirms the next screen (book import) is reached
+- [x] 4.2 Add Playwright tests for: an accelerated machine never showing the warning; the warning not reappearing after a reload once acknowledged; and a different, still-unaccelerated book import path being unaffected (the warning only ever appears once per install, not per screen visit). Found and fixed two real bugs while wiring this up: (1) the same shared-embed-budget interaction as the unit harness, fixed the same way (`mockOllama`'s new `hardwareCheckResolved` option, defaulting to true); (2) the seeding script itself re-ran on every reload and clobbered the app's own saved settings (language, active book) - fixed by only seeding when nothing is saved yet
+- [x] 4.3 Commit checkpoint: "Add hardware check end-to-end tests"
 
 ## 5. Real-world checks
 
