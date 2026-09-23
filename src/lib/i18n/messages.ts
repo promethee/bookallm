@@ -111,9 +111,9 @@ export const en = {
     'There is not enough free space on your disk. Free up some space, then try again.',
   'models.error.other': 'The download did not finish.',
 
-  'hardware.title': 'This computer may be slow at this',
+  'hardware.title': 'This computer will likely be very slow at this',
   'hardware.body':
-    'This computer does not appear to accelerate local AI. Answers will likely take several minutes each, rather than seconds. You can still use BookaLLM: it will just be slower.',
+    'This computer does not appear to accelerate local AI. A single answer can take a very long time to appear, sometimes ten minutes or more, and may occasionally fail to finish at all. You can still use BookaLLM, but expect it to be really slow, not just a little slower.',
   'hardware.continue': 'Continue anyway',
 
   'import.title': 'Add a book',
@@ -302,9 +302,9 @@ export const fr: Record<MessageKey, Message> = {
     'Il n’y a pas assez de place libre sur votre disque. Libérez de l’espace, puis réessayez.',
   'models.error.other': 'Le téléchargement ne s’est pas terminé.',
 
-  'hardware.title': 'Cet ordinateur risque d’être lent',
+  'hardware.title': 'Cet ordinateur sera probablement très lent',
   'hardware.body':
-    'Cet ordinateur ne semble pas accélérer l’IA locale. Les réponses prendront probablement plusieurs minutes chacune, plutôt que quelques secondes. Vous pouvez quand même utiliser BookaLLM : ce sera simplement plus lent.',
+    'Cet ordinateur ne semble pas accélérer l’IA locale. Une seule réponse peut mettre très longtemps à apparaître, parfois dix minutes ou plus, et peut même ne jamais aboutir. Vous pouvez quand même utiliser BookaLLM, mais attendez-vous à ce que ce soit vraiment lent, pas juste un peu plus lent.',
   'hardware.continue': 'Continuer quand même',
 
   'import.title': 'Ajouter un livre',

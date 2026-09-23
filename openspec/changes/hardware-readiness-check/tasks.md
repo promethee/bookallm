@@ -16,7 +16,7 @@
 
 ## 3. The warning screen
 
-- [x] 3.1 Add English and French messages for the warning's heading, its explanation ("this machine doesn't appear to accelerate local AI; answers will likely take several minutes each rather than seconds", in the project's plain, dash-free wording), and the "Continue anyway" button, and verify the language table parity test passes and no message uses an em dash
+- [x] 3.1 Add English and French messages for the warning's heading, its explanation ("this machine doesn't appear to accelerate local AI; answers will likely take several minutes each rather than seconds", in the project's plain, dash-free wording), and the "Continue anyway" button, and verify the language table parity test passes and no message uses an em dash. Wording later strengthened per 5.3's real-world feedback: see design.md.
 - [x] 3.2 Add `HardwareWarningScreen.svelte` (heading, explanation paragraph, one button calling `acknowledgeHardwareWarning()`, no error styling) and wire it into `App.svelte`'s screen chain, and verify component tests cover the screen rendering its text and the button moving on to the next screen
 - [x] 3.3 Verify component tests cover keyboard reachability of the button and the same flow in French
 - [x] 3.4 Commit checkpoint: "Add the hardware warning screen"
@@ -31,7 +31,7 @@
 
 - [x] 5.1 Drive the running app in the browser against the real Ollama on this (confirmed non-accelerated) dev machine: confirm the warning screen appears once models are ready, before book import, with the expected wording, and that "Continue anyway" proceeds normally and is not shown again on reload; record the result
 - [x] 5.2 Note in design.md whether the accelerated path was also confirmed live (this machine cannot demonstrate it; reuse of the earlier cross-machine benchmark data, or a fresh run on the GPU machine from that session, is acceptable evidence if available) or rests on its test coverage alone — the GPU machine was not available this session; recorded as resting on test coverage alone
-- [ ] 5.3 With the user, run `pnpm tauri dev` and confirm the warning screen and its button work in the real window; record the result
+- [x] 5.3 With the user, run `pnpm tauri dev` and confirm the warning screen and its button work in the real window; record the result — confirmed working; the user also gave real feedback on the wording's severity, acted on (see design.md)
 - [ ] 5.4 Ask the user to skim the new French text and record any corrections
 - [ ] 5.5 Commit checkpoint: "Record real-world hardware check results"
 

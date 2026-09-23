@@ -29,10 +29,10 @@ describe('HardwareWarningScreen', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'This computer may be slow at this',
+        name: 'This computer will likely be very slow at this',
       }),
     ).toBeTruthy();
-    expect(screen.getByText(/likely take several minutes each/)).toBeTruthy();
+    expect(screen.getByText(/sometimes ten minutes or more/)).toBeTruthy();
     const button = screen.getByRole('button', { name: 'Continue anyway' });
     expect(button.tagName).toBe('BUTTON');
     expect(button.tabIndex).not.toBe(-1);
@@ -69,7 +69,7 @@ describe('HardwareWarningScreen', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Cet ordinateur risque d’être lent',
+        name: 'Cet ordinateur sera probablement très lent',
       }),
     ).toBeTruthy();
     expect(

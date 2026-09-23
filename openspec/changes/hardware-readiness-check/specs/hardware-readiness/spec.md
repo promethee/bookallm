@@ -17,7 +17,7 @@ The system SHALL, once the required models are confirmed installed (whether they
 
 ### Requirement: An unaccelerated machine is warned before book import
 
-The system SHALL, when no GPU acceleration is detected, show a plain-language screen before the book import screen, saying that this machine does not appear to accelerate local AI and that answers will likely take several minutes each rather than seconds. The screen SHALL offer an action to continue anyway.
+The system SHALL, when no GPU acceleration is detected, show a plain-language screen before the book import screen, saying that this machine does not appear to accelerate local AI, that a single answer can take a very long time (measured: sometimes ten minutes or more) and may occasionally fail to finish, and that this is a real, large slowdown rather than a minor one. The screen SHALL offer an action to continue anyway.
 
 #### Scenario: No acceleration detected
 

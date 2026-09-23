@@ -18,11 +18,9 @@ test.describe('the hardware warning', () => {
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(
-      heading(page, 'This computer may be slow at this'),
+      heading(page, 'This computer will likely be very slow at this'),
     ).toBeVisible();
-    await expect(
-      page.getByText(/likely take several minutes each/),
-    ).toBeVisible();
+    await expect(page.getByText(/sometimes ten minutes or more/)).toBeVisible();
 
     await page.getByRole('button', { name: 'Continue anyway' }).click();
 
@@ -37,7 +35,7 @@ test.describe('the hardware warning', () => {
 
     await expect(heading(page, 'Add a book')).toBeVisible();
     await expect(
-      heading(page, 'This computer may be slow at this'),
+      heading(page, 'This computer will likely be very slow at this'),
     ).toHaveCount(0);
   });
 
@@ -52,7 +50,7 @@ test.describe('the hardware warning', () => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(
-      heading(page, 'This computer may be slow at this'),
+      heading(page, 'This computer will likely be very slow at this'),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Continue anyway' }).click();
     await expect(heading(page, 'Add a book')).toBeVisible();
@@ -61,7 +59,7 @@ test.describe('the hardware warning', () => {
 
     await expect(heading(page, 'Add a book')).toBeVisible();
     await expect(
-      heading(page, 'This computer may be slow at this'),
+      heading(page, 'This computer will likely be very slow at this'),
     ).toHaveCount(0);
   });
 });
