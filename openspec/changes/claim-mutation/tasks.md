@@ -2,8 +2,8 @@
 
 ## 1. Types and chunk selection
 
-- [ ] 1.1 Add `src/lib/mutation/types.ts` (`MutationError`, `MutationErrorCode` = `'unreachable' | 'model-not-found' | 'chat-failed' | 'no-chunks-available' | 'unverified'`, `MutationClaim` with `claim`, `isTrue`, `changedAttribute?`, `citation` (chunkId/locator/text), `difficulty: 'flat'`, and `MutationResult` = `ok`/`aborted`/`failed`), and `defaults.ts` (`MUTATION_VERIFY_RETRIES`, the three prompt templates), and verify `pnpm typecheck` passes
-- [ ] 1.2 Add `pickChunk(book, excludeChunkIds, random?)`: uniformly random among the book's chunks not excluded, `random` defaulting to `Math.random` and injectable for tests; returns a typed `no-chunks-available` outcome when every chunk is excluded or the book has none, and verify unit tests cover a normal pick, every-chunk-excluded, an empty book, and that an injected deterministic `random` picks predictably
+- [x] 1.1 Add `src/lib/mutation/types.ts` (`MutationError`, `MutationErrorCode` = `'unreachable' | 'model-not-found' | 'chat-failed' | 'no-chunks-available' | 'unverified'`, `MutationClaim` with `claim`, `isTrue`, `changedAttribute?`, `citation` (chunkId/locator/text), `difficulty: 'flat'`, and `MutationResult` = `ok`/`aborted`/`failed`), and `defaults.ts` (`MUTATION_VERIFY_RETRIES`, the three prompt templates), and verify `pnpm typecheck` passes
+- [x] 1.2 Add `pickChunk(book, excludeChunkIds, random?)`: uniformly random among the book's chunks not excluded, `random` defaulting to `Math.random` and injectable for tests; returns a typed `no-chunks-available` outcome when every chunk is excluded or the book has none, and verify unit tests cover a normal pick, every-chunk-excluded, an empty book, and that an injected deterministic `random` picks predictably
 - [ ] 1.3 Commit checkpoint: "Add chunk selection"
 
 ## 2. The three chat calls and `generateClaim`
