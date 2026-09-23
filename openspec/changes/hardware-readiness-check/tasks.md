@@ -33,7 +33,7 @@
 - [x] 5.2 Note in design.md whether the accelerated path was also confirmed live (this machine cannot demonstrate it; reuse of the earlier cross-machine benchmark data, or a fresh run on the GPU machine from that session, is acceptable evidence if available) or rests on its test coverage alone — the GPU machine was not available this session; recorded as resting on test coverage alone
 - [x] 5.3 With the user, run `pnpm tauri dev` and confirm the warning screen and its button work in the real window; record the result — confirmed working; the user also gave real feedback on the wording's severity, acted on (see design.md)
 - [ ] 5.4 Ask the user to skim the new French text and record any corrections
-- [ ] 5.5 Commit checkpoint: "Record real-world hardware check results"
+- [x] 5.5 Commit checkpoint: "Record real-world hardware check results" — recorded across two commits (22a0522, 1d76127); 5.4 (French skim) deliberately left open, tracked in memory, matching how `ask-mode-screen` handled the same deferral
 
 ## 6. Wrap-up
 
