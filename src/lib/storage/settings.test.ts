@@ -77,6 +77,21 @@ describe('LocalStorageSettings', () => {
     ).toBeUndefined();
   });
 
+  it('is undefined for the hardware check by default and survives a save/load cycle', () => {
+    const { storage } = fakeStorage();
+    expect(
+      new LocalStorageSettings(() => storage).load().hardwareCheckResolved,
+    ).toBeUndefined();
+
+    new LocalStorageSettings(() => storage).save({
+      hardwareCheckResolved: true,
+    });
+
+    expect(
+      new LocalStorageSettings(() => storage).load().hardwareCheckResolved,
+    ).toBe(true);
+  });
+
   it('trims model names', () => {
     const { storage } = fakeStorage();
     const settings = new LocalStorageSettings(() => storage);
@@ -180,6 +195,15 @@ describe('parseSettings', () => {
   it('drops an unknown language', () => {
     expect(parseSettings({ language: 'de' }).language).toBeUndefined();
   });
+
+  it.each([[false], ['true'], [1], [null]])(
+    'ignores a non-true hardwareCheckResolved value (%j)',
+    (raw) => {
+      expect(
+        parseSettings({ hardwareCheckResolved: raw }).hardwareCheckResolved,
+      ).toBeUndefined();
+    },
+  );
 
   it.each([[null], ['text'], [42], [[]]])(
     'gives the defaults for %j',

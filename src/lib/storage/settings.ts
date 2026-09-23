@@ -10,6 +10,12 @@ export interface Settings {
   ollamaUrl: string;
   /** Hash of the active book, if any. */
   activeBook?: string;
+  /**
+   * True once the hardware acceleration check has been resolved on this install: either
+   * it found acceleration, or the reader acknowledged the warning. Absent (the default)
+   * means the check has not yet been resolved, so it runs again on the next launch.
+   */
+  hardwareCheckResolved?: boolean;
 }
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
@@ -66,6 +72,8 @@ export function parseSettings(raw: unknown): Settings {
   if (isLanguage(source.language)) settings.language = source.language;
   const activeBook = nonEmptyText(source.activeBook);
   if (activeBook) settings.activeBook = activeBook;
+  if (source.hardwareCheckResolved === true)
+    settings.hardwareCheckResolved = true;
   return settings;
 }
 

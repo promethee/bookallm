@@ -2,10 +2,10 @@
 
 ## 1. The acceleration check
 
-- [ ] 1.1 Add `checkAcceleration(client, model, signal?)` (a new small module, e.g. `src/lib/hardware/`): one `POST /api/embed` request for a short fixed string, then one `GET /api/ps`, reading the matching entry's `size_vram` against `size`; returns `{status: 'accelerated'}`, `{status: 'not-accelerated'}` or `{status: 'inconclusive'}` (Ollama unreachable, the request fails, the response is missing the expected field, or no matching `/api/ps` entry), and never throws
-- [ ] 1.2 Verify unit tests (a fake Ollama, reusing the existing `fake-fetch`/`createFakeFetch` testing helpers) cover: full GPU offload (`size_vram === size`) is `accelerated`; `size_vram === 0` is `not-accelerated`; a refused connection, a failed embed request, and a `/api/ps` response missing the model are each `inconclusive`; an aborted signal ends the check without a result
-- [ ] 1.3 Add `hardwareCheckResolved?: boolean` to `Settings` (`src/lib/storage/settings.ts`) and its `parseSettings` handling, and verify a settings round-trip test covers it defaulting to absent/falsy and surviving a save/load cycle
-- [ ] 1.4 Commit checkpoint: "Add the hardware acceleration check"
+- [x] 1.1 Add `checkAcceleration(client, model, signal?)` (a new small module, e.g. `src/lib/hardware/`): one `POST /api/embed` request for a short fixed string, then one `GET /api/ps`, reading the matching entry's `size_vram` against `size`; returns `{status: 'accelerated'}`, `{status: 'not-accelerated'}` or `{status: 'inconclusive'}` (Ollama unreachable, the request fails, the response is missing the expected field, or no matching `/api/ps` entry), and never throws
+- [x] 1.2 Verify unit tests (a fake Ollama, reusing the existing `fake-fetch`/`createFakeFetch` testing helpers) cover: full GPU offload (`size_vram === size`) is `accelerated`; `size_vram === 0` is `not-accelerated`; a refused connection, a failed embed request, and a `/api/ps` response missing the model are each `inconclusive`; an aborted signal ends the check without a result
+- [x] 1.3 Add `hardwareCheckResolved?: boolean` to `Settings` (`src/lib/storage/settings.ts`) and its `parseSettings` handling, and verify a settings round-trip test covers it defaulting to absent/falsy and surviving a save/load cycle
+- [x] 1.4 Commit checkpoint: "Add the hardware acceleration check"
 
 ## 2. Screen decision and controller wiring
 
