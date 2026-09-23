@@ -37,6 +37,6 @@
 
 ## 6. Wrap-up
 
-- [ ] 6.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate hardware-readiness-check --strict` passes
+- [x] 6.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate hardware-readiness-check --strict` passes
 - [ ] 6.2 With the user's approval to push, verify CI is green on the pushed branch
 - [ ] 6.3 Commit checkpoint: "Finish hardware-readiness-check", then archive the change

@@ -64,7 +64,9 @@ resolution and the "getting ready" wait state are all built for a
 slow first answer), just with a much longer wait, and a smaller
 chat model (e.g. `qwen2.5:0.5b`) trades citation and answer
 reliability for speed on such a machine rather than eliminating the
-trade-off.
+trade-off. The first-run flow checks for this itself, once, before
+the reader imports a book, and says so plainly rather than letting
+them find out the hard way.
 
 ## Tech Stack
 
@@ -267,10 +269,12 @@ MIT.
 Direction and naming decided. Project scaffold and tooling are in place
 (Tauri + Svelte shell, lint/format/test hooks, CI). The first-run wizard
 works end to end in English and French: Ollama detection and guidance,
-model download, EPUB import (with DRM and duplicate detection), local
-storage of books, and indexing of the active book with the local
-embedding model (resumable, with live progress and a time estimate).
-Ask mode works end to end in English and French: a question box on the
+model download, a warning (with a way to continue anyway) when this
+machine's Ollama does not appear to GPU-accelerate answers, EPUB import
+(with DRM and duplicate detection), local storage of books, and indexing
+of the active book with the local embedding model (resumable, with live
+progress and a time estimate). Ask mode works end to end in English and
+French: a question box on the
 landing screen once the active book is ready, a streamed, cited answer
 with the exact passage behind each citation, a "getting ready" note for
 the first, slower answer, stopping an answer mid-stream, a nothing-found
