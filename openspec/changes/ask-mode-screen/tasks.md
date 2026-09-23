@@ -46,6 +46,6 @@ Found during 5.1/5.2's real-world checks: real `/api/chat` requests on this mach
 
 ## 7. Wrap-up
 
-- [ ] 7.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate ask-mode-screen --strict` passes
+- [x] 7.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate ask-mode-screen --strict` passes
 - [ ] 7.2 With the user's approval to push, verify CI is green on the pushed branch
 - [ ] 7.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change

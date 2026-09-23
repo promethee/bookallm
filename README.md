@@ -248,7 +248,11 @@ works end to end in English and French: Ollama detection and guidance,
 model download, EPUB import (with DRM and duplicate detection), local
 storage of books, and indexing of the active book with the local
 embedding model (resumable, with live progress and a time estimate).
-Finding the passages that answer a question (with exact locators and a
-measured relevance verdict) and generating a cited, streamed answer from
-them both work as libraries. Ask mode's screen, the conversation and
-Verify mode are not built yet.
+Ask mode works end to end in English and French: a question box on the
+landing screen once the active book is ready, a streamed, cited answer
+with the exact passage behind each citation, a "getting ready" note for
+the first, slower answer, stopping an answer mid-stream, a nothing-found
+reply when nothing is relevant, and a plain-language retry for a failed
+turn. The conversation is session-only, per book. The chapter-restricted
+retry/escalation flow described below, and Verify mode, are not built
+yet.
