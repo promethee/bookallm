@@ -45,3 +45,9 @@ The onboarding flow is a pure decision function, `decideScreen(input: ScreenInpu
 ## Migration Plan
 
 None. `hardwareCheckResolved` is a new optional `Settings` field; its absence (every existing install) means "not yet resolved," so the check simply runs once on the next launch, exactly like a fresh install.
+
+## Real-world check (the user's Ollama 0.34.3, real `bge-m3`, this dev machine, confirmed CPU-only all session)
+
+Driven in the browser against `pnpm dev` and the real Ollama. With existing saved settings (language, an active book) but no `hardwareCheckResolved` yet, a fresh load correctly showed "This computer may be slow at this" with the exact measured wording, before reaching the landing screen. Clicking "Continue anyway" moved straight to the landing screen and saved `hardwareCheckResolved: true`, alongside every other setting unchanged (confirmed by reading `localStorage` directly). Reloading afterward landed directly on the landing screen with no warning and no repeated check, confirming the once-per-install behavior end to end. This was fast, as expected: the check uses only `/api/embed` and `/api/ps`, never the slow chat model.
+
+**Not confirmed live: the accelerated path (the warning correctly not appearing when Ollama does report GPU offload).** This dev machine has no GPU Ollama can use, so it cannot demonstrate that path itself, and the GPU-equipped second machine from `ask-mode-screen`'s own real-world check was not available during this session to re-run through this specific new code. That path rests on its unit and end-to-end test coverage (both explicitly simulate `size_vram > 0`) rather than a live confirmation. Recorded here rather than left unstated.

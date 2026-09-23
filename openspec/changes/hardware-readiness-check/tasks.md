@@ -29,8 +29,8 @@
 
 ## 5. Real-world checks
 
-- [ ] 5.1 Drive the running app in the browser against the real Ollama on this (confirmed non-accelerated) dev machine: confirm the warning screen appears once models are ready, before book import, with the expected wording, and that "Continue anyway" proceeds normally and is not shown again on reload; record the result
-- [ ] 5.2 Note in design.md whether the accelerated path was also confirmed live (this machine cannot demonstrate it; reuse of the earlier cross-machine benchmark data, or a fresh run on the GPU machine from that session, is acceptable evidence if available) or rests on its test coverage alone
+- [x] 5.1 Drive the running app in the browser against the real Ollama on this (confirmed non-accelerated) dev machine: confirm the warning screen appears once models are ready, before book import, with the expected wording, and that "Continue anyway" proceeds normally and is not shown again on reload; record the result
+- [x] 5.2 Note in design.md whether the accelerated path was also confirmed live (this machine cannot demonstrate it; reuse of the earlier cross-machine benchmark data, or a fresh run on the GPU machine from that session, is acceptable evidence if available) or rests on its test coverage alone — the GPU machine was not available this session; recorded as resting on test coverage alone
 - [ ] 5.3 With the user, run `pnpm tauri dev` and confirm the warning screen and its button work in the real window; record the result
 - [ ] 5.4 Ask the user to skim the new French text and record any corrections
 - [ ] 5.5 Commit checkpoint: "Record real-world hardware check results"
