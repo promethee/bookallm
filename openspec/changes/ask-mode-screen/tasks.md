@@ -44,8 +44,23 @@ Found during 5.1/5.2's real-world checks: real `/api/chat` requests on this mach
 - [x] 6.3 Verify `pnpm check` (lint, typecheck, the full test suite) passes end to end
 - [x] 6.4 Commit checkpoint: "Retry a connection dropped before the first token"
 
-## 7. Wrap-up
+## 7. Wrap-up (first pass)
 
 - [x] 7.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate ask-mode-screen --strict` passes
-- [ ] 7.2 With the user's approval to push, verify CI is green on the pushed branch
-- [ ] 7.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change
+- [x] 7.2 With the user's approval to push, verify CI is green on the pushed branch (`2fc1f33`)
+
+## 8. Reduce the context window and cap the answer length
+
+Requested by the user after 7.2: the real time Ollama takes to answer needs fixing, not just retried through. `/api/ps` during 5.1's real-world check showed `llama3.1:8b` running with its full default context length, 131072 tokens; this app's prompts (at most 5 passages of at most 1600 characters, plus the question and system prompt) never need anywhere near that, and llama.cpp allocates its KV cache for the full requested context regardless of how much a prompt actually uses, costing real memory and load time on this CPU-only machine. See design.md Decision 9.
+
+- [x] 8.1 Add `CHAT_CONTEXT_LENGTH` (`num_ctx`, 8192) and `CHAT_MAX_ANSWER_TOKENS` (`num_predict`, 500) to `answering/defaults.ts`, sized against retrieval's own hard caps, and send both in `/api/chat`'s `options`
+- [x] 8.2 Verify a unit test asserts the request carries a smaller context window than the model's default and a positive answer-length cap
+- [x] 8.3 Verify `pnpm check` (lint, typecheck, the full test suite) passes end to end
+- [ ] 8.4 Try it against the real Ollama (optional, time-permitting) and record whether it measurably shortens the wait
+- [x] 8.5 Commit checkpoint: "Reduce the context window and cap the answer length"
+
+## 9. Wrap-up (final)
+
+- [ ] 9.1 Re-verify `pnpm check` and `openspec validate ask-mode-screen --strict` after 8.1-8.5
+- [ ] 9.2 With the user's approval to push, verify CI is green on the pushed branch
+- [ ] 9.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change

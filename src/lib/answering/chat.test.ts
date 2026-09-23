@@ -10,6 +10,7 @@ import {
   type FakeHandler,
 } from '../ollama/testing/fake-fetch';
 import { classifyChatError, streamChat, toChatEvent } from './chat';
+import { CHAT_CONTEXT_LENGTH, CHAT_MAX_ANSWER_TOKENS } from './defaults';
 
 const clientFor = (routes: Record<string, FakeHandler>) => {
   const fake = createFakeFetch(routes);
@@ -61,7 +62,23 @@ describe('streamChat: success', () => {
       model: 'llama3.1:8b',
       messages: MESSAGES,
       stream: true,
+      options: {
+        num_ctx: CHAT_CONTEXT_LENGTH,
+        num_predict: CHAT_MAX_ANSWER_TOKENS,
+      },
     });
+  });
+
+  it('requests a smaller context window and a capped answer length, not the model default', async () => {
+    const { fake, client } = clientFor(scripted(...SUCCESS_LINES));
+
+    await streamChat(client, 'llama3.1:8b', MESSAGES);
+
+    const { options } = JSON.parse(fake.requests[0].body!) as {
+      options: { num_ctx: number; num_predict: number };
+    };
+    expect(options.num_ctx).toBeLessThan(131_072);
+    expect(options.num_predict).toBeGreaterThan(0);
   });
 
   it('yields the answer’s text pieces in order', async () => {

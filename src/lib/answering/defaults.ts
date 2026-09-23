@@ -26,6 +26,32 @@ export const CHAT_PRE_STREAM_RETRIES = 1;
 /** Pause between a dropped pre-stream connection and the next retry. */
 export const CHAT_RETRY_BACKOFF_MS = 250;
 
+/**
+ * The context window requested for `/api/chat`, in tokens. Without this, Ollama uses the
+ * model's own default, which for `llama3.1:8b` is 131072 (confirmed via a real `/api/ps`
+ * during `ask-mode-screen`'s real-world check) — far more than this app's prompts ever
+ * need, and llama.cpp allocates its KV cache for the full requested context regardless of
+ * how much of it a prompt actually uses, so a needlessly large one costs real memory and
+ * load time on a CPU-only, memory-constrained machine (the same constraint already
+ * documented in `answer-generation`'s and `passage-retrieval`'s real-world checks).
+ *
+ * Sized generously for this app's own hard caps: at most `DEFAULT_PASSAGE_COUNT` (5)
+ * passages of at most `DEFAULT_MAX_SIZE` (1600) characters each from the retrieval
+ * library, plus a question of at most `MAX_QUESTION_LENGTH` (2000) characters, plus the
+ * fixed system prompt wording, comes to well under 4000 tokens even by a pessimistic
+ * chars-per-token estimate; `CHAT_MAX_ANSWER_TOKENS` bounds the rest. 8192 leaves ample
+ * headroom without keeping anywhere near the model's full 128K window resident.
+ */
+export const CHAT_CONTEXT_LENGTH = 8192;
+
+/**
+ * The most tokens a single answer may generate (`num_predict`). Bounds the context budget
+ * above together with the prompt, and keeps a slow machine's worst case bounded: the
+ * README's own Ask mode style is "concise, dense, often Socratic", not a long essay, so a
+ * generous cap here does not clip a normal answer.
+ */
+export const CHAT_MAX_ANSWER_TOKENS = 500;
+
 /** Matches one citation marker: `[2]` or `[1, 3]`, one or more comma-separated numbers. */
 export const CITATION_PATTERN = /\[(\d+(?:\s*,\s*\d+)*)\]/g;
 

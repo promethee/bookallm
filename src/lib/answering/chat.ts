@@ -1,6 +1,8 @@
 import type { OllamaClient } from '../ollama';
 import { readNdjson } from '../ollama/ndjson';
 import {
+  CHAT_CONTEXT_LENGTH,
+  CHAT_MAX_ANSWER_TOKENS,
   CHAT_PRE_STREAM_RETRIES,
   CHAT_RETRY_BACKOFF_MS,
   CHAT_STREAM_TIMEOUT_MS,
@@ -190,7 +192,15 @@ async function attemptChat(
     response = await client.request('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, stream: true }),
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: true,
+        options: {
+          num_ctx: CHAT_CONTEXT_LENGTH,
+          num_predict: CHAT_MAX_ANSWER_TOKENS,
+        },
+      }),
       signal: controller.signal,
     });
   } catch (error) {
@@ -267,6 +277,9 @@ async function* resume(
  *   quietly: iterating it simply stops, with no error and no further text.
  * - The inactivity timeout resets on every piece of text received, so a real but slow
  *   answer is not mistaken for a stopped one; it applies fresh to each attempt.
+ * - Requests a smaller context window than the model's own default
+ *   (`CHAT_CONTEXT_LENGTH`) and caps the answer's length (`CHAT_MAX_ANSWER_TOKENS`), so a
+ *   CPU-only machine is not made to allocate far more than this app's prompts ever need.
  */
 export async function streamChat(
   client: OllamaClient,
