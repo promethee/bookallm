@@ -1,6 +1,10 @@
 import type { OllamaClient } from '../ollama';
 import { readNdjson } from '../ollama/ndjson';
-import { CHAT_STREAM_TIMEOUT_MS } from './defaults';
+import {
+  CHAT_PRE_STREAM_RETRIES,
+  CHAT_RETRY_BACKOFF_MS,
+  CHAT_STREAM_TIMEOUT_MS,
+} from './defaults';
 import type { AnswerError } from './types';
 
 export interface ChatMessage {
@@ -13,6 +17,8 @@ export interface ChatStreamOptions {
   signal?: AbortSignal;
   /** Replaces `CHAT_STREAM_TIMEOUT_MS`; reset on every piece of text received. */
   timeoutMs?: number;
+  /** Replaces `CHAT_PRE_STREAM_RETRIES`. */
+  retries?: number;
 }
 
 export type ChatStreamResult =
@@ -128,27 +134,35 @@ async function* readChatBody(
   }
 }
 
+/** Resolves after `ms`, or as soon as `signal` aborts, whichever comes first. */
+function delay(ms: number, signal?: AbortSignal): Promise<void> {
+  if (ms <= 0 || signal?.aborted) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    function onAbort(): void {
+      clearTimeout(timer);
+      resolve();
+    }
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
 /**
- * Streams a chat answer from `POST /api/chat` and never throws for an expected outcome
- * before any text arrives.
- *
- * - Once streaming starts, a failure (Ollama drops, a stream that stalls past the
- *   timeout, an error line) surfaces by the returned generator throwing an `AnswerError`,
- *   since some text may already have reached the caller and cannot be un-shown.
- * - Aborting `signal`, before or during the stream, ends the generator quietly: iterating
- *   it simply stops, with no error and no further text.
- * - The inactivity timeout resets on every piece of text received, so a real but slow
- *   answer is not mistaken for a stopped one.
+ * One request to `/api/chat`. Never throws for an expected outcome before any text
+ * arrives; once streaming starts, a failure surfaces by the returned generator throwing.
+ * `ok` is only returned once the first piece of text has actually arrived, so a caller
+ * that only retries `unreachable` failures never discards text it already showed.
  */
-export async function streamChat(
+async function attemptChat(
   client: OllamaClient,
   model: string,
   messages: readonly ChatMessage[],
-  options: ChatStreamOptions = {},
+  signal: AbortSignal | undefined,
+  timeoutMs: number,
 ): Promise<ChatStreamResult> {
-  const { signal, timeoutMs = CHAT_STREAM_TIMEOUT_MS } = options;
-  if (signal?.aborted) return { status: 'aborted' };
-
   // One controller drives the real fetch/stream abort, for both the caller's signal and
   // this module's own resettable inactivity timeout.
   const controller = new AbortController();
@@ -204,13 +218,88 @@ export async function streamChat(
     return failed({ code: 'chat-failed', detail: 'No response body' });
   }
 
-  return {
-    status: 'ok',
-    chunks: readChatBody(response.body, {
-      touch,
-      cleanup,
-      callerAborted: () => signal?.aborted ?? false,
-      timedOut: () => timedOut,
-    }),
-  };
+  const body = readChatBody(response.body, {
+    touch,
+    cleanup,
+    callerAborted: () => signal?.aborted ?? false,
+    timedOut: () => timedOut,
+  });
+
+  let first: IteratorResult<string, void>;
+  try {
+    first = await body.next();
+  } catch (error) {
+    if (signal?.aborted) return { status: 'aborted' };
+    return failed(
+      isAnswerError(error)
+        ? error
+        : { code: 'unreachable', detail: String(error) },
+    );
+  }
+  if (signal?.aborted) return { status: 'aborted' };
+  // The stream ended (e.g. an immediate `done`) with no content and no error: an empty
+  // but genuine answer, not a dropped connection, so nothing to retry.
+  if (first.done) return { status: 'ok', chunks: (async function* () {})() };
+  return { status: 'ok', chunks: resume(first.value, body) };
+}
+
+/** Replays an already-pulled first value, then the rest of `source`. */
+async function* resume(
+  first: string,
+  source: AsyncGenerator<string, void, undefined>,
+): AsyncGenerator<string, void, undefined> {
+  yield first;
+  yield* source;
+}
+
+/**
+ * Streams a chat answer from `POST /api/chat` and never throws for an expected outcome
+ * before any text arrives.
+ *
+ * - If the connection drops before any answer text has arrived, the attempt is retried
+ *   from scratch (`CHAT_PRE_STREAM_RETRIES` times, by default), since nothing has been
+ *   shown yet to discard. A real, informative failure (a missing model, an explicit error
+ *   from Ollama) is never retried, since trying again cannot change that answer.
+ * - Once streaming starts, a failure (Ollama drops, a stream that stalls past the
+ *   timeout, an error line) surfaces by the returned generator throwing an `AnswerError`,
+ *   since some text may already have reached the caller and cannot be un-shown.
+ * - Aborting `signal`, before, between attempts, or during the stream, ends the generator
+ *   quietly: iterating it simply stops, with no error and no further text.
+ * - The inactivity timeout resets on every piece of text received, so a real but slow
+ *   answer is not mistaken for a stopped one; it applies fresh to each attempt.
+ */
+export async function streamChat(
+  client: OllamaClient,
+  model: string,
+  messages: readonly ChatMessage[],
+  options: ChatStreamOptions = {},
+): Promise<ChatStreamResult> {
+  const {
+    signal,
+    timeoutMs = CHAT_STREAM_TIMEOUT_MS,
+    retries = CHAT_PRE_STREAM_RETRIES,
+  } = options;
+  if (signal?.aborted) return { status: 'aborted' };
+
+  let lastFailure: ChatStreamResult = failed({
+    code: 'unreachable',
+    detail: 'Ollama did not answer',
+  });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (attempt > 0) {
+      await delay(CHAT_RETRY_BACKOFF_MS, signal);
+      if (signal?.aborted) return { status: 'aborted' };
+    }
+    const result = await attemptChat(
+      client,
+      model,
+      messages,
+      signal,
+      timeoutMs,
+    );
+    if (result.status !== 'failed' || result.error.code !== 'unreachable')
+      return result;
+    lastFailure = result;
+  }
+  return lastFailure;
 }

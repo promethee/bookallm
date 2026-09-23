@@ -35,8 +35,17 @@
 - [ ] 5.3 Ask the user to skim the new French text and record any corrections
 - [ ] 5.4 Commit checkpoint: "Record real-world Ask mode conversation checks"
 
-## 6. Wrap-up
+## 6. Robustness: retry a connection dropped before the first token
 
-- [ ] 6.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate ask-mode-screen --strict` passes
-- [ ] 6.2 With the user's approval to push, verify CI is green on the pushed branch
-- [ ] 6.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change
+Found during 5.1/5.2's real-world checks: real `/api/chat` requests on this machine sometimes fail with a plain connection reset during the long wait for the first token, always before any answer text has arrived. Addressed here rather than left as a documented limitation, since nothing has been shown yet to lose by retrying (see design.md Decision 8).
+
+- [x] 6.1 Split `streamChat` into a single-attempt `attemptChat` (only reports `ok` once the first piece of text is actually pulled from the stream) and a retry loop that automatically retries exactly that case (connection dropped with zero text yielded), up to `CHAT_PRE_STREAM_RETRIES` (default 1) with a short backoff, leaving every other failure (model-not-found, an explicit error line, a mid-stream failure once text has arrived, an abort) exactly as before
+- [x] 6.2 Verify unit tests cover: retrying once and succeeding, giving up after the configured retries and reporting `unreachable`, `retries: 0` disabling the retry, a real informative failure (model-not-found) never being retried, and an abort during the backoff reporting `aborted`
+- [x] 6.3 Verify `pnpm check` (lint, typecheck, the full test suite) passes end to end
+- [x] 6.4 Commit checkpoint: "Retry a connection dropped before the first token"
+
+## 7. Wrap-up
+
+- [ ] 7.1 Update the README status, verify `pnpm check` passes end to end, and verify `openspec validate ask-mode-screen --strict` passes
+- [ ] 7.2 With the user's approval to push, verify CI is green on the pushed branch
+- [ ] 7.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change

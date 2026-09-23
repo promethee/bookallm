@@ -294,6 +294,93 @@ describe('streamChat: failures during the stream', () => {
   });
 });
 
+describe('streamChat: retrying a dropped connection before any text arrives', () => {
+  it('retries once and succeeds when the second attempt gets an answer', async () => {
+    let calls = 0;
+    const { fake, client } = clientFor(
+      chatRoute(() => {
+        calls += 1;
+        if (calls === 1)
+          return streamResponse([], { failWith: new TypeError('terminated') });
+        return streamResponse(SUCCESS_LINES.map((line) => ndjson(line)));
+      }),
+    );
+
+    const result = await streamChat(client, 'llama3.1:8b', MESSAGES);
+
+    expect(fake.requests).toHaveLength(2);
+    if (result.status !== 'ok') throw new Error('expected ok');
+    expect((await drain(result.chunks)).text.join('')).toBe('The cat sat.');
+  });
+
+  it('gives up after the configured number of retries and reports unreachable', async () => {
+    const { fake, client } = clientFor(
+      chatRoute(() =>
+        streamResponse([], { failWith: new TypeError('terminated') }),
+      ),
+    );
+
+    const result = await streamChat(client, 'llama3.1:8b', MESSAGES, {
+      retries: 2,
+    });
+
+    expect(fake.requests).toHaveLength(3);
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { code: 'unreachable' },
+    });
+  });
+
+  it('does not retry when retries is 0', async () => {
+    const { fake, client } = clientFor(
+      chatRoute(() =>
+        streamResponse([], { failWith: new TypeError('terminated') }),
+      ),
+    );
+
+    const result = await streamChat(client, 'llama3.1:8b', MESSAGES, {
+      retries: 0,
+    });
+
+    expect(fake.requests).toHaveLength(1);
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { code: 'unreachable' },
+    });
+  });
+
+  it('does not retry a real, informative failure (model not found)', async () => {
+    const { fake, client } = clientFor(
+      chatRoute(() =>
+        jsonResponse(
+          { error: 'model "llama3.1:8b" not found, try pulling it first' },
+          404,
+        ),
+      ),
+    );
+
+    await streamChat(client, 'llama3.1:8b', MESSAGES);
+
+    expect(fake.requests).toHaveLength(1);
+  });
+
+  it('reports aborted, not a failure, when the caller aborts during the backoff', async () => {
+    const { client } = clientFor(
+      chatRoute(() =>
+        streamResponse([], { failWith: new TypeError('terminated') }),
+      ),
+    );
+    const controller = new AbortController();
+
+    const pending = streamChat(client, 'llama3.1:8b', MESSAGES, {
+      signal: controller.signal,
+    });
+    setTimeout(() => controller.abort(), 20);
+
+    expect(await pending).toEqual({ status: 'aborted' });
+  });
+});
+
 describe('streamChat: abort mid-stream', () => {
   it('ends the generator quietly when aborted, with no error', async () => {
     const { client } = clientFor(

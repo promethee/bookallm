@@ -9,6 +9,23 @@
  */
 export const CHAT_STREAM_TIMEOUT_MS = 600_000;
 
+/**
+ * How many extra attempts `streamChat` makes when the connection drops before any answer
+ * text has arrived, before giving up. Real measurement (`ask-mode-screen`'s real-world
+ * check): on the same busy machine, a real `/api/chat` request sometimes fails with a
+ * plain connection reset partway through the long wait for the first token, well under
+ * `CHAT_STREAM_TIMEOUT_MS`'s own budget. Nothing has streamed yet at that point, so a
+ * retry from scratch costs nothing already shown to the reader. Only this pre-first-token
+ * case is retried: a failure once text has started arriving still ends the stream, since
+ * that text cannot be un-shown, and a real, informative failure (a model that is not
+ * installed, an explicit error line from Ollama) is never retried, since trying again
+ * cannot change that answer.
+ */
+export const CHAT_PRE_STREAM_RETRIES = 1;
+
+/** Pause between a dropped pre-stream connection and the next retry. */
+export const CHAT_RETRY_BACKOFF_MS = 250;
+
 /** Matches one citation marker: `[2]` or `[1, 3]`, one or more comma-separated numbers. */
 export const CITATION_PATTERN = /\[(\d+(?:\s*,\s*\d+)*)\]/g;
 
