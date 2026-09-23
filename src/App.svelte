@@ -2,6 +2,7 @@
   import { onMount, untrack } from 'svelte';
   import CheckingScreen from './components/CheckingScreen.svelte';
   import GetOllamaScreen from './components/GetOllamaScreen.svelte';
+  import HardwareWarningScreen from './components/HardwareWarningScreen.svelte';
   import ImportScreen from './components/ImportScreen.svelte';
   import IndexingScreen from './components/IndexingScreen.svelte';
   import LandingScreen from './components/LandingScreen.svelte';
@@ -54,6 +55,8 @@
       <UpdateOllamaScreen />
     {:else if controller.screen === 'pull-models'}
       <ModelsScreen />
+    {:else if controller.screen === 'hardware-warning'}
+      <HardwareWarningScreen />
     {:else if controller.screen === 'index-book'}
       <IndexingScreen />
     {:else if controller.screen === 'import-book'}

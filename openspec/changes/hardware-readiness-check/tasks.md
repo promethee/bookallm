@@ -16,10 +16,10 @@
 
 ## 3. The warning screen
 
-- [ ] 3.1 Add English and French messages for the warning's heading, its explanation ("this machine doesn't appear to accelerate local AI; answers will likely take several minutes each rather than seconds", in the project's plain, dash-free wording), and the "Continue anyway" button, and verify the language table parity test passes and no message uses an em dash
-- [ ] 3.2 Add `HardwareWarningScreen.svelte` (heading, explanation paragraph, one button calling `acknowledgeHardwareWarning()`, no error styling) and wire it into `App.svelte`'s screen chain, and verify component tests cover the screen rendering its text and the button moving on to the next screen
-- [ ] 3.3 Verify component tests cover keyboard reachability of the button and the same flow in French
-- [ ] 3.4 Commit checkpoint: "Add the hardware warning screen"
+- [x] 3.1 Add English and French messages for the warning's heading, its explanation ("this machine doesn't appear to accelerate local AI; answers will likely take several minutes each rather than seconds", in the project's plain, dash-free wording), and the "Continue anyway" button, and verify the language table parity test passes and no message uses an em dash
+- [x] 3.2 Add `HardwareWarningScreen.svelte` (heading, explanation paragraph, one button calling `acknowledgeHardwareWarning()`, no error styling) and wire it into `App.svelte`'s screen chain, and verify component tests cover the screen rendering its text and the button moving on to the next screen
+- [x] 3.3 Verify component tests cover keyboard reachability of the button and the same flow in French
+- [x] 3.4 Commit checkpoint: "Add the hardware warning screen"
 
 ## 4. End to end
 

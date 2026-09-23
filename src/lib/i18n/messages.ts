@@ -111,6 +111,11 @@ export const en = {
     'There is not enough free space on your disk. Free up some space, then try again.',
   'models.error.other': 'The download did not finish.',
 
+  'hardware.title': 'This computer may be slow at this',
+  'hardware.body':
+    'This computer does not appear to accelerate local AI. Answers will likely take several minutes each, rather than seconds. You can still use BookaLLM: it will just be slower.',
+  'hardware.continue': 'Continue anyway',
+
   'import.title': 'Add a book',
   'import.body':
     'Choose an EPUB book from your computer, or drop it here. BookaLLM only reads the file: it never changes, moves or deletes it.',
@@ -296,6 +301,11 @@ export const fr: Record<MessageKey, Message> = {
   'models.error.diskSpace':
     'Il n’y a pas assez de place libre sur votre disque. Libérez de l’espace, puis réessayez.',
   'models.error.other': 'Le téléchargement ne s’est pas terminé.',
+
+  'hardware.title': 'Cet ordinateur risque d’être lent',
+  'hardware.body':
+    'Cet ordinateur ne semble pas accélérer l’IA locale. Les réponses prendront probablement plusieurs minutes chacune, plutôt que quelques secondes. Vous pouvez quand même utiliser BookaLLM : ce sera simplement plus lent.',
+  'hardware.continue': 'Continuer quand même',
 
   'import.title': 'Ajouter un livre',
   'import.body':
