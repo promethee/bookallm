@@ -62,5 +62,5 @@ Requested by the user after 7.2: the real time Ollama takes to answer needs fixi
 ## 9. Wrap-up (final)
 
 - [x] 9.1 Re-verify `pnpm check` and `openspec validate ask-mode-screen --strict` after 8.1-8.5
-- [ ] 9.2 With the user's approval to push, verify CI is green on the pushed branch
-- [ ] 9.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change
+- [x] 9.2 With the user's approval to push, verify CI is green on the pushed branch
+- [x] 9.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change
