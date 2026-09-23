@@ -7,6 +7,7 @@ export type Screen =
   | 'get-ollama'
   | 'update-ollama'
   | 'pull-models'
+  | 'hardware-warning'
   | 'index-book'
   | 'import-book'
   | 'landing';
@@ -18,6 +19,14 @@ export type Screen =
  */
 export type IndexNeed = 'unknown' | 'ready' | 'needed';
 
+/**
+ * The result of checking whether Ollama can accelerate answers on this machine.
+ * `unknown` until the check has run; `skip` once it is resolved (already accelerated, or
+ * the warning already acknowledged) and does not need to run or be shown again.
+ */
+export type HardwareCheck =
+  'unknown' | 'accelerated' | 'not-accelerated' | 'inconclusive' | 'skip';
+
 export interface ScreenInput {
   /** The language the reader has chosen and saved; undefined on the first launch. */
   language: Language | undefined;
@@ -26,6 +35,8 @@ export interface ScreenInput {
   bookCount: number;
   /** Only looked at once Ollama and both models are ready. */
   index: IndexNeed;
+  /** Only looked at once Ollama and both models are ready. */
+  hardwareCheck: HardwareCheck;
   /** The reader chose "not now" on the import screen this session. */
   importPostponed: boolean;
   /** An import was asked for (from the landing screen) or is being shown. */
@@ -34,9 +45,10 @@ export interface ScreenInput {
 
 /**
  * The one screen to show, worked out from what is really true. The order is fixed:
- * language, checking, get Ollama, update Ollama, download models, index the active
- * book, import a first book, landing. There is no stored "setup finished" flag, so the screen can never disagree
- * with reality: if Ollama stops later, the get-Ollama screen comes back.
+ * language, checking, get Ollama, update Ollama, download models, the hardware warning,
+ * index the active book, import a first book, landing. There is no stored "setup
+ * finished" flag, so the screen can never disagree with reality: if Ollama stops later,
+ * the get-Ollama screen comes back.
  */
 export function decideScreen(input: ScreenInput): Screen {
   if (input.language === undefined) return 'language';
@@ -50,6 +62,8 @@ export function decideScreen(input: ScreenInput): Screen {
     case 'pull-models':
       return 'pull-models';
     case 'ready':
+      if (input.hardwareCheck === 'unknown') return 'checking';
+      if (input.hardwareCheck === 'not-accelerated') return 'hardware-warning';
       if (input.index === 'unknown') return 'checking';
       if (input.index === 'needed') return 'index-book';
       if (input.importRequested) return 'import-book';

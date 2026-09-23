@@ -22,6 +22,7 @@ const base: ScreenInput = {
   readiness: ready,
   bookCount: 1,
   index: 'ready',
+  hardwareCheck: 'skip',
   importPostponed: false,
   importRequested: false,
 };
@@ -131,6 +132,51 @@ const cases: [string, Partial<ScreenInput>, Screen][] = [
     'an indexed book and no request goes to the landing screen',
     { index: 'ready' },
     'landing',
+  ],
+  [
+    'ready but the hardware check has not run yet',
+    { hardwareCheck: 'unknown' },
+    'checking',
+  ],
+  [
+    'the machine is not accelerated',
+    { hardwareCheck: 'not-accelerated' },
+    'hardware-warning',
+  ],
+  [
+    'the machine is accelerated, no warning needed',
+    { hardwareCheck: 'accelerated' },
+    'landing',
+  ],
+  [
+    'the check could not get a clear answer, no warning shown',
+    { hardwareCheck: 'inconclusive' },
+    'landing',
+  ],
+  [
+    'the hardware warning beats an unindexed book',
+    { hardwareCheck: 'not-accelerated', index: 'needed' },
+    'hardware-warning',
+  ],
+  [
+    'the hardware warning beats a requested import',
+    { hardwareCheck: 'not-accelerated', importRequested: true },
+    'hardware-warning',
+  ],
+  [
+    'missing models come before the hardware check',
+    { readiness: pull, hardwareCheck: 'not-accelerated' },
+    'pull-models',
+  ],
+  [
+    'a stopped Ollama comes before the hardware check',
+    { readiness: get, hardwareCheck: 'not-accelerated' },
+    'get-ollama',
+  ],
+  [
+    'an old Ollama comes before the hardware check',
+    { readiness: update, hardwareCheck: 'not-accelerated' },
+    'update-ollama',
   ],
 ];
 

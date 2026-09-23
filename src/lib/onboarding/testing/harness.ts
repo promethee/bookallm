@@ -78,6 +78,13 @@ export interface HarnessOptions {
   nextFrame?: Services['nextFrame'];
   now?: Services['now'];
   platform?: Services['platform'];
+  /**
+   * Whether the hardware acceleration check is already resolved, so it does not run
+   * (and its one `/api/embed` call does not compete with a test's own embed budget).
+   * Defaults to true: most tests do not care about this check. Pass `false` to test the
+   * check itself.
+   */
+  hardwareCheckResolved?: boolean;
 }
 
 /**
@@ -92,6 +99,9 @@ export async function harness(
   const fake = simulateOllama(ollama);
   const settings = new MemorySettings();
   if (options.language) settings.save({ language: options.language });
+  settings.save({
+    hardwareCheckResolved: options.hardwareCheckResolved ?? true,
+  });
   const library = options.library ?? new MemoryLibrary();
   for (const book of options.books ?? []) {
     await library.saveBook(book);

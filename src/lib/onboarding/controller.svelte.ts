@@ -41,7 +41,13 @@ import {
 } from '../storage';
 import { retrievePassages, type RetrievalError } from '../retrieval';
 import { generateAnswer, type AnswerError, type Citation } from '../answering';
-import { decideScreen, type IndexNeed, type Screen } from './screens';
+import { checkAcceleration } from '../hardware';
+import {
+  decideScreen,
+  type HardwareCheck,
+  type IndexNeed,
+  type Screen,
+} from './screens';
 import type { Services } from './services';
 
 /** One question and its answer, kept only for this session. */
@@ -145,6 +151,8 @@ export class OnboardingController {
   pull = $state.raw<PullState>({ status: 'idle' });
   /** Whether the active book needs indexing for the configured embedding model. */
   index = $state<IndexNeed>('unknown');
+  /** Whether Ollama can accelerate answers on this machine. */
+  hardwareCheck = $state<HardwareCheck>('unknown');
   /** What is saved for the active book, as of the last time it was worked out. */
   indexInfo = $state.raw<IndexStatus | undefined>(undefined);
   indexState = $state.raw<IndexRunState>({ kind: 'idle' });
@@ -163,6 +171,7 @@ export class OnboardingController {
       readiness: this.readiness,
       bookCount: this.books.length,
       index: this.index,
+      hardwareCheck: this.hardwareCheck,
       importPostponed: this.importPostponed,
       importRequested: this.importRequested,
     }),
@@ -253,7 +262,10 @@ export class OnboardingController {
       const readiness = await checkSetup(client, this.models());
       if (!this.destroyed) {
         this.readiness = readiness;
-        if (readiness.step === 'ready') await this.ensureIndexNeed();
+        if (readiness.step === 'ready') {
+          await this.ensureHardwareCheck();
+          await this.ensureIndexNeed();
+        }
       }
     } finally {
       this.checking = false;
@@ -265,6 +277,35 @@ export class OnboardingController {
   /** Re-checks by hand, for the "check again" button. */
   checkAgain(): Promise<void> {
     return this.runCheck();
+  }
+
+  // ---- the hardware warning -------------------------------------------------------
+
+  /**
+   * Works out whether Ollama can accelerate answers on this machine, unless that is
+   * already resolved (accelerated, or the warning already acknowledged), in which case
+   * it is skipped without a request.
+   */
+  private async ensureHardwareCheck(): Promise<void> {
+    if (this.settings.hardwareCheckResolved) {
+      this.hardwareCheck = 'skip';
+      return;
+    }
+    const client = this.services.createClient(this.settings.ollamaUrl);
+    const result = await checkAcceleration(
+      client,
+      this.settings.embeddingModel,
+    );
+    if (this.destroyed) return;
+    this.hardwareCheck = result.status;
+    if (result.status === 'accelerated')
+      this.save({ hardwareCheckResolved: true });
+  }
+
+  /** "Continue anyway" on the hardware warning screen. */
+  acknowledgeHardwareWarning(): void {
+    this.save({ hardwareCheckResolved: true });
+    this.hardwareCheck = 'skip';
   }
 
   /** The waiting screens re-check on their own; every other screen only reads once. */

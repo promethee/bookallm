@@ -16,6 +16,14 @@ export interface OllamaState {
   installed: string[];
   /** When true, the version answers but the model list does not. */
   tagsFail?: boolean;
+  /** When true, `/api/ps` fails like a dropped connection. */
+  psFail?: boolean;
+  /**
+   * `/api/ps`'s running models. Undefined (the default) reports every installed model
+   * as fully GPU-resident; set to `[]` for none accelerated, or a specific list for a
+   * partial/zero-VRAM answer.
+   */
+  runningModels?: { model: string; size: number; size_vram: number }[];
   /** Models whose pull ends with an error line, by name. */
   pullErrors?: Record<string, string>;
   /** When set, version requests wait for this promise before answering. */
@@ -102,6 +110,19 @@ export function simulateOllama(state: OllamaState): FakeFetch {
       return jsonResponse({
         models: state.installed.map((name) => ({ name })),
       });
+    },
+    'GET /api/ps': () => {
+      if (state.psFail) throw new TypeError('fetch failed');
+      // Default: every installed model is reported fully GPU-resident, so a test that
+      // does not care about hardware acceleration is not affected by this check.
+      const models =
+        state.runningModels ??
+        state.installed.map((name) => ({
+          model: normalizeModelName(name),
+          size: 1_000_000,
+          size_vram: 1_000_000,
+        }));
+      return jsonResponse({ models });
     },
     'POST /api/chat': (request, signal) => {
       const { model, messages } = JSON.parse(request.body!) as {
