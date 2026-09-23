@@ -17,7 +17,7 @@
 
 ## 3. Real-world check
 
-- [ ] 3.1 Add a manual test (skipped unless `OLLAMA_URL` is set, matching `answer-generation`'s own real-check pattern), reusing a cached real book already indexed by an earlier change's real-world check if one is still available, or a fresh small real book otherwise; generates several claims in a row and prints each one's claim text, whether it was offered true or changed, the changed attribute when applicable, and the citation; verify it is skipped in the normal run and typechecks
+- [x] 3.1 Add a manual test (skipped unless `OLLAMA_URL` is set, matching `answer-generation`'s own real-check pattern), reusing a cached real book already indexed by an earlier change's real-world check if one is still available, or a fresh small real book otherwise; generates several claims in a row and prints each one's claim text, whether it was offered true or changed, the changed attribute when applicable, and the citation; verify it is skipped in the normal run and typechecks
 - [ ] 3.2 With the user's Ollama, run it and read the results by hand against the source chunks: is each claim actually checkable and grounded in its chunk, does the changed version really alter only one attribute, does verification's confirm/reject match your own judgement reading the passage, and does the true/changed split look unpredictable across several claims rather than favouring one; record the transcript, what worked, and any prompt fix or retry-count adjustment it revealed, in the design
 - [ ] 3.3 Commit checkpoint: "Record the claim-mutation real-world check"
 
