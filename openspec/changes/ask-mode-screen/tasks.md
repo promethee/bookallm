@@ -56,11 +56,11 @@ Requested by the user after 7.2: the real time Ollama takes to answer needs fixi
 - [x] 8.1 Add `CHAT_CONTEXT_LENGTH` (`num_ctx`, 8192) and `CHAT_MAX_ANSWER_TOKENS` (`num_predict`, 500) to `answering/defaults.ts`, sized against retrieval's own hard caps, and send both in `/api/chat`'s `options`
 - [x] 8.2 Verify a unit test asserts the request carries a smaller context window than the model's default and a positive answer-length cap
 - [x] 8.3 Verify `pnpm check` (lint, typecheck, the full test suite) passes end to end
-- [ ] 8.4 Try it against the real Ollama (optional, time-permitting) and record whether it measurably shortens the wait
+- [x] 8.4 Try it against the real Ollama (optional, time-permitting) and record whether it measurably shortens the wait — tried live; did not meaningfully shorten it. Root-caused with a second, GPU-equipped machine (see design.md's follow-up): the gap is GPU offload, not context window size. Recorded as a hardware note in the README's Platform section.
 - [x] 8.5 Commit checkpoint: "Reduce the context window and cap the answer length"
 
 ## 9. Wrap-up (final)
 
-- [ ] 9.1 Re-verify `pnpm check` and `openspec validate ask-mode-screen --strict` after 8.1-8.5
+- [x] 9.1 Re-verify `pnpm check` and `openspec validate ask-mode-screen --strict` after 8.1-8.5
 - [ ] 9.2 With the user's approval to push, verify CI is green on the pushed branch
 - [ ] 9.3 Commit checkpoint: "Finish ask-mode-screen", then archive the change

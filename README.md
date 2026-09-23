@@ -44,6 +44,28 @@ users with more VRAM. The existing GitHub Actions release pipeline
 (tauri-action matrix build across macOS/Linux/Windows) is reusable
 here.
 
+**Hardware expectations, measured, not guessed.** A GPU that can
+hold the chat model entirely in VRAM is the real requirement for a
+fast answer, not RAM or CPU tuning. Two real machines, same request
+(the app's actual prompt shape, `llama3.1:8b`, a cold and then a warm
+call):
+
+- No GPU (AMD Ryzen 3 3200U, 4 cores, integrated graphics unused by
+  Ollama, 14GB usable RAM): cold answers took 250-800+ seconds, and
+  sometimes failed outright with a dropped connection partway
+  through the wait.
+- Full GPU offload (12 cores, 33.5GB RAM, enough VRAM to hold the
+  5.93GB model): cold answer in 15.6 seconds, warm in under a
+  second.
+
+Both machines ran the same app code; the gap is entirely the
+missing GPU. A CPU-only machine can still work (retrieval, citation
+resolution and the "getting ready" wait state are all built for a
+slow first answer), just with a much longer wait, and a smaller
+chat model (e.g. `qwen2.5:0.5b`) trades citation and answer
+reliability for speed on such a machine rather than eliminating the
+trade-off.
+
 ## Tech Stack
 
 - Language: TypeScript
