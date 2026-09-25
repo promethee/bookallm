@@ -49,6 +49,25 @@ describe('generateMutation', () => {
     );
   });
 
+  it('tolerates a bare attribute line with no ATTRIBUTE:/CLAIM: labels', async () => {
+    const { client } = clientFor(() =>
+      scripted('ORDER\nThe elopement of Wickham and Lydia happened first.'),
+    );
+
+    const result = await generateMutation(
+      client,
+      'llama3.1:8b',
+      'passage',
+      'true claim',
+    );
+
+    expect(result).toEqual({
+      status: 'ok',
+      claim: 'The elopement of Wickham and Lydia happened first.',
+      attribute: 'order',
+    });
+  });
+
   it('reports chat-failed when the response cannot be parsed', async () => {
     const { client } = clientFor(() => scripted('Something unrelated.'));
 

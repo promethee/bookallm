@@ -15,20 +15,38 @@ const ATTRIBUTE_KEYWORDS: Record<ChangedAttribute, RegExp> = {
   where: /where/i,
 };
 
-/** Finds the `ATTRIBUTE:` line's value among the known kinds, case-insensitively. */
-function parseAttribute(text: string): ChangedAttribute | undefined {
-  const line = /attribute:\s*(.+)/i.exec(text)?.[1];
-  if (!line) return undefined;
+const findKeyword = (text: string): ChangedAttribute | undefined => {
   for (const [attribute, pattern] of Object.entries(ATTRIBUTE_KEYWORDS)) {
-    if (pattern.test(line)) return attribute as ChangedAttribute;
+    if (pattern.test(text)) return attribute as ChangedAttribute;
   }
   return undefined;
-}
+};
 
-/** Finds the `CLAIM:` line's value, trimmed. */
-function parseClaim(text: string): string | undefined {
-  const line = /claim:\s*(.+)/i.exec(text)?.[1];
-  return line?.trim() || undefined;
+/**
+ * Finds which known attribute the response names, and the changed claim, tolerating a
+ * model that drops the requested `ATTRIBUTE:`/`CLAIM:` labels (seen in real use: a bare
+ * first line like `ORDER` followed by the claim, no labels at all).
+ */
+function parseMutation(
+  text: string,
+): { attribute: ChangedAttribute; claim: string } | undefined {
+  const attributeLine = /attribute:\s*(.+)/i.exec(text)?.[1];
+  const claimLine = /claim:\s*(.+)/i.exec(text)?.[1]?.trim();
+  const labelledAttribute = attributeLine && findKeyword(attributeLine);
+  if (labelledAttribute && claimLine)
+    return { attribute: labelledAttribute, claim: claimLine };
+
+  // Fallback: an unlabelled short first line naming the attribute, rest is the claim.
+  const lines = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  if (lines.length >= 2 && lines[0].length <= 20) {
+    const bareAttribute = findKeyword(lines[0]);
+    if (bareAttribute)
+      return { attribute: bareAttribute, claim: lines.slice(1).join(' ') };
+  }
+  return undefined;
 }
 
 /**
@@ -50,15 +68,14 @@ export async function generateMutation(
   );
   if (result.status !== 'ok') return result;
 
-  const attribute = parseAttribute(result.text);
-  const claim = parseClaim(result.text);
-  if (!attribute || !claim)
+  const parsed = parseMutation(result.text);
+  if (!parsed)
     return {
       status: 'failed',
       error: {
         code: 'chat-failed',
-        detail: `Could not read an ATTRIBUTE and CLAIM line from: ${result.text}`,
+        detail: `Could not read an attribute and claim from: ${result.text}`,
       },
     };
-  return { status: 'ok', claim, attribute };
+  return { status: 'ok', claim: parsed.claim, attribute: parsed.attribute };
 }
