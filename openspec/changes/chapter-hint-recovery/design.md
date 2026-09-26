@@ -34,7 +34,7 @@ Alternative: a separate `retrieveInChapter`. Rejected: it would duplicate the va
 
 `src/lib/recovery/chapter-hint.ts`:
 
-- `findChapterReference(message)` returns the referenced number or `undefined`. It matches `chapter`, `chapitre`, `chap.` or `ch.` (case-insensitive, word boundary), optional spaces, then digits or a Roman numeral (I–C range, validated by converting back). It also accepts `n°`/`no.` between the word and the number. Nothing else is parsed: no number words, no bare numbers ("7" alone could be anything).
+- `findChapterReference(message)` returns the referenced number or `undefined`. It matches `chapter`, `chapitre`, `chap.` or `ch.` (case-insensitive, word boundary), optional spaces, then digits or a Roman numeral (I to CCCXCIX, only well-formed numerals, since some books have over a hundred chapters). It also accepts `n°`/`no.` between the word and the number. Nothing else is parsed: no number words, no bare numbers ("7" alone could be anything).
 - `matchChapterByTitle(chapters, number)` returns the chapters with text whose title names that number. A title names n when it contains `chapter`/`chapitre`/`chap.` followed by n (digits or Roman), or when it *starts* with n (digits or Roman) followed by `.`, `:`, `)`, `-`, `—`, whitespace or end of title. Matching uses the whole number (7 never matches 17 or VII in "VIII"). A lone Roman "I" at the start counts only when followed by `.`, `:`, `—`, `-` or end, so a title like "I Meet Him" is not chapter 1.
 
 The controller treats one match as the chapter and zero or several as "unclear" (decision 4).

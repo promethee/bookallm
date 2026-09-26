@@ -2,9 +2,9 @@
 
 ## 1. Libraries
 
-- [ ] 1.1 Add `chapterNumber?: number` to `retrievePassages` (design decision 1): score only that chapter's chunks, load only its vector record, return `nothing-relevant` with no passages and no request for an empty chapter; verify with new `retrieve.test.ts` cases: only that chapter's passages, a better match in another chapter ignored, low scores still returned with `nothing-relevant`, empty chapter sends nothing, and whole-book search unchanged
-- [ ] 1.2 Create `src/lib/recovery/chapter-hint.ts` with `findChapterReference` and `matchChapterByTitle` (design decision 2), exported through `src/lib/recovery/index.ts`; verify with `chapter-hint.test.ts`: English and French words, `ch.`/`chap.`/`n°`, digits and Roman numerals, case-insensitivity, no match for bare numbers or number words, whole-number matching (7 vs 17, VII vs VIII), titles starting with a number, the lone "I" title, empty chapters excluded, zero and several matches
-- [ ] 1.3 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add chapter-restricted retrieval and chapter hint parsing")
+- [x] 1.1 Add `chapterNumber?: number` to `retrievePassages` (design decision 1): score only that chapter's chunks, load only its vector record, return `nothing-relevant` with no passages and no request for an empty chapter; verify with new `retrieve.test.ts` cases: only that chapter's passages, a better match in another chapter ignored, low scores still returned with `nothing-relevant`, empty chapter sends nothing, and whole-book search unchanged
+- [x] 1.2 Create `src/lib/recovery/chapter-hint.ts` with `findChapterReference` and `matchChapterByTitle` (design decision 2), exported through `src/lib/recovery/index.ts`; verify with `chapter-hint.test.ts`: English and French words, `ch.`/`chap.`/`n°`, digits and Roman numerals, case-insensitivity, no match for bare numbers or number words, whole-number matching (7 vs 17, VII vs VIII), titles starting with a number, the lone "I" title, empty chapters excluded, zero and several matches
+- [x] 1.3 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add chapter-restricted retrieval and chapter hint parsing")
 
 ## 2. Controller
 

@@ -571,3 +571,84 @@ describe('retrievePassages: what it touches', () => {
     expect(await env.store.modelsWithVectors(HASH)).toEqual([NAME]);
   });
 });
+
+describe('retrievePassages: restricted to one chapter', () => {
+  it('returns only that chapter’s passages, best first', async () => {
+    const env = setup({ embedFixed: ASK });
+    const book = await withVectors(env, [2, 3], FIVE);
+
+    const result = await search(env, book, { chapterNumber: 2 });
+
+    if (result.status !== 'ok') throw new Error('expected a result');
+    expect(result.passages.map((p) => p.chunkId)).toEqual([
+      book.chunks[2].id,
+      book.chunks[3].id,
+      book.chunks[4].id,
+    ]);
+    for (const passage of result.passages)
+      expect(passage.locator.chapterNumber).toBe(2);
+  });
+
+  it('ignores a better match in another chapter', async () => {
+    const env = setup({ embedFixed: ASK });
+    const book = await withVectors(env, [2, 3], FIVE);
+
+    const result = await search(env, book, { chapterNumber: 2, limit: 1 });
+
+    if (result.status !== 'ok') throw new Error('expected a result');
+    expect(result.passages.map((p) => p.chunkId)).not.toContain(
+      book.chunks[0].id,
+    );
+    expect(result.passages).toHaveLength(1);
+  });
+
+  it('still returns the chapter’s passages when none reaches the cutoff', async () => {
+    const env = setup({ embedFixed: ASK });
+    const book = await withVectors(env, [2, 3], FIVE);
+
+    const result = await search(env, book, { chapterNumber: 2 });
+
+    if (result.status !== 'ok') throw new Error('expected a result');
+    expect(result.verdict).toBe('nothing-relevant');
+    expect(result.passages.length).toBeGreaterThan(0);
+  });
+
+  it('computes the verdict as usual when the chapter has a good match', async () => {
+    const env = setup({ embedFixed: ASK });
+    const book = await withVectors(env, [2, 3], FIVE);
+
+    const result = await search(env, book, { chapterNumber: 1 });
+
+    if (result.status !== 'ok') throw new Error('expected a result');
+    expect(result.verdict).toBe('relevant');
+  });
+
+  it('finds nothing and sends nothing for a chapter without text', async () => {
+    const env = setup({ embedFixed: ASK });
+    const book = await withVectors(env, [2, 0, 3], FIVE);
+
+    const result = await search(env, book, { chapterNumber: 2 });
+
+    expect(result).toEqual({
+      status: 'ok',
+      verdict: 'nothing-relevant',
+      passages: [],
+    });
+    expect(embedRequests(env)).toHaveLength(0);
+  });
+
+  it('reads only that chapter’s vectors', async () => {
+    const env = setup({ embedFixed: ASK });
+    const book = await withVectors(env, [2, 3], FIVE);
+    const loaded: number[] = [];
+    const loadChapter = env.store.loadChapter.bind(env.store);
+    env.store.loadChapter = (hash, model, chapter) => {
+      loaded.push(chapter);
+      return loadChapter(hash, model, chapter);
+    };
+
+    await search(env, book, { chapterNumber: 2 });
+
+    expect(loaded).toEqual([2]);
+  });
+});

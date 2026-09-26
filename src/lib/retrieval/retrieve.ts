@@ -26,6 +26,11 @@ export interface RetrieveOptions {
   limit?: number;
   /** Replaces `RELEVANCE_CUTOFF`; the real-book measurement uses it to try values. */
   cutoff?: number;
+  /**
+   * Restricts the search to the chapter at this 1-based table-of-contents position: only
+   * its chunks are ranked and only its vectors are read. The verdict is computed as usual.
+   */
+  chapterNumber?: number;
   /** Aborting this stops the search while it waits for Ollama. */
   signal?: AbortSignal;
 }
@@ -62,12 +67,14 @@ export function cleanQuestion(question: string): string {
  *   the book, so the same question always gives the same answer.
  * - The verdict compares the best score with the relevance cutoff. The passages are
  *   returned whatever the verdict, and it never claims the book has no answer.
+ * - With `chapterNumber`, only that chapter is searched; a chapter without text finds
+ *   nothing and sends nothing to Ollama.
  * - Nothing is written: the store is only read.
  */
 export async function retrievePassages(
   options: RetrieveOptions,
 ): Promise<RetrievalResult> {
-  const { book, client, store, signal } = options;
+  const { book, client, store, signal, chapterNumber } = options;
   const limit = options.limit ?? DEFAULT_PASSAGE_COUNT;
   const cutoff = options.cutoff ?? RELEVANCE_CUTOFF;
   const model = normalizeModelName(options.model);
@@ -75,11 +82,18 @@ export async function retrievePassages(
   const question = cleanQuestion(options.question);
   if (question === '') return failed({ code: 'empty-question' });
 
+  const candidates =
+    chapterNumber === undefined
+      ? book.chunks
+      : book.chunks.filter(
+          (chunk) => chunk.locator.chapterNumber === chapterNumber,
+        );
+
   try {
     const status = await indexStatus(book, options.model, store);
     if (status.state !== 'complete') return failed({ code: 'not-indexed' });
-    // A book without text has nothing to find: no reason to bother Ollama.
-    if (book.chunks.length === 0)
+    // A book (or chapter) without text has nothing to find: no reason to bother Ollama.
+    if (candidates.length === 0)
       return { status: 'ok', verdict: 'nothing-relevant', passages: [] };
   } catch (error) {
     return failed({
@@ -107,7 +121,7 @@ export async function retrievePassages(
   // Every chunk's saved vector, found by the chunk's id.
   const vectors = new Map<string, Float32Array>();
   try {
-    for (const chapter of chunksByChapter(book.chunks).keys()) {
+    for (const chapter of chunksByChapter(candidates).keys()) {
       if (signal?.aborted) return { status: 'aborted' };
       const record = await store.loadChapter(book.hash, model, chapter);
       if (!record) return failed({ code: 'not-indexed' });
@@ -134,7 +148,7 @@ export async function retrievePassages(
   }
 
   const scores: number[] = [];
-  for (const chunk of book.chunks) {
+  for (const chunk of candidates) {
     const vector = vectors.get(chunk.id);
     if (!vector) return failed({ code: 'not-indexed' });
     scores.push(cosineSimilarity(query, vector));
@@ -142,7 +156,7 @@ export async function retrievePassages(
 
   const passages: Passage[] = rankScores(scores, limit).map(
     ({ index, score }) => {
-      const chunk = book.chunks[index];
+      const chunk = candidates[index];
       return {
         chunkId: chunk.id,
         text: chunk.text,
