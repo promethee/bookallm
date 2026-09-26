@@ -6,6 +6,10 @@ const LATER = { timeout: 15_000 };
 const heading = (page: Page, name: string | RegExp) =>
   page.getByRole('heading', { level: 1, name });
 
+/** The Verify panel, so verdicts are not also matched in the live region's announcement. */
+const verifyPanel = (page: Page) =>
+  page.getByRole('tabpanel', { name: 'Verify' });
+
 /** Imports a one-chapter book and lands on it. */
 async function landOnBook(page: Page) {
   await page.goto('/');
@@ -55,7 +59,7 @@ test.describe('Verify mode', () => {
       .getByRole('button', { name: isTrue ? 'True' : 'False', exact: true })
       .click();
 
-    await expect(page.getByText('You were right.')).toBeVisible();
+    await expect(verifyPanel(page).getByText('You were right.')).toBeVisible();
     await expect(
       page.getByText(
         isTrue
@@ -100,7 +104,7 @@ test.describe('Verify mode', () => {
     });
     await choice.focus();
     await page.keyboard.press('Enter');
-    await expect(page.getByText('You were right.')).toBeVisible();
+    await expect(verifyPanel(page).getByText('You were right.')).toBeVisible();
 
     await page.getByRole('button', { name: 'Next claim' }).focus();
     await page.keyboard.press('Enter');
