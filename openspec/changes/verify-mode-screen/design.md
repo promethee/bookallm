@@ -62,6 +62,31 @@ Switching tabs does not abort anything. Ollama queues concurrent requests, so as
 - [Unverified claims are frequent on real text] → Shown as a plain "could not make a fair claim" failure with a retry, never as a wrong claim. The real-world check records how often this happens.
 - [Tally only counts judged claims] → Stopped and failed claims are invisible in the score, which is intended: the reader did not get to judge them.
 
+## Real-world check (2026-09-27)
+
+Run in the real app (`pnpm dev` in a browser) against a local Ollama on the GPU machine (RTX 3060 12 GB, `llama3.1:8b` fully GPU-resident), with *Candide* (Project Gutenberg #19942, English, 72 sections) imported and indexed in under two minutes. Times are from the click on "Give me a claim", "Next claim" or "Try again" to the claim or failure appearing.
+
+| Attempt | Outcome | Time |
+| --- | --- | --- |
+| 1 | Unverified (includes a 55 s cold load of the chat model) | 165.9 s |
+| 2 | True claim, judged right | 2.0 s |
+| 3 | Unverified | 5.6 s |
+| 4 | Other failure: the model answered `ATTRIBUTE: age`, not one of the four kinds | 4.5 s |
+| 5 | Changed claim ("company of horse" for "of foot"), judged right | 4.2 s |
+| 6 | True claim, judged right | 3.1 s |
+| 7–10 | Unverified, four in a row | 4.2–5.1 s |
+| 11 | True claim, judged wrong on purpose ("Not this time", tally 3 of 4) | 4.0 s |
+| 12 | True claim, from the edition's Introduction, judged right | 2.5 s |
+
+- **Time per claim:** 2–6 s once the model is loaded; the first request after a cold start took almost 3 minutes, which the "getting ready" note covers.
+- **Unverified:** 6 of 12 attempts (50 %), plus 1 parse failure. Each was shown as the plain failure with a working retry, never as a wrong claim.
+- **True and changed both appeared,** but unevenly: 4 true, 1 changed. Since true claims skip verification, the unverified failures are likely all changed-claim attempts, which skews what the reader sees toward true claims.
+- **Mislabelled change:** the one changed claim swapped "foot" for "horse" but was labelled "the order of events", so the reveal named the wrong attribute.
+- **Front matter:** one claim came from the translator's Introduction, not the story.
+- **Screen:** tabs, waiting note, claim card, both verdicts, changed-attribute line, source passage with chapter, tally, failure messages and retry all behaved as specified. Cosmetic: Gutenberg passages begin with the chapter title, so it shows twice under "From the book".
+
+The screen works as designed. The unverified rate, the true/changed skew, the attribute label and front-matter passages are claim-mutation quality issues, out of scope here (see Non-Goals), for a follow-up change.
+
 ## Migration Plan
 
 No stored data changes. Rollback is reverting the change; nothing saved needs cleanup.

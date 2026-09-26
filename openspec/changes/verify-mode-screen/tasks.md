@@ -26,6 +26,6 @@
 
 ## 4. Real-world check and wrap-up
 
-- [ ] 4.1 With the app pointed at the GPU machine (`http://192.168.0.66:11434`, set through the app's Ollama address setting), open a real indexed book, generate and judge at least five claims, and record in this change's design.md: time per claim, how many came out unverified, and whether true and changed claims both appeared; verify the notes are written
-- [ ] 4.2 Update the README Status section to say Verify mode's screen (mode tabs, session tally) works end to end; verify the "not built yet" sentence no longer lists it
-- [ ] 4.3 Flag the new French messages for the deferred French review (memory file `french-indexing-text-review-deferred.md`), then commit ("Finish verify-mode-screen")
+- [x] 4.1 With the app pointed at the GPU machine (`http://192.168.0.66:11434`, set through the app's Ollama address setting), open a real indexed book, generate and judge at least five claims, and record in this change's design.md: time per claim, how many came out unverified, and whether true and changed claims both appeared; verify the notes are written
+- [x] 4.2 Update the README Status section to say Verify mode's screen (mode tabs, session tally) works end to end; verify the "not built yet" sentence no longer lists it
+- [x] 4.3 Flag the new French messages for the deferred French review (memory file `french-indexing-text-review-deferred.md`), then commit ("Finish verify-mode-screen")
