@@ -22,6 +22,8 @@ export interface Services {
   nextFrame(): Promise<void>;
   /** The current time in milliseconds; replaceable so tests control the clock. */
   now(): number;
+  /** A number in [0, 1); replaceable so tests control which claims Verify mode makes. */
+  random(): number;
 }
 
 const paint = (): Promise<void> =>
@@ -51,6 +53,7 @@ export async function createServices(
     pollIntervalMs: 3000,
     nextFrame: paint,
     now: () => Date.now(),
+    random: () => Math.random(),
     ...overrides,
   };
 }

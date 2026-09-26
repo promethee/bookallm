@@ -78,6 +78,7 @@ export interface HarnessOptions {
   nextFrame?: Services['nextFrame'];
   now?: Services['now'];
   platform?: Services['platform'];
+  random?: Services['random'];
   /**
    * Whether the hardware acceleration check is already resolved, so it does not run
    * (and its one `/api/embed` call does not compete with a test's own embed budget).
@@ -123,6 +124,7 @@ export async function harness(
     pollIntervalMs: 3000,
     nextFrame: options.nextFrame ?? (async () => undefined),
     now: options.now ?? (() => Date.now()),
+    random: options.random ?? (() => Math.random()),
   };
   const controller = new OnboardingController(services);
   return { controller, services, fake, storage, library, settings, opened };

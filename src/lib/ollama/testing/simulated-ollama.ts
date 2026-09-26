@@ -1,3 +1,8 @@
+import {
+  extractionPrompt,
+  mutationPrompt,
+  verificationPrompt,
+} from '../../mutation/defaults';
 import { normalizeModelName } from '../models';
 import {
   createFakeFetch,
@@ -62,12 +67,31 @@ export interface OllamaState {
   chatStallAfterChunks?: number;
   /** How many chat requests have arrived. Kept by the simulator; tests may reset it. */
   chatCalls?: number;
+  /** What the default reply to Verify mode's verification prompt says. Defaults to CONTRADICTS. */
+  claimVerdict?: 'CONTRADICTS' | 'MATCHES';
 }
 
-/** A deterministic default answer: echoes the question and cites the first passage. */
-function defaultChatChunks(
+const firstLine = (text: string) => text.split('\n')[0];
+const lastLine = (text: string) => text.trim().split('\n').at(-1) ?? '';
+
+/**
+ * A deterministic default answer. For Verify mode's three claim prompts (recognised by
+ * their first line): a claim quoting the passage, a changed claim naming `who`, and the
+ * verification verdict. For anything else: echoes the question and cites the first passage.
+ * Shared with the e2e mock, so both answer the same way.
+ */
+export function defaultChatChunks(
   messages: { role: string; content: string }[],
+  state: Pick<OllamaState, 'claimVerdict'> = {},
 ): string[] {
+  const system =
+    messages.find((message) => message.role === 'system')?.content ?? '';
+  if (firstLine(system) === firstLine(extractionPrompt('')))
+    return [`Claim: ${lastLine(system)}`];
+  if (firstLine(system) === firstLine(mutationPrompt('', '')))
+    return [`ATTRIBUTE: who\nCLAIM: Changed: ${lastLine(system)}`];
+  if (firstLine(system) === firstLine(verificationPrompt('', '')))
+    return [state.claimVerdict ?? 'CONTRADICTS'];
   const question =
     messages.find((message) => message.role === 'user')?.content ?? '';
   return ['Answer: ', question, ' [1]'];
@@ -142,7 +166,7 @@ export function simulateOllama(state: OllamaState): FakeFetch {
           { error: `model "${model}" not found, try pulling it first` },
           404,
         );
-      const chunks = state.chatChunks ?? defaultChatChunks(messages);
+      const chunks = state.chatChunks ?? defaultChatChunks(messages, state);
       const lines = chunks.map((content) =>
         ndjson({ message: { role: 'assistant', content }, done: false }),
       );

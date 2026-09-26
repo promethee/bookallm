@@ -43,6 +43,11 @@ import { retrievePassages, type RetrievalError } from '../retrieval';
 import { generateAnswer, type AnswerError, type Citation } from '../answering';
 import { checkAcceleration } from '../hardware';
 import {
+  generateClaim,
+  type MutationClaim,
+  type MutationError,
+} from '../mutation';
+import {
   decideScreen,
   type HardwareCheck,
   type IndexNeed,
@@ -66,6 +71,24 @@ export interface Turn {
   text: string;
   citations: AskCitation[];
   error?: RetrievalError | AnswerError;
+}
+
+export type Mode = 'ask' | 'verify';
+
+/**
+ * Verify mode's current claim. `generating`: waiting for a claim. `ready`: shown, not
+ * judged yet. `revealed`: judged, with `guess` set and the answer shown.
+ */
+export interface VerifyState {
+  state: 'idle' | 'generating' | 'ready' | 'revealed' | 'failed';
+  claim?: MutationClaim;
+  guess?: boolean;
+  error?: MutationError;
+}
+
+export interface VerifyTally {
+  judged: number;
+  correct: number;
 }
 
 /** A short note for screen readers, as a message key so it follows the language. */
@@ -191,10 +214,21 @@ export class OnboardingController {
       this.turns.at(-1)?.state === 'streaming',
   );
 
+  /** The mode shown on the landing screen. Always Ask when the app starts. */
+  mode = $state<Mode>('ask');
+  verify = $state.raw<VerifyState>({ state: 'idle' });
+  /** Claims judged this session for the active book, and how many were judged right. */
+  verifyTally = $state.raw<VerifyTally>({ judged: 0, correct: 0 });
+  /** True while a claim is being generated, so only one is generated at a time. */
+  verifyBusy = $derived(this.verify.state === 'generating');
+
   private timer: ReturnType<typeof setInterval> | undefined;
   private pullAbort: AbortController | undefined;
   private indexAbort: AbortController | undefined;
   private askAbort: AbortController | undefined;
+  private verifyAbort: AbortController | undefined;
+  /** Chunks already used for a claim this session, so the same passage is not repeated. */
+  private usedChunkIds: string[] = [];
   /** True from the moment an index run starts until it ends, so it is never started twice. */
   private indexing = false;
   /** Which book and model `index` was worked out for, so unchanged answers are reused. */
@@ -225,6 +259,7 @@ export class OnboardingController {
     this.stopPolling();
     this.indexAbort?.abort();
     this.askAbort?.abort();
+    this.verifyAbort?.abort();
   }
 
   // ---- language -----------------------------------------------------------------
@@ -473,7 +508,7 @@ export class OnboardingController {
     switch (result.status) {
       case 'existing':
         this.save({ activeBook: result.entry.hash });
-        this.turns = [];
+        this.resetBookSession();
         this.importState = {
           kind: 'imported',
           book: summaryOfEntry(result.entry),
@@ -525,7 +560,7 @@ export class OnboardingController {
       if (error instanceof DuplicateHashError) {
         // Saved by an earlier attempt: treat it as already imported.
         this.save({ activeBook: book.hash });
-        this.turns = [];
+        this.resetBookSession();
         this.importState = {
           kind: 'imported',
           book: summaryOf(book),
@@ -544,7 +579,7 @@ export class OnboardingController {
     }
     this.books = await library.registry.list();
     this.save({ activeBook: book.hash });
-    this.turns = [];
+    this.resetBookSession();
     this.importState = {
       kind: 'imported',
       book: summaryOf(book),
@@ -821,6 +856,106 @@ export class OnboardingController {
     } finally {
       this.askAbort = undefined;
     }
+  }
+
+  // ---- Verify mode ------------------------------------------------------------------
+
+  /** Switches between Ask and Verify mode. Nothing running in either mode is stopped. */
+  setMode(mode: Mode): void {
+    this.mode = mode;
+  }
+
+  /**
+   * Generates one claim about the active book, true or changed, from a passage not used
+   * yet this session. Does nothing while a claim is already being generated.
+   */
+  async requestClaim(): Promise<void> {
+    if (this.verifyBusy) return;
+    this.verify = { state: 'generating' };
+    const abort = new AbortController();
+    this.verifyAbort = abort;
+    const current = () => this.verifyAbort === abort;
+    try {
+      const entry = this.activeBook;
+      const book = entry
+        ? await this.services.storage.library.getBook(entry.hash)
+        : undefined;
+      if (!current()) return;
+      if (!book) {
+        this.verify = { state: 'idle' };
+        return;
+      }
+
+      const generate = () =>
+        generateClaim({
+          book,
+          model: this.settings.chatModel,
+          client: this.services.createClient(this.settings.ollamaUrl),
+          excludeChunkIds: this.usedChunkIds,
+          random: this.services.random,
+          signal: abort.signal,
+        });
+      let result = await generate();
+      // Every passage has been used this session: start over rather than stop the reader.
+      if (
+        current() &&
+        result.status === 'failed' &&
+        result.error.code === 'no-chunks-available' &&
+        this.usedChunkIds.length > 0
+      ) {
+        this.usedChunkIds = [];
+        result = await generate();
+      }
+      if (!current()) return;
+
+      if (result.status === 'aborted') {
+        this.verify = { state: 'idle' };
+      } else if (result.status === 'failed') {
+        this.verify = { state: 'failed', error: result.error };
+        this.announce('announce.claimFailed');
+      } else {
+        this.usedChunkIds = [
+          ...this.usedChunkIds,
+          result.claim.citation.chunkId,
+        ];
+        this.verify = { state: 'ready', claim: result.claim };
+        this.announce('announce.claimReady');
+      }
+    } finally {
+      if (current()) this.verifyAbort = undefined;
+    }
+  }
+
+  /** Stops the claim being generated, if any. Nothing is shown and nothing is counted. */
+  stopClaim(): void {
+    this.verifyAbort?.abort();
+  }
+
+  /** Requests a new claim after a failure. */
+  retryClaim(): Promise<void> {
+    return this.requestClaim();
+  }
+
+  /** Records the reader's judgment of the current claim and reveals the answer, once. */
+  judgeClaim(guess: boolean): void {
+    if (this.verify.state !== 'ready' || !this.verify.claim) return;
+    const right = guess === this.verify.claim.isTrue;
+    this.verify = { state: 'revealed', claim: this.verify.claim, guess };
+    this.verifyTally = {
+      judged: this.verifyTally.judged + 1,
+      correct: this.verifyTally.correct + (right ? 1 : 0),
+    };
+    this.announce(right ? 'announce.judgedRight' : 'announce.judgedWrong');
+  }
+
+  /** Clears everything kept for this session about the active book, in both modes. */
+  private resetBookSession(): void {
+    this.turns = [];
+    this.verifyAbort?.abort();
+    this.verifyAbort = undefined;
+    this.verify = { state: 'idle' };
+    this.verifyTally = { judged: 0, correct: 0 };
+    this.usedChunkIds = [];
   }
 
   // ---- helpers ----------------------------------------------------------------------

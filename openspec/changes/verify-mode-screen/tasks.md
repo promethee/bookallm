@@ -2,12 +2,12 @@
 
 ## 1. Controller state and actions
 
-- [ ] 1.1 Add `mode` (default `'ask'`, never saved) and `setMode` to `OnboardingController`; verify with a new `controller.verify.test.ts` case that a fresh controller is in Ask mode and `setMode('verify')` switches it
-- [ ] 1.2 Add the Verify state (`idle`/`generating`/`ready`/`revealed`/`failed`), `verifyTally`, private `usedChunkIds` and `verifyAbort`, and `requestClaim` calling `generateClaim` with the loaded book, chat model, client and `excludeChunkIds`; verify with controller tests: idle until requested, `generating` then `ready` with the claim, only one claim generating at a time
-- [ ] 1.3 Add `stopClaim` (back to idle, tally unchanged) and `judgeClaim(guess)` (`revealed`, tally updated, judged only once); verify with controller tests covering a stop, a correct and a wrong judgment, and a second `judgeClaim` being ignored
-- [ ] 1.4 Map failures to the `failed` state with the typed error, add `retryClaim`, and implement design decision 3 (used chunks excluded; on `no-chunks-available` with a non-empty used list, empty it and try once more); verify with controller tests for unreachable, unverified, retry, exclusion of used chunks, and the start-over case on a two-chunk book
-- [ ] 1.5 Add `resetBookSession()` and call it wherever `turns` is cleared today (import, duplicate answer, book switch), aborting any claim in progress; verify with a controller test that changing the active book clears the claim, tally and used chunks
-- [ ] 1.6 Announce claim ready, reveal (right or not right) and failure through `announce`; verify with controller tests on the announcer
+- [x] 1.1 Add `mode` (default `'ask'`, never saved) and `setMode` to `OnboardingController`; verify with a new `controller.verify.test.ts` case that a fresh controller is in Ask mode and `setMode('verify')` switches it
+- [x] 1.2 Add the Verify state (`idle`/`generating`/`ready`/`revealed`/`failed`), `verifyTally`, private `usedChunkIds` and `verifyAbort`, and `requestClaim` calling `generateClaim` with the loaded book, chat model, client and `excludeChunkIds`; verify with controller tests: idle until requested, `generating` then `ready` with the claim, only one claim generating at a time
+- [x] 1.3 Add `stopClaim` (back to idle, tally unchanged) and `judgeClaim(guess)` (`revealed`, tally updated, judged only once); verify with controller tests covering a stop, a correct and a wrong judgment, and a second `judgeClaim` being ignored
+- [x] 1.4 Map failures to the `failed` state with the typed error, add `retryClaim`, and implement design decision 3 (used chunks excluded; on `no-chunks-available` with a non-empty used list, empty it and try once more); verify with controller tests for unreachable, unverified, retry, exclusion of used chunks, and the start-over case on a two-chunk book
+- [x] 1.5 Add `resetBookSession()` and call it wherever `turns` is cleared today (import, duplicate answer, book switch), aborting any claim in progress; verify with a controller test that changing the active book clears the claim, tally and used chunks
+- [x] 1.6 Announce claim ready, reveal (right or not right) and failure through `announce`; verify with controller tests on the announcer
 - [ ] 1.7 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add Verify mode state to the controller")
 
 ## 2. Interface

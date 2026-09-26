@@ -194,6 +194,38 @@ export const en = {
   'ask.error.other': 'This question could not be answered.',
   'announce.answerDone': 'The answer is ready.',
   'announce.answerFailed': 'The question could not be answered.',
+
+  'mode.tabsLabel': 'Mode',
+  'mode.ask': 'Ask',
+  'mode.verify': 'Verify',
+  'landing.modeVerify': 'Verify mode: the claim below may be false',
+  'verify.intro':
+    'Get one claim about this book, decide whether it is true, then check the passage it came from.',
+  'verify.getClaim': 'Give me a claim',
+  'verify.waiting':
+    'Getting the AI ready. The first claim can take a few minutes.',
+  'verify.stop': 'Stop',
+  'verify.question': 'Is this what the book says?',
+  'verify.true': 'True',
+  'verify.false': 'False',
+  'verify.right': 'You were right.',
+  'verify.wrong': 'Not this time.',
+  'verify.wasTrue': 'This claim was true.',
+  'verify.wasFalse': 'This claim was false. What was changed: {attribute}.',
+  'verify.attribute.cause': 'the cause',
+  'verify.attribute.order': 'the order of events',
+  'verify.attribute.who': 'who did or said it',
+  'verify.attribute.where': 'where it happened',
+  'verify.source': 'From the book',
+  'verify.next': 'Next claim',
+  'verify.tally': 'This session: {correct} right out of {judged}',
+  'verify.error.unverified':
+    'A fair claim could not be made from this passage this time. Try again for another one.',
+  'verify.error.other': 'A claim could not be made this time.',
+  'announce.claimReady': 'A claim is ready.',
+  'announce.claimFailed': 'A claim could not be made.',
+  'announce.judgedRight': 'You were right.',
+  'announce.judgedWrong': 'Not this time.',
 } as const satisfies Record<string, Message>;
 
 export type MessageKey = keyof typeof en;
@@ -386,4 +418,39 @@ export const fr: Record<MessageKey, Message> = {
   'ask.error.other': 'Cette question n’a pas pu obtenir de réponse.',
   'announce.answerDone': 'La réponse est prête.',
   'announce.answerFailed': 'La question n’a pas pu obtenir de réponse.',
+
+  'mode.tabsLabel': 'Mode',
+  'mode.ask': 'Question',
+  'mode.verify': 'Vérification',
+  'landing.modeVerify':
+    'Mode Vérification : l’affirmation ci-dessous est peut-être fausse',
+  'verify.intro':
+    'Obtenez une affirmation sur ce livre, décidez si elle est vraie, puis vérifiez le passage d’où elle vient.',
+  'verify.getClaim': 'Proposez-moi une affirmation',
+  'verify.waiting':
+    'Préparation de l’IA. La première affirmation peut prendre quelques minutes.',
+  'verify.stop': 'Arrêter',
+  'verify.question': 'Est-ce bien ce que dit le livre ?',
+  'verify.true': 'Vrai',
+  'verify.false': 'Faux',
+  'verify.right': 'Bonne réponse.',
+  'verify.wrong': 'Pas cette fois.',
+  'verify.wasTrue': 'Cette affirmation était vraie.',
+  'verify.wasFalse':
+    'Cette affirmation était fausse. Ce qui a été changé : {attribute}.',
+  'verify.attribute.cause': 'la cause',
+  'verify.attribute.order': 'l’ordre des événements',
+  'verify.attribute.who': 'qui a fait ou dit cela',
+  'verify.attribute.where': 'le lieu',
+  'verify.source': 'Dans le livre',
+  'verify.next': 'Affirmation suivante',
+  'verify.tally': ({ correct, judged }) =>
+    `Cette séance : ${correct} ${Number(correct) > 1 ? 'bonnes réponses' : 'bonne réponse'} sur ${judged}`,
+  'verify.error.unverified':
+    'Aucune affirmation équitable n’a pu être tirée de ce passage cette fois. Réessayez pour en obtenir une autre.',
+  'verify.error.other': 'Aucune affirmation n’a pu être créée cette fois.',
+  'announce.claimReady': 'Une affirmation est prête.',
+  'announce.claimFailed': 'Aucune affirmation n’a pu être créée.',
+  'announce.judgedRight': 'Bonne réponse.',
+  'announce.judgedWrong': 'Pas cette fois.',
 };
