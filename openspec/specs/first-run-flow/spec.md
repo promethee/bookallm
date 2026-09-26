@@ -84,7 +84,7 @@ The system SHALL NOT download a model, import a book or change any setting excep
 
 ### Requirement: The landing screen is an honest Ask-mode placeholder
 
-The system SHALL show a landing screen that names the app, states the current mode and what it means in one plain line, shows the active book's title, and offers an action to import a book. When there is no active book it SHALL say so and offer the same action. When the active book is ready, the screen SHALL show the Ask mode conversation in place of any "coming soon" wording.
+The system SHALL show a landing screen that names the app, states the current mode and what it means in one plain line, shows the active book's title, and offers an action to import a book. When there is no active book it SHALL say so and offer the same action. When the active book is ready, the screen SHALL offer both Ask mode and Verify mode through tabs, opening in Ask mode with its conversation shown in place of any "coming soon" wording.
 
 #### Scenario: After importing a first book
 
@@ -99,7 +99,7 @@ The system SHALL show a landing screen that names the app, states the current mo
 #### Scenario: Ready book shows the conversation
 
 - **WHEN** the reader reaches the landing screen with a ready, indexed active book
-- **THEN** the Ask mode conversation is shown instead of a placeholder
+- **THEN** the Ask mode conversation is shown instead of a placeholder, with a Verify tab available beside Ask
 
 ### Requirement: Import can be postponed
 
