@@ -3,7 +3,10 @@ import {
   buildEpub,
   type BuildEpubOptions,
 } from '../src/lib/ingest/testing/epub-builder';
-import { fakeEmbedding } from '../src/lib/ollama/testing/simulated-ollama';
+import {
+  defaultChatChunks,
+  fakeEmbedding,
+} from '../src/lib/ollama/testing/simulated-ollama';
 
 /** A pretend Ollama the tests can change while the app is running. */
 export interface MockOllama {
@@ -29,6 +32,8 @@ export interface MockOllama {
   chatDropAfter?: number;
   /** How many chat requests have arrived. */
   chatCalls: number;
+  /** What the default reply to Verify mode's verification prompt says. Defaults to CONTRADICTS. */
+  claimVerdict?: 'CONTRADICTS' | 'MATCHES';
   /**
    * `/api/ps`'s running models. Undefined (the default) reports every installed model as
    * fully GPU-resident; set to `[]` or a specific list to test the hardware check itself.
@@ -43,15 +48,6 @@ export const newMock = (overrides: Partial<MockOllama> = {}): MockOllama => ({
   chatCalls: 0,
   ...overrides,
 });
-
-/** A deterministic default answer: echoes the question and cites the first passage. */
-function defaultChatChunks(
-  messages: { role: string; content: string }[],
-): string[] {
-  const question =
-    messages.find((message) => message.role === 'user')?.content ?? '';
-  return ['Answer: ', question, ' [1]'];
-}
 
 const withTag = (name: string) =>
   (name.includes(':') ? name : `${name}:latest`).toLowerCase();
@@ -169,7 +165,7 @@ export async function mockOllama(
           json: { error: `model "${model}" not found, try pulling it first` },
           headers: cors,
         });
-      const chunks = state.chatChunks ?? defaultChatChunks(messages);
+      const chunks = state.chatChunks ?? defaultChatChunks(messages, state);
       const lines = chunks.map((content) =>
         JSON.stringify({
           message: { role: 'assistant', content },

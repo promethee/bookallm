@@ -9,7 +9,8 @@
     onclick,
     children,
   }: {
-    variant?: 'primary' | 'secondary';
+    /** `verify`: Verify mode's own color, so its actions never look like Ask mode's. */
+    variant?: 'primary' | 'secondary' | 'verify';
     type?: 'button' | 'submit';
     disabled?: boolean;
     /** Shown as busy to assistive technology while work is running. */
@@ -27,7 +28,9 @@
   class="rounded-md px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50 {variant ===
   'primary'
     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-    : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50'}"
+    : variant === 'verify'
+      ? 'bg-amber-700 text-white hover:bg-amber-800'
+      : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50'}"
 >
   {@render children()}
 </button>

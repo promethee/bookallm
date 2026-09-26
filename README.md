@@ -279,10 +279,11 @@ landing screen once the active book is ready, a streamed, cited answer
 with the exact passage behind each citation, a "getting ready" note for
 the first, slower answer, stopping an answer mid-stream, a nothing-found
 reply when nothing is relevant, and a plain-language retry for a failed
-turn. The conversation is session-only, per book. Verify mode's claim
-generation works as a library, checked against a real book and model:
-picks a real chunk, states a checkable claim, produces a version with
-exactly one attribute changed, and verifies the change actually
-contradicts the source before ever offering it. The chapter-restricted
-retry/escalation flow described below, and Verify mode's own screen
-(mode tabs, session tally), are not built yet.
+turn. The conversation is session-only, per book. Verify mode works end
+to end in English and French, reached through Ask/Verify tabs and
+styled apart from Ask mode: the reader asks for a claim built from a
+real passage (true, or with exactly one attribute changed and verified
+to contradict the source), judges it true or false, then sees whether
+they were right, what was changed, and the exact passage, with a
+session-only tally per book. The chapter-restricted retry/escalation
+flow described below is not built yet.
