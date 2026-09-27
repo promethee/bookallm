@@ -97,6 +97,45 @@
             {/if}
           </p>
         </div>
+        {#if !claim.isTrue}
+          <div class="space-y-2 text-sm text-slate-800">
+            <p>
+              <span class="font-medium">{t('verify.bookSays')}</span>
+              {claim.trueClaim}
+            </p>
+            {#if claim.changes?.length}
+              <div>
+                <p class="font-medium">{t('verify.changedWords')}</p>
+                <ul class="space-y-0.5">
+                  {#each claim.changes as change, index (index)}
+                    <li>
+                      <span aria-hidden="true">
+                        {#if change.before}
+                          <del class="text-slate-500">{change.before}</del>
+                        {/if}
+                        {#if change.before && change.after}→{/if}
+                        {#if change.after}
+                          <ins class="font-semibold no-underline"
+                            >{change.after}</ins
+                          >
+                        {/if}
+                      </span>
+                      <span class="sr-only">
+                        {#if change.before && change.after}
+                          {t('verify.swapped', change)}
+                        {:else if change.after}
+                          {t('verify.added', change)}
+                        {:else}
+                          {t('verify.removed', change)}
+                        {/if}
+                      </span>
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+          </div>
+        {/if}
         <div class="space-y-1 rounded-md border border-slate-200 bg-white p-3">
           <p class="text-xs font-medium tracking-wide text-slate-500 uppercase">
             {t('verify.source')}

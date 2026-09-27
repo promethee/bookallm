@@ -125,6 +125,8 @@ describe('Verify session', () => {
     expect(await screen.findByText('Is this what the book says?')).toBeTruthy();
     expect(screen.getByText(/^Changed:/)).toBeTruthy();
     expect(screen.queryByText('From the book')).toBeNull();
+    expect(screen.queryByText('What the book says:')).toBeNull();
+    expect(screen.queryByText('The words that were changed:')).toBeNull();
 
     await fireEvent.click(screen.getByRole('button', { name: 'False' }));
 
@@ -134,6 +136,12 @@ describe('Verify session', () => {
         'This claim was false. What was changed: who did or said it.',
       ),
     ).toBeTruthy();
+    expect(screen.getByText('What the book says:')).toBeTruthy();
+    expect(screen.getByText(`Claim: ${PASSAGE}`)).toBeTruthy();
+    expect(screen.getByText('The words that were changed:')).toBeTruthy();
+    expect(screen.getByText('“Claim” became “Changed”')).toBeTruthy();
+    expect(screen.getByText('Claim', { selector: 'del' })).toBeTruthy();
+    expect(screen.getByText('Changed', { selector: 'ins' })).toBeTruthy();
     expect(screen.getByText('From the book')).toBeTruthy();
     expect(screen.getByText(PASSAGE)).toBeTruthy();
     expect(screen.getByText('This session: 1 right out of 1')).toBeTruthy();
@@ -154,6 +162,8 @@ describe('Verify session', () => {
 
     expect(screen.getByText('Not this time.')).toBeTruthy();
     expect(screen.getByText('This claim was true.')).toBeTruthy();
+    expect(screen.queryByText('What the book says:')).toBeNull();
+    expect(screen.queryByText('The words that were changed:')).toBeNull();
     expect(screen.getByText('This session: 0 right out of 1')).toBeTruthy();
     controller.destroy();
   });
@@ -245,6 +255,42 @@ describe('switching modes keeps both', () => {
   });
 });
 
+describe('Verify reveal of changed words', () => {
+  it('shows added and removed words, one line per change', async () => {
+    const { controller, book } = await ready();
+    controller.setMode('verify');
+    const chunk = book.chunks[0];
+    controller.verify = {
+      state: 'revealed',
+      guess: false,
+      claim: {
+        claim: 'The keeper watched the storm from Lisbon.',
+        isTrue: false,
+        trueClaim: 'The old keeper watched the storm.',
+        changedAttribute: 'where',
+        changes: [
+          { before: 'old', after: '' },
+          { before: '', after: 'from Lisbon' },
+        ],
+        citation: {
+          chunkId: chunk.id,
+          locator: chunk.locator,
+          text: chunk.text,
+        },
+        difficulty: 'flat',
+      },
+    };
+    render(LandingScreen, withController(controller));
+
+    expect(screen.getByText('“old” was removed')).toBeTruthy();
+    expect(screen.getByText('“from Lisbon” was added')).toBeTruthy();
+    expect(screen.getByText('old', { selector: 'del' })).toBeTruthy();
+    expect(screen.getByText('from Lisbon', { selector: 'ins' })).toBeTruthy();
+    expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    controller.destroy();
+  });
+});
+
 describe('Verify session in French', () => {
   it('shows the French text throughout a full claim', async () => {
     setLanguage('fr');
@@ -268,6 +314,9 @@ describe('Verify session in French', () => {
         'Cette affirmation était fausse. Ce qui a été changé : qui a fait ou dit cela.',
       ),
     ).toBeTruthy();
+    expect(screen.getByText('Ce que dit le livre :')).toBeTruthy();
+    expect(screen.getByText('Les mots changés :')).toBeTruthy();
+    expect(screen.getByText('« Claim » est devenu « Changed »')).toBeTruthy();
     expect(screen.getByText('Dans le livre')).toBeTruthy();
     expect(
       screen.getByText('Cette séance : 1 bonne réponse sur 1'),

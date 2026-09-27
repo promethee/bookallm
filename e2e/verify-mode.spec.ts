@@ -55,6 +55,7 @@ test.describe('Verify mode', () => {
 
     const isTrue = await claimIsTrue(page);
     await expect(page.getByText('From the book')).toHaveCount(0);
+    await expect(page.getByText('What the book says:')).toHaveCount(0);
     await page
       .getByRole('button', { name: isTrue ? 'True' : 'False', exact: true })
       .click();
@@ -77,6 +78,35 @@ test.describe('Verify mode', () => {
     await expect(
       page.getByRole('button', { name: 'Next claim' }),
     ).toBeVisible();
+  });
+
+  test('shows what the book says and the changed words after a false claim', async ({
+    page,
+  }) => {
+    // The coin favours the changed claim, so the reveal under test always appears.
+    await page.addInitScript(() => {
+      Math.random = () => 0.9;
+    });
+    await mockOllama(page, READY());
+    await landOnBook(page);
+    await page.getByRole('tab', { name: 'Verify' }).click();
+    await page.getByRole('button', { name: 'Give me a claim' }).click();
+
+    expect(await claimIsTrue(page)).toBe(false);
+    await expect(page.getByText('The words that were changed:')).toHaveCount(0);
+    await expect(page.locator('del')).toHaveCount(0);
+    await page.getByRole('button', { name: 'False', exact: true }).click();
+
+    await expect(page.getByText('What the book says:')).toBeVisible();
+    await expect(
+      verifyPanel(page).getByText(
+        /^What the book says: Claim: Words of chapter 1/,
+      ),
+    ).toBeVisible();
+    await expect(page.getByText('The words that were changed:')).toBeVisible();
+    await expect(page.locator('del', { hasText: 'Claim' })).toBeVisible();
+    await expect(page.locator('ins', { hasText: 'Changed' })).toBeVisible();
+    await expect(page.getByText('“Claim” became “Changed”')).toHaveCount(1);
   });
 
   test('works with the keyboard alone', async ({ page }) => {

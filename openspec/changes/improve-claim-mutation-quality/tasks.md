@@ -24,10 +24,10 @@
 
 ## 4. Reveal
 
-- [ ] 4.1 Add English and French messages for "The book says", the changed-words line, "(added)" and "(removed)" (design decision 10); verify with the i18n key-parity test
-- [ ] 4.2 Show the true claim and one line per change under the false-claim reveal in `VerifySession.svelte`, nothing extra for true claims; verify with component tests: false reveal shows the kind, the true claim and `before → after`, insertion and deletion lines, true reveal shows none of these, French rendering
-- [ ] 4.3 Update `e2e/verify-mode.spec.ts` for the new reveal (changed words visible after judging a false claim, absent before judging); verify with `pnpm exec playwright test`
-- [ ] 4.4 Run `pnpm test` and `pnpm lint`, then commit ("Show what was changed in the Verify reveal")
+- [x] 4.1 Add English and French messages for "The book says", the changed-words line, "(added)" and "(removed)" (design decision 10); verify with the i18n key-parity test
+- [x] 4.2 Show the true claim and one line per change under the false-claim reveal in `VerifySession.svelte`, nothing extra for true claims; verify with component tests: false reveal shows the kind, the true claim and `before → after`, insertion and deletion lines, true reveal shows none of these, French rendering
+- [x] 4.3 Update `e2e/verify-mode.spec.ts` for the new reveal (changed words visible after judging a false claim, absent before judging); verify with `pnpm exec playwright test`
+- [x] 4.4 Run `pnpm test` and `pnpm lint`, then commit ("Show what was changed in the Verify reveal")
 
 ## 5. Real-world check and wrap-up
 
