@@ -37,6 +37,7 @@ describe('generateMutation', () => {
       status: 'ok',
       claim: 'Mr. Bennet visited Mr. Darcy first.',
       attribute: 'where',
+      raw: 'ATTRIBUTE: where\nCLAIM: Mr. Bennet visited Mr. Darcy first.',
     });
     const { messages } = JSON.parse(fake.requests[0].body!) as {
       messages: { role: string; content: string }[];
@@ -65,10 +66,11 @@ describe('generateMutation', () => {
       status: 'ok',
       claim: 'The elopement of Wickham and Lydia happened first.',
       attribute: 'order',
+      raw: 'ORDER\nThe elopement of Wickham and Lydia happened first.',
     });
   });
 
-  it('reports chat-failed when the response cannot be parsed', async () => {
+  it('reports unreadable, with the reply, when the response cannot be parsed', async () => {
     const { client } = clientFor(() => scripted('Something unrelated.'));
 
     const result = await generateMutation(
@@ -78,9 +80,9 @@ describe('generateMutation', () => {
       'true claim',
     );
 
-    expect(result).toMatchObject({
-      status: 'failed',
-      error: { code: 'chat-failed' },
+    expect(result).toEqual({
+      status: 'unreadable',
+      raw: 'Something unrelated.',
     });
   });
 });

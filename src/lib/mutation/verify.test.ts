@@ -26,7 +26,7 @@ describe('verifyContradiction', () => {
 
     expect(
       await verifyContradiction(client, 'llama3.1:8b', 'passage', 'claim'),
-    ).toEqual({ status: 'ok', confirmed: true });
+    ).toEqual({ status: 'ok', confirmed: true, raw: 'CONTRADICTS' });
   });
 
   it('does not confirm a claim the model says matches', async () => {
@@ -34,7 +34,7 @@ describe('verifyContradiction', () => {
 
     expect(
       await verifyContradiction(client, 'llama3.1:8b', 'passage', 'claim'),
-    ).toEqual({ status: 'ok', confirmed: false });
+    ).toEqual({ status: 'ok', confirmed: false, raw: 'MATCHES' });
   });
 
   it('does not confirm an unparseable answer', async () => {
@@ -44,6 +44,10 @@ describe('verifyContradiction', () => {
 
     expect(
       await verifyContradiction(client, 'llama3.1:8b', 'passage', 'claim'),
-    ).toEqual({ status: 'ok', confirmed: false });
+    ).toEqual({
+      status: 'ok',
+      confirmed: false,
+      raw: 'I am not sure about this one.',
+    });
   });
 });

@@ -42,7 +42,7 @@ The real-world check in the archived `verify-mode-screen` design (GPU, `llama3.1
    - *Why:* deterministic, always correct about what changed; doubles as the "exactly one change" check the spec always asked for but nothing enforced.
    - *Considered:* asking the verifier which thing changed (another model guess); a diff library (would need a dependency, not worth it for one sentence).
 
-4. **Verification reads the first word only, and keeps its own independent view.** `confirmed` is true only when the reply's first word, letters only and case-insensitive, is `CONTRADICTS`. The prompt keeps the passage and the changed claim only, not the true claim, so the check is not anchored to the change it is judging. The wording may be adjusted (for example a plain "Is this claim true according to the passage? TRUE or FALSE") only if the before/after trace shows the check itself, not the change, is what rejects good changes; any such change keeps first-word parsing.
+4. **Verification reads the first word only, and keeps its own independent view.** `confirmed` is true only when the reply's first word, letters only and case-insensitive, is `CONTRADICTS`. The prompt keeps the passage and the changed claim only, not the true claim, so the check is not anchored to the change it is judging. The wording may be adjusted (for example a plain "Is this claim true according to the passage? TRUE or FALSE") only if the before/after trace shows the check itself, not the change, is what rejects good changes; any such change keeps first-word parsing. *Update from the baseline (see Real-world check):* the trace shows exactly that (clear swaps such as "old woman" to "young woman" or "Venice" to "Paris" answered `MATCHES`), so the rewording is part of task 3.4, measured in 5.1.
 
 5. **One fresh-passage attempt, in the library, not the controller.** When a chunk yields no claim (decision 1) or no confirmed change within `1 + MUTATION_VERIFY_RETRIES` rounds, `generateClaim` picks a second chunk, excluding the caller's list and the first chunk, and runs the whole pipeline once more (`MUTATION_FRESH_PASSAGE_ATTEMPTS = 1`). Only then does it return `unverified`. `no-chunks-available` for the second pick is not an error: the first chunk's failure is returned. The citation, and therefore the id the controller marks as used, is the chunk the claim came from.
    - *Why:* keeps the "never throws, one call, one result" contract and puts the logic where it is unit-tested; the controller stays as it is.
@@ -51,7 +51,7 @@ The real-world check in the archived `verify-mode-screen` design (GPU, `llama3.1
 
 6. **Result shape.** `MutationClaim` gains `trueClaim: string` (always) and `changes?: { before: string; after: string }[]` (only when `isTrue` is false, from decision 3). `changedAttribute` stays and is now the code-chosen kind. `difficulty: 'flat'` unchanged. Nothing is stored, so no migration.
 
-7. **Front and back matter filter in `select.ts`, Verify only.** `pickChunk` first builds the eligible pool: chunks whose chapter title does not match a front/back-matter pattern and whose text does not contain `Project Gutenberg`. Title patterns (whole words, case-insensitive, accents ignored), English and French: introduction, preface/préface, foreword, avant-propos, prologue du traducteur, contents/table des matières/sommaire, note(s) (transcriber's, translator's, du traducteur, de l'éditeur), acknowledg(e)ments/remerciements, dedication/dédicace, copyright, licen(c|s)e, colophon, about the author/à propos de l'auteur, bibliography/bibliographie, index, glossary/glossaire. If the pool is empty for the whole book (not just after exclusions), it is all chunks. Exclusions apply after. Constants live in `defaults.ts`.
+7. **Front and back matter filter in `select.ts`, Verify only.** `pickChunk` first builds the eligible pool: chunks whose chapter title does not match a front/back-matter pattern and whose text does not contain `Project Gutenberg`. Title patterns (whole words, case-insensitive, accents ignored), English and French: introduction, preface/préface, foreword, avant-propos, prologue du traducteur, contents/table des matières/sommaire, note(s) (transcriber's, translator's, du traducteur, de l'éditeur), acknowledg(e)ments/remerciements, dedication/dédicace, copyright, licen(c|s)e, colophon, about the author/à propos de l'auteur, bibliography/bibliographie, index, glossary/glossaire, footnotes/notes de bas de page, errata/typographical errors. Chunks shorter than `MIN_CLAIM_CHUNK_LENGTH` (200 characters) are also skipped: in the baseline, title-page sections ("THE MODERN LIBRARY", "CANDIDE BY VOLTAIRE") hold a line or two, too little for a fair claim, and no title pattern can name them. If the pool is empty for the whole book (not just after exclusions), it is all chunks. Exclusions apply after. Constants live in `defaults.ts`.
    - *Why:* works on books already stored, no re-import; `Prologue`, `Epilogue` and `Appendix` are left in, since they are often part of the story.
    - *Considered:* EPUB `epub:type`/landmarks at import (reliable only on well-made EPUBs, and a stored-data change); skipping the first N % of chapters (drops real openings).
    - Fallback only on an empty whole-book pool: falling back after exclusions would serve introduction claims just before the controller's "every passage used, start over" reset.
@@ -78,3 +78,29 @@ No stored data changes. Rollback is reverting the change.
 ## Open Questions
 
 None blocking. The exact prompt wording and the two diff limits are tuned during the real-world tasks, the same way earlier prompts in this project were.
+
+## Real-world check (2026-09-27): baseline, before any pipeline change
+
+Setup: the manual test from tasks 1.1-1.2 (trace and tally, no behaviour change) against the local Ollama on the GPU machine (RTX 3060 12 GB, `llama3.1:8b`), with *Candide* (Project Gutenberg #19942, EPUB3 with images, downloaded from gutenberg.org). Two runs of 20 attempts each.
+
+| | Run 1 | Run 2 | Total |
+| --- | --- | --- | --- |
+| Offered true | 6 | 5 | 11 |
+| Offered changed | 5 (order 3, who 1, where 1) | 7 (order 3, who 2, where 2) | 12 |
+| `unverified` | 8 | 6 | 14 (35 %) |
+| Unreadable mutation (`chat-failed`) | 1 | 2 | 3 (7.5 %) |
+| Confirmed at mutation attempt 0 / 1 / 2 | 4 / 3 / 4 | 4 / 3 / 5 | 8 / 6 / 9 |
+| Verification `MATCHES` (not confirmed) | 37 | 32 | 69 |
+| Claims from front or back matter | 1 (Contents) | 4 (Introduction, Transcriber's Note, Footnotes, Gutenberg licence) | 5 of 23 (22 %) |
+| Time per attempt, median / max | 4.5 s / 29.6 s (cold load) | 4.7 s / 7.1 s | |
+
+What the trace shows:
+
+- **The check is the main cause of `unverified`.** Many plainly false one-word swaps were answered `MATCHES`: "The young woman showed Candide a suit of clothes" (the book: the old woman), "Candide is going to Paris to await Cunegonde" (the book: Venice), "Cacambo's name was cut on the trees" (the book: Cunegonde's). The rest were weak changes that add an unsupported detail rather than contradict one ("hanging in the garden", "in his palace"), which `MATCHES` fairly rejects.
+- **Model labels are often wrong:** "Martin said Candide was a Manichean" and "Candide's dear Cunegonde killed the brother" were both labelled `order` (both are `who`); "The cadi had me whipped before…" was labelled `order` for an added event. Supports decision 1.
+- **Unreadable replies** came as `WHERE: <claim>` followed by a second paragraph, or a claim with no attribute line: 3 of 40 attempts ended there, each after earlier rounds had already been used.
+- **Retries pay off:** attempt 2 confirmed 9 of the 23 confirmed changes, as many as attempt 0. The third round is not wasted; `MUTATION_VERIFY_RETRIES` should not go below 2 without new data.
+- **Front matter is worse than the first run suggested:** 22 % of offered claims, including the licence. The book's table of contents also has title-page sections ("THE MODERN LIBRARY", "OF THE WORLD'S BEST BOOKS", "CANDIDE BY VOLTAIRE"), "FOOTNOTES:" and "Typographical errors corrected in text:" (decision 7 updated).
+- The true/changed split was 11 / 12, consistent with a fair coin.
+- No verification reply was a negated sentence ("does not contradict"); `llama3.1:8b` answered with one word every time. The first-word parsing (decision 4) still closes the gap for other models.
+

@@ -4,7 +4,15 @@ import { mutationPrompt } from './defaults';
 import type { ChangedAttribute, MutationError } from './types';
 
 export type MutateResult =
-  | { status: 'ok'; claim: string; attribute: ChangedAttribute }
+  | {
+      status: 'ok';
+      claim: string;
+      attribute: ChangedAttribute;
+      /** The model's reply as received, for diagnostics. */
+      raw: string;
+    }
+  /** The model answered, but no attribute and claim could be read from its reply. */
+  | { status: 'unreadable'; raw: string }
   | { status: 'aborted' }
   | { status: 'failed'; error: MutationError };
 
@@ -69,13 +77,11 @@ export async function generateMutation(
   if (result.status !== 'ok') return result;
 
   const parsed = parseMutation(result.text);
-  if (!parsed)
-    return {
-      status: 'failed',
-      error: {
-        code: 'chat-failed',
-        detail: `Could not read an attribute and claim from: ${result.text}`,
-      },
-    };
-  return { status: 'ok', claim: parsed.claim, attribute: parsed.attribute };
+  if (!parsed) return { status: 'unreadable', raw: result.text };
+  return {
+    status: 'ok',
+    claim: parsed.claim,
+    attribute: parsed.attribute,
+    raw: result.text,
+  };
 }

@@ -8,9 +8,11 @@ export { pickChunk, type PickChunkResult } from './select';
 export { generateClaim, type GenerateClaimOptions } from './generate';
 export type {
   ChangedAttribute,
+  ClaimStep,
   ClaimCitation,
   MutationClaim,
   MutationError,
   MutationErrorCode,
   MutationResult,
+  RejectReason,
 } from './types';

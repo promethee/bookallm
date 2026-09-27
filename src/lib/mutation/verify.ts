@@ -5,7 +5,12 @@ import type { MutationError } from './types';
 
 export type VerifyResult =
   /** `confirmed` is false for an answer that did not clearly say CONTRADICTS. */
-  | { status: 'ok'; confirmed: boolean }
+  | {
+      status: 'ok';
+      confirmed: boolean;
+      /** The model's reply as received, for diagnostics. */
+      raw: string;
+    }
   | { status: 'aborted' }
   | { status: 'failed'; error: MutationError };
 
@@ -31,5 +36,9 @@ export async function verifyContradiction(
   );
   if (result.status !== 'ok') return result;
 
-  return { status: 'ok', confirmed: /contradict/i.test(result.text) };
+  return {
+    status: 'ok',
+    confirmed: /contradict/i.test(result.text),
+    raw: result.text,
+  };
 }

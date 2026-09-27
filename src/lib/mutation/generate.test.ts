@@ -10,6 +10,7 @@ import {
   type FakeHandler,
 } from '../ollama/testing/fake-fetch';
 import { generateClaim } from './generate';
+import type { ClaimStep } from './types';
 
 const scripted = (content: string) =>
   streamResponse([
@@ -106,6 +107,91 @@ describe('generateClaim', () => {
 
     expect(result.status).toBe('ok');
     expect(fake.requests).toHaveLength(5);
+  });
+
+  it('reports each step, in order, with the raw replies', async () => {
+    const book = makeIndexableBook([1]);
+    const { client } = sequencedClient([
+      EXTRACTED,
+      MUTATED,
+      'MATCHES',
+      MUTATED,
+      'CONTRADICTS',
+    ]);
+    const steps: ClaimStep[] = [];
+
+    await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.9,
+      onStep: (step) => steps.push(step),
+    });
+
+    const chunkId = book.chunks[0].id;
+    expect(steps.map((step) => ({ ...step, ms: 0 }))).toEqual([
+      { stage: 'pick', chunkId, ms: 0 },
+      { stage: 'extract', chunkId, ms: 0, raw: EXTRACTED, outcome: 'claim' },
+      {
+        stage: 'mutate',
+        chunkId,
+        ms: 0,
+        attempt: 0,
+        kind: 'where',
+        raw: MUTATED,
+        outcome: 'changed',
+      },
+      {
+        stage: 'verify',
+        chunkId,
+        ms: 0,
+        attempt: 0,
+        raw: 'MATCHES',
+        outcome: 'not-confirmed',
+      },
+      {
+        stage: 'mutate',
+        chunkId,
+        ms: 0,
+        attempt: 1,
+        kind: 'where',
+        raw: MUTATED,
+        outcome: 'changed',
+      },
+      {
+        stage: 'verify',
+        chunkId,
+        ms: 0,
+        attempt: 1,
+        raw: 'CONTRADICTS',
+        outcome: 'confirmed',
+      },
+    ]);
+    expect(steps.every((step) => step.ms >= 0)).toBe(true);
+  });
+
+  it('reports an unreadable change as a rejected step, then chat-failed', async () => {
+    const book = makeIndexableBook([1]);
+    const { client } = sequencedClient([EXTRACTED, 'ATTRIBUTE: age']);
+    const steps: ClaimStep[] = [];
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      onStep: (step) => steps.push(step),
+    });
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { code: 'chat-failed' },
+    });
+    expect(steps.at(-1)).toMatchObject({
+      stage: 'mutate',
+      outcome: 'rejected',
+      reason: 'unreadable',
+      raw: 'ATTRIBUTE: age',
+    });
   });
 
   it('reports unverified after exhausting the retry limit', async () => {
