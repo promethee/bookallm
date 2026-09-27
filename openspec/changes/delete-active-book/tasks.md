@@ -16,8 +16,8 @@
 
 ## 3. End to end
 
-- [ ] 3.1 Add `e2e/delete-book.spec.ts`: import two books, delete the active one and land on the other with the notice; delete the last one and land on "Add a book"; re-import the deleted file and see it indexed as a new book; keyboard-only run; verify with `pnpm exec playwright test`
-- [ ] 3.2 Commit ("Add book deletion e2e tests")
+- [x] 3.1 Add `e2e/delete-book.spec.ts`: import two books, delete the active one and land on the other with the notice; delete the last one and land on "Add a book"; re-import the deleted file and see it indexed as a new book; keyboard-only run; verify with `pnpm exec playwright test`
+- [x] 3.2 Commit ("Add book deletion e2e tests")
 
 ## 4. Real-world check and wrap-up
 
