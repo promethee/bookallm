@@ -102,6 +102,10 @@
       {/if}
 
       {#if controller.canRecover(turn)}
+        <!-- A nothing-found reply already asks where to look; an uncited answer does not. -->
+        {#if turn.verdict === 'relevant'}
+          <p class="text-slate-800">{t('recovery.uncited')}</p>
+        {/if}
         <ChapterOffer turnId={turn.id} />
       {/if}
 

@@ -1,10 +1,56 @@
-# retrieval-recovery Specification
+# Spec Delta
 
-## Purpose
+## ADDED Requirements
 
-Gives a "nothing found" answer a way forward: the reader points to a chapter, the app looks once more in that chapter only, and if it still cannot answer it hands over the chapter itself, so a failed search ends with the primary source in the reader's hands rather than a loop of non-answers.
+### Requirement: A whole-book answer with no resolved citation is recoverable
 
-## Requirements
+The system SHALL treat a whole-book question turn as recoverable when its search
+found nothing relevant, or when its answer finished (not stopped, not failed)
+with no resolved citation to a passage. That includes an answer whose citation
+markers do not resolve to any passage, and an answer with no marker at all. An
+answer with at least one resolved citation SHALL NOT be recoverable, whatever
+its wording. A chapter retry, a stopped turn and a failed turn SHALL NOT be
+recoverable. The model's own text on an uncited turn SHALL be shown unchanged.
+
+#### Scenario: Markers that do not resolve
+
+- **WHEN** a question's search finds relevant passages and the finished answer
+  is "There is no mention of a dog in any of the passages provided[None]", with
+  no resolved citation
+- **THEN** that turn is recoverable, and the model's text is shown as it is
+
+#### Scenario: No marker at all
+
+- **WHEN** a question's finished answer contains no citation marker
+- **THEN** that turn is recoverable
+
+#### Scenario: One resolved citation
+
+- **WHEN** a question's finished answer has at least one resolved citation
+- **THEN** that turn is not recoverable and no chapters are offered
+
+#### Scenario: Stopped before any citation
+
+- **WHEN** the reader stops an answer before it finishes, and it has no resolved
+  citation
+- **THEN** that turn is not recoverable
+
+#### Scenario: Failed answer
+
+- **WHEN** a question's answer fails part way through
+- **THEN** that turn is not recoverable; it offers the failure message and its
+  own retry instead
+
+## RENAMED Requirements
+
+- FROM: `### Requirement: A nothing-found turn offers the book's chapters`
+- TO: `### Requirement: A recoverable turn offers the book's chapters`
+
+<!-- markdownlint-disable-next-line MD013 -->
+- FROM: `### Requirement: A typed chapter number right after a nothing-found turn is read as a hint`
+- TO: `### Requirement: A typed chapter number after a recoverable turn is a hint`
+
+## MODIFIED Requirements
 
 ### Requirement: A recoverable turn offers the book's chapters
 
@@ -180,89 +226,3 @@ wording SHALL NOT claim the book or the chapter lacks the answer.
 - **WHEN** the chapter text is handed over
 - **THEN** the message invites the reader to look through the chapter and never
   says the answer is not in the book
-
-### Requirement: The handed-over chapter text is readable in place
-
-The system SHALL show the handed-over chapter inside the conversation, under its title, with its paragraphs kept, in a block of bounded height that scrolls, and SHALL let the reader collapse and expand it. It SHALL be shown expanded at first.
-
-#### Scenario: Long chapter
-
-- **WHEN** the handed-over chapter is longer than the block's height
-- **THEN** the block scrolls on its own and the rest of the conversation stays where it is
-
-#### Scenario: Collapse
-
-- **WHEN** the reader collapses the chapter text
-- **THEN** only its title line remains, and expanding it shows the text again
-
-### Requirement: Stopping, failures and the busy state work as for any turn
-
-The system SHALL let a chapter retry be stopped, SHALL show a plain message and a retry of the same chapter retry when it fails (Ollama unreachable, a model not found, an answer that could not be produced), and SHALL NOT accept another question while it runs. A stopped or failed retry SHALL NOT hand over the chapter text, and retrying a failed chapter retry SHALL NOT count as a second retry.
-
-#### Scenario: Stopped retry
-
-- **WHEN** the reader stops a chapter retry while it is answering
-- **THEN** the partial answer is kept and no chapter text is shown
-
-#### Scenario: Failed retry
-
-- **WHEN** a chapter retry fails because Ollama is unreachable
-- **THEN** the turn shows a plain message and a retry that searches the same chapter again
-
-### Requirement: Recovery is usable without a mouse, in both languages, and announced
-
-The system SHALL let the reader reach and choose a chapter, and collapse or expand the handed-over text, by keyboard alone. All new text SHALL be available in English and French. The system SHALL announce politely when a chapter retry finishes, fails, or hands over the chapter text.
-
-#### Scenario: Keyboard only
-
-- **WHEN** a reader uses only the keyboard after a nothing-found turn
-- **THEN** they can reach the chapter list, choose a chapter, and collapse and expand the handed-over text
-
-#### Scenario: Hand-over announced
-
-- **WHEN** the chapter text is handed over
-- **THEN** a polite announcement says the chapter is shown to look through
-
-#### Scenario: French
-
-- **WHEN** the interface language is French
-- **THEN** the chapter offer, the retry label, the hand-over message and the collapse control are in French
-
-### Requirement: A whole-book answer with no resolved citation is recoverable
-
-The system SHALL treat a whole-book question turn as recoverable when its search
-found nothing relevant, or when its answer finished (not stopped, not failed)
-with no resolved citation to a passage. That includes an answer whose citation
-markers do not resolve to any passage, and an answer with no marker at all. An
-answer with at least one resolved citation SHALL NOT be recoverable, whatever
-its wording. A chapter retry, a stopped turn and a failed turn SHALL NOT be
-recoverable. The model's own text on an uncited turn SHALL be shown unchanged.
-
-#### Scenario: Markers that do not resolve
-
-- **WHEN** a question's search finds relevant passages and the finished answer
-  is "There is no mention of a dog in any of the passages provided[None]", with
-  no resolved citation
-- **THEN** that turn is recoverable, and the model's text is shown as it is
-
-#### Scenario: No marker at all
-
-- **WHEN** a question's finished answer contains no citation marker
-- **THEN** that turn is recoverable
-
-#### Scenario: One resolved citation
-
-- **WHEN** a question's finished answer has at least one resolved citation
-- **THEN** that turn is not recoverable and no chapters are offered
-
-#### Scenario: Stopped before any citation
-
-- **WHEN** the reader stops an answer before it finishes, and it has no resolved
-  citation
-- **THEN** that turn is not recoverable
-
-#### Scenario: Failed answer
-
-- **WHEN** a question's answer fails part way through
-- **THEN** that turn is not recoverable; it offers the failure message and its
-  own retry instead
