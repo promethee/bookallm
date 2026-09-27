@@ -34,15 +34,15 @@
 
 ## 3. Interface
 
-- [ ] 3.1 Add `recovery.uncited` in English and French (design decision 4);
+- [x] 3.1 Add `recovery.uncited` in English and French (design decision 4);
       verify with the existing i18n key-parity test
-- [ ] 3.2 In `AskConversation.svelte`, show `recovery.uncited` above the chapter
+- [x] 3.2 In `AskConversation.svelte`, show `recovery.uncited` above the chapter
       offer when the turn is recoverable and its verdict is `relevant` (design
       decision 3); verify with `ask-conversation.test.ts` cases: model text
       shown unchanged with the line and the offer and no Sources block; no line
       on a nothing-found turn; neither line nor offer on a cited answer; both
       gone once a chapter is chosen; the line in French
-- [ ] 3.3 Run `pnpm test` and `pnpm lint`, then commit ("Offer chapters under
+- [x] 3.3 Run `pnpm test` and `pnpm lint`, then commit ("Offer chapters under
       uncited answers")
 
 ## 4. End to end

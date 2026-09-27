@@ -418,6 +418,101 @@ describe('AskConversation: choosing a chapter after nothing is found', () => {
   });
 });
 
+const UNCITED =
+  'There is no mention of a dog in any of the passages provided[None]';
+const UNCITED_LINE = 'This answer cites no passage, so it can’t be checked.';
+
+/** Asks a question that finds relevant passages and waits for its answer to finish. */
+async function askAnswered(controller: OnboardingController, question: string) {
+  ask(question);
+  await waitFor(() => expect(controller.turns.at(-1)?.state).toBe('done'));
+  expect(controller.turns.at(-1)?.verdict).toBe('relevant');
+}
+
+describe('AskConversation: an answer that cites no passage', () => {
+  it('keeps the model’s text, says why, and offers the chapters', async () => {
+    const { controller, book } = await recoverable({ chatChunks: [UNCITED] });
+    render(AskConversation, withController(controller));
+
+    await askAnswered(controller, book.chunks[0].text);
+
+    expect(screen.getByText(UNCITED)).toBeTruthy();
+    expect(screen.getByText(UNCITED_LINE)).toBeTruthy();
+    expect(screen.getByText('Or choose where to look:')).toBeTruthy();
+    const select = screen.getByLabelText('Chapter') as HTMLSelectElement;
+    expect([...select.options].map((option) => option.textContent)).toEqual([
+      'Introduction',
+      'Chapter 1',
+      'Chapter 2',
+    ]);
+    expect(screen.queryByText('Sources')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+    controller.destroy();
+  });
+
+  it('does not add the line under a nothing-found reply', async () => {
+    const { controller } = await recoverable();
+    render(AskConversation, withController(controller));
+
+    await askNothingFound(controller);
+
+    expect(await screen.findByText('Or choose where to look:')).toBeTruthy();
+    expect(screen.queryByText(UNCITED_LINE)).toBeNull();
+    controller.destroy();
+  });
+
+  it('shows neither the line nor the offer under a cited answer', async () => {
+    const { controller, book } = await recoverable();
+    render(AskConversation, withController(controller));
+
+    await askAnswered(controller, book.chunks[0].text);
+
+    expect(screen.getByText('Sources')).toBeTruthy();
+    expect(screen.queryByText(UNCITED_LINE)).toBeNull();
+    expect(screen.queryByLabelText('Chapter')).toBeNull();
+    controller.destroy();
+  });
+
+  it('removes both once a chapter is chosen', async () => {
+    const { controller, book } = await recoverable({ chatChunks: [UNCITED] });
+    render(AskConversation, withController(controller));
+    await askAnswered(controller, book.chunks[0].text);
+
+    chooseChapter('Chapter 2');
+
+    expect(
+      await screen.findByText(`Looking in “Chapter 2”: ${book.chunks[0].text}`),
+    ).toBeTruthy();
+    await waitFor(() => expect(controller.turns[1]?.state).toBe('done'));
+    expect(screen.queryByText(UNCITED_LINE)).toBeNull();
+    expect(screen.queryByLabelText('Chapter')).toBeNull();
+    controller.destroy();
+  });
+
+  it('says it in French', async () => {
+    setLanguage('fr');
+    const { controller, book } = await recoverable(
+      { chatChunks: [UNCITED] },
+      { language: 'fr' },
+    );
+    render(AskConversation, withController(controller));
+
+    fireEvent.input(screen.getByLabelText('Votre question'), {
+      target: { value: book.chunks[0].text },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Demander' }));
+
+    expect(
+      await screen.findByText(
+        'Cette réponse ne cite aucun passage : elle ne peut pas être vérifiée.',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText('Ou choisissez où chercher :')).toBeTruthy();
+    controller.destroy();
+    setLanguage('en');
+  });
+});
+
 describe('AskConversation: handing over the chapter', () => {
   it('shows the chapter text when the retry cannot answer', async () => {
     const { controller } = await recoverable({

@@ -187,6 +187,7 @@ export const en = {
   'ask.waiting':
     'Getting the AI ready. The first answer can take a few minutes.',
   'ask.sources': 'Sources',
+  'recovery.uncited': 'This answer cites no passage, so it can’t be checked.',
   'recovery.offerLabel': 'Or choose where to look:',
   'recovery.chapterLabel': 'Chapter',
   'recovery.lookHere': 'Look in this chapter',
@@ -422,6 +423,8 @@ export const fr: Record<MessageKey, Message> = {
   'ask.waiting':
     'Préparation de l’IA. La première réponse peut prendre quelques minutes.',
   'ask.sources': 'Sources',
+  'recovery.uncited':
+    'Cette réponse ne cite aucun passage : elle ne peut pas être vérifiée.',
   'recovery.offerLabel': 'Ou choisissez où chercher :',
   'recovery.chapterLabel': 'Chapitre',
   'recovery.lookHere': 'Chercher dans ce chapitre',
