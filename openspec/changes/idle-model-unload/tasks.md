@@ -15,8 +15,8 @@
 
 ## 3. End to end
 
-- [ ] 3.1 Add `e2e/idle-unload.spec.ts` against the mocked Ollama: the default sends `"10m"` on chat and embed requests; choosing 5 minutes sends `"5m"` on the next question; the choice survives a reload; keyboard-only change; verify with `pnpm exec playwright test`
-- [ ] 3.2 Commit ("Add idle unload e2e tests")
+- [x] 3.1 Add `e2e/idle-unload.spec.ts` against the mocked Ollama: the default sends `"10m"` on chat and embed requests; choosing 5 minutes sends `"5m"` on the next question; the choice survives a reload; keyboard-only change; verify with `pnpm exec playwright test`
+- [x] 3.2 Commit ("Add idle unload e2e tests")
 
 ## 4. Real-world check and wrap-up
 
