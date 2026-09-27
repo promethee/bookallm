@@ -25,9 +25,9 @@
 
 ## 4. End to end
 
-- [ ] 4.1 Extend the mocked Ollama in `e2e/support.ts` so a book has a question with nothing relevant, a chapter whose passages answer it with a citation, and one whose answer cites nothing, without changing existing mocks; verify existing e2e specs still pass
-- [ ] 4.2 Add `e2e/retrieval-recovery.spec.ts`: nothing found, choose a chapter, cited answer; typed "chapter N" hint; unclear hint offers the list; uncited retry hands over the chapter, collapsible; keyboard-only run; verify with `pnpm exec playwright test`
-- [ ] 4.3 Commit ("Add retrieval recovery e2e tests")
+- [x] 4.1 Extend the mocked Ollama in `e2e/support.ts` so a book has a question with nothing relevant, a chapter whose passages answer it with a citation, and one whose answer cites nothing, without changing existing mocks; verify existing e2e specs still pass
+- [x] 4.2 Add `e2e/retrieval-recovery.spec.ts`: nothing found, choose a chapter, cited answer; typed "chapter N" hint; unclear hint offers the list; uncited retry hands over the chapter, collapsible; keyboard-only run; verify with `pnpm exec playwright test`
+- [x] 4.3 Commit ("Add retrieval recovery e2e tests")
 
 ## 5. Real-world check and wrap-up
 

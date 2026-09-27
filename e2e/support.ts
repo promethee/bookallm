@@ -265,6 +265,42 @@ export function chaptersFile(
   );
 }
 
+/**
+ * A vector that finds nothing relevant anywhere: fake embeddings never have a negative
+ * entry, so this scores at most 0 against every passage. Pin a question to it through
+ * `embedFixed` to get a "nothing found" turn.
+ */
+export const NOTHING_VECTOR = new Array<number>(8).fill(-1 / Math.sqrt(8));
+
+/**
+ * An introduction, then "Chapter 1" and "Chapter 2": the table-of-contents positions do
+ * not match the book's own chapter numbers, as in many real editions.
+ */
+export function recoveryFile(name = 'candide.epub') {
+  const texts = [
+    'A note on the printing history of this translation.',
+    'The old lighthouse keeper watched the storm from his window.',
+    'Candide reached Lisbon just before the earthquake struck the city.',
+  ];
+  const titles = ['Introduction', 'Chapter 1', 'Chapter 2'];
+  const documents = texts.map((text, index) => ({
+    href: `c${index + 1}.xhtml`,
+    body: `<p>${text}</p>`,
+  }));
+  return epubFile(
+    'Candide',
+    '',
+    {
+      documents,
+      toc: documents.map((document, index) => ({
+        title: titles[index],
+        href: document.href,
+      })),
+    },
+    name,
+  );
+}
+
 /** A running, recent Ollama with both default models installed. */
 export const READY = () =>
   newMock({ version: '0.34.0', installed: ['llama3.1:8b', 'bge-m3:latest'] });
