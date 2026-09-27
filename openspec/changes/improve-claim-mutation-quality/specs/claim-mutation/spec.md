@@ -33,7 +33,7 @@ The system SHALL pick one chunk from the active book's already-indexed chunks to
 
 ### Requirement: The claim states one concrete, checkable fact from the source chunk
 
-The system SHALL choose, before asking the chat model for a claim, which kind of fact the claim is about: who did or said something, or where something happened. (A cause and the order of two events are planned for a later version; see the change's design.) The first kind SHALL be chosen unpredictably. The system SHALL have the configured chat model state one concrete claim of that kind that the source chunk actually supports, or say that the chunk has none. A claim shorter than a documented minimum number of words SHALL be treated as none. When the chunk has none, the system SHALL try the next kind, until every kind has been tried.
+The system SHALL choose, before asking the chat model for a claim, which kind of fact the claim is about: who did or said something, or where something happened. (A cause and the order of two events are planned for a later version; see the change's design.) The first kind SHALL be chosen unpredictably. The system SHALL have the configured chat model state one concrete claim of that kind that the source chunk actually supports, or say that the chunk has none. A claim shorter than a documented minimum number of words SHALL be treated as none. The claim, and its changed version, SHALL be asked for in the same language as the source chunk. When the chunk has none, the system SHALL try the next kind, until every kind has been tried.
 
 #### Scenario: A checkable claim
 
@@ -49,6 +49,11 @@ The system SHALL choose, before asking the chat model for a claim, which kind of
 
 - **WHEN** many claims are generated
 - **THEN** every claim is about who did or said something or where something happened, never a cause or an order of events
+
+#### Scenario: A claim in the book's language
+
+- **WHEN** a claim is generated from a chunk of a French book
+- **THEN** the prompts ask for the claim, and its changed version, in the passage's language
 
 #### Scenario: A claim too vague to judge
 

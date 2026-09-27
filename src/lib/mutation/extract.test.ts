@@ -52,6 +52,7 @@ describe('extractClaim', () => {
     );
     expect(message.content).toContain('who did or said something');
     expect(message.content).toContain('NONE');
+    expect(message.content).toContain('same language as the passage');
   });
 
   it('asks for two events when the kind is order', async () => {

@@ -66,6 +66,9 @@ The real-world check in the archived `verify-mode-screen` design (GPU, `llama3.1
     - *Considered:* per-kind diff rules (order compared as a bag of words, cause allowed one large run): about 1.5 hours, but it would accept muddled order claims the trace also showed, and it keeps free rewriting at the root; loosening the limits for every kind: lets real rewrites through; keeping four kinds as is: long retries, order almost never shown.
     - **Changes a core decision** (README promised four kinds); agreed with the user on 2026-09-27.
 
+12. **Claims in the passage's language.** Found while checking the reveal in the real app on French *Candide*: the true claim read "She traversai toute la Russie" and the changed one "Elle traversa toute la Saxe", so the reveal listed the language fix as a changed word. The extraction and change prompts gain one line, "Write the claim in the same language as the passage, never in another language"; the one-word answers (NONE, TRUE, FALSE) stay in English so they can still be read. Measured on French *Candide*, 20 claims each: claims containing English words went from 14 of 20 to 3 of 18.
+    - *Considered:* passing the book's `language` field into the prompts (needs `generateClaim` to take it, and EPUB language metadata is sometimes wrong); a separate follow-up change (would leave French readers with mixed claims and fake changed words meanwhile).
+
 ## Later: cause and order
 
 Not in this change; recorded so the follow-up starts from what was learned.
@@ -151,3 +154,7 @@ The verification check, reworded as TRUE/FALSE, now confirmed plainly false swap
 - **Failures shown to the reader: 42 % before, 7.5 % to 15 % after**, and none from an unreadable reply.
 - **Quality by eye:** most changed `who` claims swap in another character of the book ("Columbus" to "Vasco da Gama", "the Pope has delivered Candide out of the galleys"); some true claims are still bland ("Candide was being preached at"), and a `where` claim sometimes changes a person instead ("The narrator was sold to the Sultan of Morocco"). Both are for the later change (extracted parts, replacements from the book).
 - **French book, found in passing and out of scope here:** most claims came out in English or mixed ("They aborded the rivage of the Dniepr"), because the prompts are in English and never ask for the passage's language. This predates the change; a follow-up should ask for the claim in the passage's language.
+
+### After, claims in the passage's language (decision 12)
+
+French *Candide*, 20 claims, `MUTATION_VERIFY_RETRIES = 1`: 7 true / 11 changed offered, 2 `unverified` (10 %), median 4.7 s. Claims containing English words: 3 of 18 (before the language line: 14 of 20). Changes rejected as "changed too much" rose (29, from 7), so fresh-passage attempts rose too (11); the failure count stayed low.

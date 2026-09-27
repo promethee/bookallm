@@ -107,6 +107,15 @@ export interface RejectedChange {
   reason: RejectReason;
 }
 
+/**
+ * Keeps a claim in the book's language. Without it, `llama3.1:8b` wrote claims about a
+ * French passage half in English ("She traversai toute la Russie"), and the changed
+ * version then also fixed the language, which the reveal showed as a changed word.
+ * The one-word answers (NONE, TRUE, FALSE) stay in English so they can be read.
+ */
+const LANGUAGE_LINE =
+  'Write the claim in the same language as the passage, never in another language.';
+
 /** The word the extraction prompt asks for when the passage has no claim of the kind. */
 export const NO_CLAIM_WORD = 'NONE';
 
@@ -126,6 +135,7 @@ export function extractionPrompt(
     `The claim must be about ${KIND_CLAIM[kind]}. State it as one plain, factual`,
     'sentence, using only what the passage actually says. Do not add anything the',
     'passage does not support, and do not mention the passage itself.',
+    LANGUAGE_LINE,
     `If the passage says nothing of that kind, answer with exactly one word: ${NO_CLAIM_WORD}.`,
     '',
     'Passage:',
@@ -153,6 +163,7 @@ export function mutationPrompt(
     'passage does not mention.',
     'Answer with the changed claim only, as one plain sentence, with no label and no',
     'explanation.',
+    LANGUAGE_LINE,
   ];
   if (rejected.length > 0) {
     lines.push('', 'These versions were rejected; do not repeat them:');

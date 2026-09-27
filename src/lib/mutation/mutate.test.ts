@@ -50,6 +50,7 @@ describe('generateMutation', () => {
     expect(content).toContain(PASSAGE);
     expect(content).toContain('replace that person');
     expect(content).toContain('matters to what happens');
+    expect(content).toContain('same language as the passage');
     expect(content).not.toContain('rejected');
   });
 
