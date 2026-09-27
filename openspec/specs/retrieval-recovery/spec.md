@@ -1,6 +1,7 @@
 # retrieval-recovery Specification
 
 ## Purpose
+
 Gives a "nothing found" answer a way forward: the reader points to a chapter, the app looks once more in that chapter only, and if it still cannot answer it hands over the chapter itself, so a failed search ends with the primary source in the reader's hands rather than a loop of non-answers.
 
 ## Requirements
