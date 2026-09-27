@@ -222,6 +222,13 @@ export class OnboardingController {
   /** True when the last address the reader typed was not a valid web address. */
   addressError = $state(false);
   announcement = $state.raw<Announcement | undefined>(undefined);
+  /** `deleting` while the active book is being removed; `failed` if that did not work. */
+  deleteState = $state<'idle' | 'deleting' | 'failed'>('idle');
+  /**
+   * After a deletion, the book that became active in its place, so its card can say so.
+   * Cleared whenever the book session resets (another import or deletion).
+   */
+  bookNotice = $state.raw<{ title: string } | undefined>(undefined);
   problem = $state<StorageProblem | undefined>(undefined);
   /** The language preselected on the first-launch screen. */
   suggestedLanguage = $state<Language>('en');
@@ -1093,6 +1100,7 @@ export class OnboardingController {
 
   /** Clears everything kept for this session about the active book, in both modes. */
   private resetBookSession(): void {
+    this.bookNotice = undefined;
     this.turns = [];
     this.chapterChoices = [];
     this.verifyAbort?.abort();
@@ -1100,6 +1108,47 @@ export class OnboardingController {
     this.verify = { state: 'idle' };
     this.verifyTally = { judged: 0, correct: 0 };
     this.usedChunkIds = [];
+  }
+
+  // ---- deleting the active book -----------------------------------------------------
+
+  /**
+   * Deletes the active book: its registry record, stored text and every vector, in one
+   * step, never the reader's own file. Anything running for it stops and its session
+   * clears; the most recently imported remaining book becomes active (and goes to
+   * indexing if its index is unfinished), or the import screen shows when none is left.
+   * A failure removes nothing and leaves `deleteState` at `failed`, to try again.
+   */
+  async deleteActiveBook(): Promise<void> {
+    const entry = this.activeBook;
+    if (!entry || this.deleteState === 'deleting') return;
+    this.deleteState = 'deleting';
+    this.askAbort?.abort();
+    this.verifyAbort?.abort();
+    this.indexAbort?.abort();
+
+    const { library } = this.services.storage;
+    try {
+      await library.registry.remove(entry.hash);
+    } catch {
+      this.deleteState = 'failed';
+      this.announce('announce.deleteFailed');
+      return;
+    }
+
+    this.books = await library.registry.list();
+    const next = this.books.at(-1);
+    this.save({ activeBook: next?.hash });
+    this.resetBookSession();
+    this.importState = { kind: 'idle' };
+    this.deleteState = 'idle';
+    if (next)
+      this.bookNotice = { title: next.title || next.sourceFilename || '' };
+    this.announce('announce.bookDeleted', {
+      title: entry.title || entry.sourceFilename || '',
+    });
+    await this.ensureIndexNeed();
+    await this.syncIndexing();
   }
 
   // ---- helpers ----------------------------------------------------------------------

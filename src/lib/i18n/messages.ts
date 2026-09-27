@@ -202,6 +202,8 @@ export const en = {
     'Ollama does not have one of the configured models anymore. Check the model names, then try again.',
   'ask.error.other': 'This question could not be answered.',
   'announce.answerDone': 'The answer is ready.',
+  'announce.bookDeleted': '{title} was deleted.',
+  'announce.deleteFailed': 'The book could not be deleted.',
   'announce.answerFailed': 'The question could not be answered.',
   'announce.chapterShown':
     'The chapter is shown below, so you can look through it yourself.',
@@ -444,6 +446,8 @@ export const fr: Record<MessageKey, Message> = {
     'Ollama n’a plus l’un des modèles configurés. Vérifiez les noms des modèles, puis réessayez.',
   'ask.error.other': 'Cette question n’a pas pu obtenir de réponse.',
   'announce.answerDone': 'La réponse est prête.',
+  'announce.bookDeleted': '{title} a été supprimé.',
+  'announce.deleteFailed': 'Le livre n’a pas pu être supprimé.',
   'announce.answerFailed': 'La question n’a pas pu obtenir de réponse.',
   'announce.chapterShown':
     'Le chapitre est affiché ci-dessous, pour que vous puissiez le parcourir vous-même.',

@@ -2,10 +2,10 @@
 
 ## 1. Controller
 
-- [ ] 1.1 Add `deleteState`, `bookNotice` (cleared in `resetBookSession`) and `deleteActiveBook()` per design decisions 1 and 2; verify with a new `controller.delete.test.ts`: record, book and vectors of every model gone from the library; the most recent remaining book becomes active with the notice; with none left the screen is the import screen; an unfinished index for the next book starts indexing
-- [ ] 1.2 Stop and clear what belonged to the deleted book (abort answer, claim and indexing; conversation, claim and tally cleared); verify with delete controller tests for a pending answer and a claim being generated
-- [ ] 1.3 Handle failure (design decision 4) and announce success and failure; verify with delete controller tests where the library's `remove` rejects (book, index and turns unchanged, `deleteState` failed, retry succeeds) and on the announcer
-- [ ] 1.4 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add deleting the active book to the controller")
+- [x] 1.1 Add `deleteState`, `bookNotice` (cleared in `resetBookSession`) and `deleteActiveBook()` per design decisions 1 and 2; verify with a new `controller.delete.test.ts`: record, book and vectors of every model gone from the library; the most recent remaining book becomes active with the notice; with none left the screen is the import screen; an unfinished index for the next book starts indexing
+- [x] 1.2 Stop and clear what belonged to the deleted book (abort answer, claim and indexing; conversation, claim and tally cleared); verify with delete controller tests for a pending answer and a claim being generated
+- [x] 1.3 Handle failure (design decision 4) and announce success and failure; verify with delete controller tests where the library's `remove` rejects (book, index and turns unchanged, `deleteState` failed, retry succeeds) and on the announcer
+- [x] 1.4 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add deleting the active book to the controller")
 
 ## 2. Interface
 
