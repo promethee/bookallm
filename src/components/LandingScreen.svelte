@@ -6,6 +6,7 @@
   import Button from './Button.svelte';
   import DeleteBook from './DeleteBook.svelte';
   import Heading from './Heading.svelte';
+  import IdleUnload from './IdleUnload.svelte';
   import VerifySession from './VerifySession.svelte';
 
   const controller = getController();
@@ -83,6 +84,7 @@
     <Button variant="secondary" onclick={() => controller.requestImport()}>
       {t('landing.import')}
     </Button>
+    <IdleUnload />
 
     <div
       role="tablist"

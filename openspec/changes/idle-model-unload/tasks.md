@@ -9,9 +9,9 @@
 
 ## 2. Interface
 
-- [ ] 2.1 Add the English and French messages for the control, its four choices and its hint; verify with the existing i18n key-parity test
-- [ ] 2.2 Create `IdleUnload.svelte` and show it on the landing screen under "Import a book" (design decision 3); verify with a component test: current choice shown, changing it saves the setting, label and choices in French
-- [ ] 2.3 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add the idle unload control to the main screen")
+- [x] 2.1 Add the English and French messages for the control, its four choices and its hint; verify with the existing i18n key-parity test
+- [x] 2.2 Create `IdleUnload.svelte` and show it on the landing screen under "Import a book" (design decision 3); verify with a component test: current choice shown, changing it saves the setting, label and choices in French
+- [x] 2.3 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add the idle unload control to the main screen")
 
 ## 3. End to end
 

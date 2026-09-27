@@ -49,6 +49,11 @@ export const en = {
   'landing.noBook': 'No book is selected yet. Import an EPUB to get started.',
   'landing.import': 'Import a book',
   'landing.nowShowing': 'Now showing: {title}',
+  'idle.label': 'Free memory after',
+  'idle.minutes': '{count} minutes',
+  'idle.never': 'Never',
+  'idle.hint':
+    'After this long without a question or claim, Ollama frees the memory it uses. The next answer then takes longer.',
   'delete.action': 'Delete this book',
   'delete.confirm':
     'This removes BookaLLM’s copy of the book and its index. Your EPUB file stays where it is.',
@@ -298,6 +303,11 @@ export const fr: Record<MessageKey, Message> = {
     'Aucun livre n’est sélectionné pour l’instant. Importez un EPUB pour commencer.',
   'landing.import': 'Importer un livre',
   'landing.nowShowing': 'Livre affiché : {title}',
+  'idle.label': 'Libérer la mémoire après',
+  'idle.minutes': '{count} minutes',
+  'idle.never': 'Jamais',
+  'idle.hint':
+    'Après ce délai sans question ni affirmation, Ollama libère la mémoire utilisée. La réponse suivante prend alors plus de temps.',
   'delete.action': 'Supprimer ce livre',
   'delete.confirm':
     'Cela supprime la copie du livre et son index dans BookaLLM. Votre fichier EPUB reste où il est.',
