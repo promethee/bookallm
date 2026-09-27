@@ -7,6 +7,7 @@
   import DeleteBook from './DeleteBook.svelte';
   import Heading from './Heading.svelte';
   import IdleUnload from './IdleUnload.svelte';
+  import TrayOption from './TrayOption.svelte';
   import VerifySession from './VerifySession.svelte';
 
   const controller = getController();
@@ -85,6 +86,7 @@
       {t('landing.import')}
     </Button>
     <IdleUnload />
+    <TrayOption />
 
     <div
       role="tablist"

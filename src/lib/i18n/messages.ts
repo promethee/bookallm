@@ -52,6 +52,9 @@ export const en = {
   'idle.label': 'Free memory after',
   'idle.minutes': '{count} minutes',
   'idle.never': 'Never',
+  'tray.keepRunning': 'Keep running in the tray when closed',
+  'tray.show': 'Show BookaLLM',
+  'tray.quit': 'Quit BookaLLM',
   'idle.hint':
     'After this long without a question or claim, Ollama frees the memory it uses. The next answer then takes longer.',
   'delete.action': 'Delete this book',
@@ -306,6 +309,9 @@ export const fr: Record<MessageKey, Message> = {
   'idle.label': 'Libérer la mémoire après',
   'idle.minutes': '{count} minutes',
   'idle.never': 'Jamais',
+  'tray.keepRunning': 'Continuer dans la zone de notification à la fermeture',
+  'tray.show': 'Afficher BookaLLM',
+  'tray.quit': 'Quitter BookaLLM',
   'idle.hint':
     'Après ce délai sans question ni affirmation, Ollama libère la mémoire utilisée. La réponse suivante prend alors plus de temps.',
   'delete.action': 'Supprimer ce livre',

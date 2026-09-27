@@ -23,6 +23,8 @@ export interface Settings {
   hardwareCheckResolved?: boolean;
   /** How long Ollama keeps models loaded after their last use; absent means the default. */
   idleUnload?: IdleUnload;
+  /** Whether closing the window hides the desktop app to the tray; absent means on. */
+  closeToTray?: boolean;
 }
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
@@ -82,6 +84,8 @@ export function parseSettings(raw: unknown): Settings {
   if (source.hardwareCheckResolved === true)
     settings.hardwareCheckResolved = true;
   if (isIdleUnload(source.idleUnload)) settings.idleUnload = source.idleUnload;
+  if (typeof source.closeToTray === 'boolean')
+    settings.closeToTray = source.closeToTray;
   return settings;
 }
 

@@ -5,6 +5,7 @@ import {
   type Language,
 } from '../i18n';
 import type { MessageKey, Params } from '../i18n';
+import { translate } from '../i18n/translate';
 import { DuplicateHashError } from '../ingest/registry';
 import type {
   Book,
@@ -301,6 +302,7 @@ export class OnboardingController {
     };
     this.suggestedLanguage = detectLanguage(this.services.systemLanguages);
     setLanguage(this.settings.language ?? this.suggestedLanguage);
+    this.syncTray();
     this.books = await library.registry.list();
     this.refreshProblem();
     if (this.settings.language) await this.runCheck();
@@ -324,6 +326,7 @@ export class OnboardingController {
   changeLanguage(language: Language): void {
     setLanguage(language);
     if (this.settings.language) this.save({ language });
+    this.syncTray();
   }
 
   /** Remembers the language currently shown and moves on to checking the real state. */
@@ -1121,6 +1124,24 @@ export class OnboardingController {
    */
   setIdleUnload(choice: IdleUnload): void {
     this.save({ idleUnload: choice });
+  }
+
+  // ---- system tray -------------------------------------------------------------------
+
+  /** Saves whether closing the window hides the desktop app to the tray, and applies it. */
+  setCloseToTray(on: boolean): void {
+    this.save({ closeToTray: on });
+    this.syncTray();
+  }
+
+  /** Sends the tray setting and menu text, in the current language, to the desktop app. */
+  private syncTray(): void {
+    const language = getLanguage();
+    void this.services.configureTray({
+      closeToTray: this.settings.closeToTray ?? true,
+      showLabel: translate(language, 'tray.show'),
+      quitLabel: translate(language, 'tray.quit'),
+    });
   }
 
   // ---- deleting the active book -----------------------------------------------------

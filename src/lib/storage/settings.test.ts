@@ -192,6 +192,21 @@ describe('LocalStorageSettings', () => {
 });
 
 describe('parseSettings', () => {
+  it('leaves the tray setting unset by default', () => {
+    expect(parseSettings({}).closeToTray).toBeUndefined();
+  });
+
+  it.each([true, false])('keeps a tray setting of %j', (value) => {
+    expect(parseSettings({ closeToTray: value }).closeToTray).toBe(value);
+  });
+
+  it.each(['true', 1, null])(
+    'drops a non-boolean tray setting (%j)',
+    (value) => {
+      expect(parseSettings({ closeToTray: value }).closeToTray).toBeUndefined();
+    },
+  );
+
   it('leaves the idle unload time unset by default', () => {
     expect(parseSettings({}).idleUnload).toBeUndefined();
   });

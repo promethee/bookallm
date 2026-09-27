@@ -1,3 +1,4 @@
+import type { TrayConfig } from '../../tray';
 import { setLanguage, type Language } from '../../i18n';
 import { ingestEpub, InMemoryRegistry, type Book } from '../../ingest';
 import {
@@ -110,6 +111,7 @@ export async function harness(
   }
   const storage: AppStorage = { settings, library, booksProblem: undefined };
   const opened: string[] = [];
+  const trayConfigs: TrayConfig[] = [];
   const services: Services = {
     storage,
     createClient: (baseUrl, keepAlive) =>
@@ -125,9 +127,21 @@ export async function harness(
     nextFrame: options.nextFrame ?? (async () => undefined),
     now: options.now ?? (() => Date.now()),
     random: options.random ?? (() => Math.random()),
+    configureTray: async (config) => {
+      trayConfigs.push(config);
+    },
   };
   const controller = new OnboardingController(services);
-  return { controller, services, fake, storage, library, settings, opened };
+  return {
+    controller,
+    services,
+    fake,
+    storage,
+    library,
+    settings,
+    opened,
+    trayConfigs,
+  };
 }
 
 export const versionRequests = (fake: ReturnType<typeof simulateOllama>) =>

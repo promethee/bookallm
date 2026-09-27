@@ -6,6 +6,7 @@ import {
   type Platform,
 } from '../ollama';
 import { openStorage, type AppStorage } from '../storage';
+import { configureTray, type TrayConfig } from '../tray';
 
 /** Everything the controller needs from the outside world, so tests can supply fakes. */
 export interface Services {
@@ -25,6 +26,8 @@ export interface Services {
   now(): number;
   /** A number in [0, 1); replaceable so tests control which claims Verify mode makes. */
   random(): number;
+  /** Tells the desktop app's tray its setting and menu text; nothing in the browser. */
+  configureTray(config: TrayConfig): Promise<void>;
 }
 
 const paint = (): Promise<void> =>
@@ -56,6 +59,7 @@ export async function createServices(
     nextFrame: paint,
     now: () => Date.now(),
     random: () => Math.random(),
+    configureTray: overrides.configureTray ?? configureTray,
     ...overrides,
   };
 }
