@@ -8,12 +8,12 @@
 
 ## 2. Controller
 
-- [ ] 2.1 Extend `Turn` with `kind`, `verdict`, `chapter`, `retryOf`, `recovered` and `handedOver` (design decision 4), and record the verdict on `question` turns; verify with a `controller.ask.test.ts` case that a nothing-found question's turn carries `verdict: 'nothing-relevant'` and a relevant one `'relevant'`, with existing Ask tests unchanged
-- [ ] 2.2 Add `retryInChapter(turnId, chapterNumber)`: marks the nothing-found turn `recovered`, runs a `chapter-retry` turn with the chapter filter and the verdict override, and refuses when the target is not an un-recovered nothing-found question or something is busy; verify with a new `controller.recovery.test.ts`: retry turn created with the chapter and original question, only that chapter's passages cited, below-cutoff passages answered from, second retry of the same turn ignored, busy refused
-- [ ] 2.3 Implement the hand-over (design decision 3): a finished, not-stopped chapter retry with no citations, or an empty chapter, sets `handedOver` to the chapter text; stopped and failed retries do not; `retryTurn` on a failed chapter retry re-runs it in place; verify with recovery controller tests for each case
-- [ ] 2.4 Route typed hints in `askQuestion`: after an un-recovered nothing-found turn, one title match calls `retryInChapter`, zero or several add a `hint-unclear` turn, and any other message (or a chapter mention after a relevant turn) is a normal question; verify with recovery controller tests for each branch
-- [ ] 2.5 Announce hand-over and unclear hints (`announce.chapterShown`, `announce.chapterUnclear`), reusing the answer done/failed announcements for the retry itself; verify with recovery controller tests on the announcer
-- [ ] 2.6 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add chapter retry and hand-over to the controller")
+- [x] 2.1 Extend `Turn` with `kind`, `verdict`, `chapter`, `retryOf`, `recovered` and `handedOver` (design decision 4), and record the verdict on `question` turns; verify with a `controller.ask.test.ts` case that a nothing-found question's turn carries `verdict: 'nothing-relevant'` and a relevant one `'relevant'`, with existing Ask tests unchanged
+- [x] 2.2 Add `retryInChapter(turnId, chapterNumber)`: marks the nothing-found turn `recovered`, runs a `chapter-retry` turn with the chapter filter and the verdict override, and refuses when the target is not an un-recovered nothing-found question or something is busy; verify with a new `controller.recovery.test.ts`: retry turn created with the chapter and original question, only that chapter's passages cited, below-cutoff passages answered from, second retry of the same turn ignored, busy refused
+- [x] 2.3 Implement the hand-over (design decision 3): a finished, not-stopped chapter retry with no citations, or an empty chapter, sets `handedOver` to the chapter text; stopped and failed retries do not; `retryTurn` on a failed chapter retry re-runs it in place; verify with recovery controller tests for each case
+- [x] 2.4 Route typed hints in `askQuestion`: after an un-recovered nothing-found turn, one title match calls `retryInChapter`, zero or several add a `hint-unclear` turn, and any other message (or a chapter mention after a relevant turn) is a normal question; verify with recovery controller tests for each branch
+- [x] 2.5 Announce hand-over and unclear hints (`announce.chapterShown`, `announce.chapterUnclear`), reusing the answer done/failed announcements for the retry itself; verify with recovery controller tests on the announcer
+- [x] 2.6 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add chapter retry and hand-over to the controller")
 
 ## 3. Interface
 

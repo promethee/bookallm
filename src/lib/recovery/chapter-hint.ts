@@ -74,16 +74,17 @@ function titleNumber(title: string): number | undefined {
 }
 
 /**
- * The chapters with text whose own title names chapter `number`, in book order. Titles
- * are used, not table-of-contents positions, because front matter such as an
- * introduction shifts the positions away from the book's own numbering. The caller
- * decides what zero or several matches mean.
+ * The chapters whose own title names chapter `number`, in book order, leaving out any
+ * whose `text` is given and empty. Titles are used, not table-of-contents positions,
+ * because front matter such as an introduction shifts the positions away from the book's
+ * own numbering. The caller decides what zero or several matches mean.
  */
 export function matchChapterByTitle<
-  T extends Pick<Chapter, 'number' | 'title' | 'text'>,
+  T extends Pick<Chapter, 'number' | 'title'> & { text?: string },
 >(chapters: readonly T[], number: number): T[] {
   return chapters.filter(
     (chapter) =>
-      chapter.text.trim() !== '' && titleNumber(chapter.title) === number,
+      (chapter.text === undefined || chapter.text.trim() !== '') &&
+      titleNumber(chapter.title) === number,
   );
 }

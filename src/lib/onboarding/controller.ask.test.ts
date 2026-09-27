@@ -381,3 +381,31 @@ describe('typed failures', () => {
     controller.destroy();
   });
 });
+
+describe('the verdict on a turn', () => {
+  it('records a relevant verdict when the book answers the question', async () => {
+    const { controller, book } = await readyBook();
+
+    await controller.askQuestion(book.chunks[0].text);
+
+    expect(controller.turns[0]).toMatchObject({
+      kind: 'question',
+      verdict: 'relevant',
+    });
+    controller.destroy();
+  });
+
+  it('records a nothing-relevant verdict when nothing matches', async () => {
+    const { controller } = await readyBook();
+
+    await controller.askQuestion('zebra quantum xylophone');
+
+    expect(controller.turns[0]).toMatchObject({
+      kind: 'question',
+      verdict: 'nothing-relevant',
+      state: 'done',
+      citations: [],
+    });
+    controller.destroy();
+  });
+});

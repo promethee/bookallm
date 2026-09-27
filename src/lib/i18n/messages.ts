@@ -194,6 +194,9 @@ export const en = {
   'ask.error.other': 'This question could not be answered.',
   'announce.answerDone': 'The answer is ready.',
   'announce.answerFailed': 'The question could not be answered.',
+  'announce.chapterShown':
+    'The chapter is shown below, so you can look through it yourself.',
+  'announce.chapterUnclear': 'Which chapter? Choose it from the list.',
 
   'mode.tabsLabel': 'Mode',
   'mode.ask': 'Ask',
@@ -418,6 +421,9 @@ export const fr: Record<MessageKey, Message> = {
   'ask.error.other': 'Cette question n’a pas pu obtenir de réponse.',
   'announce.answerDone': 'La réponse est prête.',
   'announce.answerFailed': 'La question n’a pas pu obtenir de réponse.',
+  'announce.chapterShown':
+    'Le chapitre est affiché ci-dessous, pour que vous puissiez le parcourir vous-même.',
+  'announce.chapterUnclear': 'Quel chapitre ? Choisissez-le dans la liste.',
 
   'mode.tabsLabel': 'Mode',
   'mode.ask': 'Question',

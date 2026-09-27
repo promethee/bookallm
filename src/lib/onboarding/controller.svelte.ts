@@ -39,7 +39,12 @@ import {
   type Settings,
   type StorageProblem,
 } from '../storage';
-import { retrievePassages, type RetrievalError } from '../retrieval';
+import {
+  retrievePassages,
+  type RetrievalError,
+  type Verdict,
+} from '../retrieval';
+import { findChapterReference, matchChapterByTitle } from '../recovery';
 import { generateAnswer, type AnswerError, type Citation } from '../answering';
 import { checkAcceleration } from '../hardware';
 import {
@@ -61,8 +66,22 @@ export interface AskCitation extends Citation {
   text: string;
 }
 
+/** A chapter the reader can point a nothing-found question to. */
+export interface ChapterChoice {
+  /** 1-based table-of-contents position, as in a chunk's locator. */
+  number: number;
+  title: string;
+}
+
 export interface Turn {
   id: string;
+  /**
+   * `question`: an ordinary question over the whole book. `chapter-retry`: a nothing-found
+   * question asked again in one chapter. `hint-unclear`: a typed chapter hint that did not
+   * name exactly one chapter; it carries no answer, only the chapter offer again.
+   */
+  kind: 'question' | 'chapter-retry' | 'hint-unclear';
+  /** The reader's message; for a chapter retry, the original question it retries. */
   question: string;
   /** `waiting`: no text yet. `streaming`: at least one piece arrived. */
   state: 'waiting' | 'streaming' | 'done' | 'failed';
@@ -71,7 +90,22 @@ export interface Turn {
   text: string;
   citations: AskCitation[];
   error?: RetrievalError | AnswerError;
+  /** Retrieval's verdict, once known, for a `question` turn. */
+  verdict?: Verdict;
+  /** The chapter a `chapter-retry` turn looks in. */
+  chapter?: ChapterChoice;
+  /** The nothing-found turn a `chapter-retry` or `hint-unclear` turn belongs to. */
+  retryOf?: string;
+  /** On a nothing-found turn: a chapter retry has started for it, so none is offered. */
+  recovered?: boolean;
+  /** On a `chapter-retry` turn that could not answer: the chapter's full text. */
+  handedOver?: string;
 }
+
+const newTurnId = (): string =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random()}`;
 
 export type Mode = 'ask' | 'verify';
 
@@ -208,6 +242,11 @@ export class OnboardingController {
   );
 
   turns = $state.raw<Turn[]>([]);
+  /**
+   * The active book's chapters that have text, in book order, for pointing a nothing-found
+   * question to a chapter. Filled when a question's search first finds nothing.
+   */
+  chapterChoices = $state.raw<ChapterChoice[]>([]);
   /** True while a question is being answered, so only one turn runs at a time. */
   askBusy = $derived(
     this.turns.at(-1)?.state === 'waiting' ||
@@ -734,16 +773,84 @@ export class OnboardingController {
    */
   async askQuestion(question: string): Promise<void> {
     if (this.askBusy || question.trim() === '') return;
+
+    // Right after a nothing-found turn (or a "which chapter?" turn about it), a message
+    // naming a chapter answers that turn's "where in the book?" instead of starting a
+    // new search.
+    let last = this.turns.at(-1);
+    if (last?.kind === 'hint-unclear')
+      last = this.turns.find((turn) => turn.id === last?.retryOf);
+    const number = findChapterReference(question);
+    if (last && this.canRecover(last) && number !== undefined) {
+      const matches = matchChapterByTitle(await this.activeChapters(), number);
+      if (matches.length === 1) {
+        await this.retryInChapter(last.id, matches[0].number);
+        return;
+      }
+      this.setTurn({
+        id: newTurnId(),
+        kind: 'hint-unclear',
+        question,
+        state: 'done',
+        stopped: false,
+        text: '',
+        citations: [],
+        retryOf: last.id,
+      });
+      this.announce('announce.chapterUnclear');
+      return;
+    }
+
     await this.runTurn({
-      id:
-        typeof crypto !== 'undefined' && 'randomUUID' in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random()}`,
+      id: newTurnId(),
+      kind: 'question',
       question,
       state: 'waiting',
       stopped: false,
       text: '',
       citations: [],
+    });
+  }
+
+  /**
+   * Whether a turn is a nothing-found question that can still be retried in a chapter:
+   * its whole-book search found nothing relevant, it finished, and no chapter retry has
+   * started for it.
+   */
+  canRecover(turn: Turn): boolean {
+    return (
+      turn.kind === 'question' &&
+      turn.verdict === 'nothing-relevant' &&
+      turn.state === 'done' &&
+      !turn.stopped &&
+      !turn.recovered
+    );
+  }
+
+  /**
+   * Asks a nothing-found turn's question again, in one chapter only. Does nothing if the
+   * turn cannot be recovered (see `canRecover`), the chapter is not one with text, or a
+   * question is being answered. Only one chapter retry is ever made per question.
+   */
+  async retryInChapter(turnId: string, chapterNumber: number): Promise<void> {
+    const target = this.turns.find((turn) => turn.id === turnId);
+    if (!target || !this.canRecover(target) || this.askBusy) return;
+    const chapter = (await this.activeChapters()).find(
+      (choice) => choice.number === chapterNumber,
+    );
+    if (!chapter || this.askBusy) return;
+
+    this.setTurn({ ...target, recovered: true });
+    await this.runTurn({
+      id: newTurnId(),
+      kind: 'chapter-retry',
+      question: target.question,
+      state: 'waiting',
+      stopped: false,
+      text: '',
+      citations: [],
+      chapter: { number: chapter.number, title: chapter.title },
+      retryOf: target.id,
     });
   }
 
@@ -757,12 +864,14 @@ export class OnboardingController {
     const turn = this.turns.find((existing) => existing.id === id);
     if (!turn || turn.state !== 'failed' || this.askBusy) return;
     await this.runTurn({
-      id: turn.id,
-      question: turn.question,
+      ...turn,
       state: 'waiting',
       stopped: false,
       text: '',
       citations: [],
+      error: undefined,
+      verdict: undefined,
+      handedOver: undefined,
     });
   }
 
@@ -782,6 +891,7 @@ export class OnboardingController {
         model: this.settings.embeddingModel,
         client: this.services.createClient(this.settings.ollamaUrl),
         store: library.vectors,
+        chapterNumber: start.chapter?.number,
         signal: abort.signal,
       });
       if (retrieved.status === 'aborted') {
@@ -794,8 +904,26 @@ export class OnboardingController {
         return;
       }
 
+      const retry = start.kind === 'chapter-retry';
+      // The chapter's own text, handed over when a chapter retry cannot answer.
+      const chapterText = retry
+        ? (book.chapters.find(
+            (chapter) => chapter.number === start.chapter?.number,
+          )?.text ?? '')
+        : '';
+      if (!retry) {
+        start = { ...start, verdict: retrieved.verdict };
+        if (retrieved.verdict === 'nothing-relevant')
+          this.chapterChoices = choicesOf(book);
+      } else if (retrieved.passages.length === 0) {
+        this.setTurn({ ...start, state: 'done', handedOver: chapterText });
+        this.announce('announce.chapterShown');
+        return;
+      }
+
       const generated = await generateAnswer({
-        verdict: retrieved.verdict,
+        // A chapter retry answers from the chapter's best passages even below the cutoff.
+        verdict: retry ? 'relevant' : retrieved.verdict,
         question: start.question,
         passages: retrieved.passages,
         model: this.settings.chatModel,
@@ -845,14 +973,19 @@ export class OnboardingController {
         this.announce('announce.answerFailed');
         return;
       }
+      const citations = withText();
+      // A chapter retry whose finished answer cites nothing could not answer: stop
+      // asking and hand over the chapter itself.
+      const handOver = retry && !abort.signal.aborted && citations.length === 0;
       this.setTurn({
         ...start,
         state: 'done',
         stopped: abort.signal.aborted,
         text,
-        citations: withText(),
+        citations,
+        ...(handOver ? { handedOver: chapterText } : {}),
       });
-      this.announce('announce.answerDone');
+      this.announce(handOver ? 'announce.chapterShown' : 'announce.answerDone');
     } finally {
       this.askAbort = undefined;
     }
@@ -951,6 +1084,7 @@ export class OnboardingController {
   /** Clears everything kept for this session about the active book, in both modes. */
   private resetBookSession(): void {
     this.turns = [];
+    this.chapterChoices = [];
     this.verifyAbort?.abort();
     this.verifyAbort = undefined;
     this.verify = { state: 'idle' };
@@ -959,6 +1093,17 @@ export class OnboardingController {
   }
 
   // ---- helpers ----------------------------------------------------------------------
+
+  /** The active book's chapters with text, loading the book when none are known yet. */
+  private async activeChapters(): Promise<ChapterChoice[]> {
+    if (this.chapterChoices.length > 0) return this.chapterChoices;
+    const entry = this.activeBook;
+    const book = entry
+      ? await this.services.storage.library.getBook(entry.hash)
+      : undefined;
+    if (book) this.chapterChoices = choicesOf(book);
+    return this.chapterChoices;
+  }
 
   private save(patch: Partial<Settings>): void {
     this.services.storage.settings.save(patch);
@@ -973,4 +1118,11 @@ export class OnboardingController {
   private announce(key: MessageKey, params?: Params): void {
     this.announcement = { key, params };
   }
+}
+
+/** A book's chapters that have text, in book order, as choices for a chapter retry. */
+function choicesOf(book: Book): ChapterChoice[] {
+  return book.chapters
+    .filter((chapter) => chapter.text.trim() !== '')
+    .map(({ number, title }) => ({ number, title }));
 }

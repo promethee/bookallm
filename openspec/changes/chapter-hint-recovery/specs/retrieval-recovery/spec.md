@@ -27,7 +27,7 @@ The system SHALL, under a nothing-found turn's reply, offer the active book's ch
 
 ### Requirement: A typed chapter number right after a nothing-found turn is read as a hint
 
-The system SHALL, when the reader's message immediately follows a nothing-found turn and names a chapter by number, treat it as a chapter hint for that turn's question instead of a new question. A chapter is named by the word "chapter" or "chapitre" (any letter case, optionally abbreviated "ch." or "chap.") followed by a number in digits or Roman numerals. The number SHALL be matched against the chapters' own titles, not their position in the table of contents. When exactly one chapter with text matches, that chapter SHALL be used. When none or several match, the system SHALL NOT guess: it SHALL say it could not tell which chapter was meant and offer the chapter list for that question.
+The system SHALL, when the reader's message immediately follows a nothing-found turn (or the "could not tell which chapter" reply about it) and names a chapter by number, treat it as a chapter hint for that turn's question instead of a new question. A chapter is named by the word "chapter" or "chapitre" (any letter case, optionally abbreviated "ch." or "chap.") followed by a number in digits or Roman numerals. The number SHALL be matched against the chapters' own titles, not their position in the table of contents. When exactly one chapter with text matches, that chapter SHALL be used. When none or several match, the system SHALL NOT guess: it SHALL say it could not tell which chapter was meant and offer the chapter list for that question.
 
 #### Scenario: Digits
 
@@ -48,6 +48,11 @@ The system SHALL, when the reader's message immediately follows a nothing-found 
 
 - **WHEN** the named chapter matches no chapter title, or more than one
 - **THEN** nothing is retried, the reader is told the chapter could not be identified, and the chapter list is offered
+
+#### Scenario: A second try after an unclear hint
+
+- **WHEN** the reader was told the chapter could not be identified and then types a chapter that matches exactly one title
+- **THEN** the original nothing-found question is retried in that chapter
 
 #### Scenario: Not right after a nothing-found turn
 
