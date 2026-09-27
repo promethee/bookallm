@@ -12,7 +12,10 @@ export type MutationErrorCode =
   | 'chat-failed'
   /** Every chunk was excluded, or the book has none. */
   | 'no-chunks-available'
-  /** A changed claim was never confirmed to contradict its source, even after retrying. */
+  /**
+   * No fair claim could be made: no changed claim was confirmed to contradict its source,
+   * or no passage yielded a claim, even after retrying and trying a fresh passage.
+   */
   | 'unverified';
 
 export interface MutationError {
@@ -23,6 +26,14 @@ export interface MutationError {
 
 /** Which concrete attribute a changed claim altered. */
 export type ChangedAttribute = 'cause' | 'order' | 'who' | 'where';
+
+/** One run of words the changed claim altered: the true claim's words and what replaced them. */
+export interface ClaimChange {
+  /** Empty when words were only added. */
+  before: string;
+  /** Empty when words were only removed. */
+  after: string;
+}
 
 /** The real chunk a claim was built from, to reveal once the reader has judged the claim. */
 export interface ClaimCitation {
@@ -37,8 +48,12 @@ export interface MutationClaim {
   claim: string;
   /** Whether `claim` is the true version or the changed one. */
   isTrue: boolean;
-  /** Which attribute was changed. Only set when `isTrue` is false. */
+  /** The true claim, whichever version `claim` is, to show as what the book says. */
+  trueClaim: string;
+  /** Which kind of detail was changed: the kind the system chose. Only set when `isTrue` is false. */
   changedAttribute?: ChangedAttribute;
+  /** The runs of words that were changed, in order. Only set when `isTrue` is false. */
+  changes?: ClaimChange[];
   citation: ClaimCitation;
   /** Reserved for future adaptive difficulty; always `'flat'` in v1.1. */
   difficulty: 'flat';

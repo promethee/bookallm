@@ -67,18 +67,28 @@ export interface OllamaState {
   chatStallAfterChunks?: number;
   /** How many chat requests have arrived. Kept by the simulator; tests may reset it. */
   chatCalls?: number;
-  /** What the default reply to Verify mode's verification prompt says. Defaults to CONTRADICTS. */
+  /**
+   * Whether Verify mode's verification check confirms the changed claim is false
+   * (`CONTRADICTS`, the default, replies FALSE) or not (`MATCHES` replies TRUE).
+   */
   claimVerdict?: 'CONTRADICTS' | 'MATCHES';
 }
 
 const firstLine = (text: string) => text.split('\n')[0];
 const lastLine = (text: string) => text.trim().split('\n').at(-1) ?? '';
+/** The passage an extraction prompt carries: everything after its `Passage:` line. */
+const passageOf = (prompt: string) => {
+  const marker = '\nPassage:\n';
+  return prompt.slice(prompt.indexOf(marker) + marker.length);
+};
 
 /**
  * A deterministic default answer. For Verify mode's three claim prompts (recognised by
- * their first line): a claim quoting the passage, a changed claim naming `who`, and the
- * verification verdict. For anything else: echoes the question and cites the first passage.
- * Shared with the e2e mock, so both answer the same way.
+ * their first line): a claim quoting the passage's last line, but only when asked for the
+ * "who" kind (NONE for the other kinds, so the kind is always `who`); a changed claim
+ * swapping the leading `Claim:` for `Changed:`; and the verification verdict. For
+ * anything else: echoes the question and cites the first passage. Shared with the e2e
+ * mock, so both answer the same way.
  */
 export function defaultChatChunks(
   messages: { role: string; content: string }[],
@@ -86,12 +96,18 @@ export function defaultChatChunks(
 ): string[] {
   const system =
     messages.find((message) => message.role === 'system')?.content ?? '';
-  if (firstLine(system) === firstLine(extractionPrompt('')))
-    return [`Claim: ${lastLine(system)}`];
-  if (firstLine(system) === firstLine(mutationPrompt('', '')))
-    return [`ATTRIBUTE: who\nCLAIM: Changed: ${lastLine(system)}`];
+  if (firstLine(system) === firstLine(extractionPrompt('', 'who')))
+    return system === extractionPrompt(passageOf(system), 'who')
+      ? [`Claim: ${lastLine(system)}`]
+      : ['NONE'];
+  if (firstLine(system) === firstLine(mutationPrompt('', '', 'who')))
+    return [lastLine(system).replace(/^Claim:/, 'Changed:')];
   if (firstLine(system) === firstLine(verificationPrompt('', '')))
-    return [state.claimVerdict ?? 'CONTRADICTS'];
+    return [
+      (state.claimVerdict ?? 'CONTRADICTS') === 'CONTRADICTS'
+        ? 'FALSE'
+        : 'TRUE',
+    ];
   const question =
     messages.find((message) => message.role === 'user')?.content ?? '';
   return ['Answer: ', question, ' [1]'];

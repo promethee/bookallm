@@ -1,87 +1,61 @@
 import type { OllamaClient } from '../ollama';
 import { runPrompt } from './chat';
-import { mutationPrompt } from './defaults';
+import { mutationPrompt, type RejectedChange } from './defaults';
 import type { ChangedAttribute, MutationError } from './types';
 
 export type MutateResult =
   | {
       status: 'ok';
       claim: string;
-      attribute: ChangedAttribute;
       /** The model's reply as received, for diagnostics. */
       raw: string;
     }
-  /** The model answered, but no attribute and claim could be read from its reply. */
+  /** The model answered, but no claim could be read from its reply. */
   | { status: 'unreadable'; raw: string }
   | { status: 'aborted' }
   | { status: 'failed'; error: MutationError };
 
-const ATTRIBUTE_KEYWORDS: Record<ChangedAttribute, RegExp> = {
-  cause: /cause/i,
-  order: /order/i,
-  who: /who/i,
-  where: /where/i,
-};
-
-const findKeyword = (text: string): ChangedAttribute | undefined => {
-  for (const [attribute, pattern] of Object.entries(ATTRIBUTE_KEYWORDS)) {
-    if (pattern.test(text)) return attribute as ChangedAttribute;
-  }
-  return undefined;
-};
-
 /**
- * Finds which known attribute the response names, and the changed claim, tolerating a
- * model that drops the requested `ATTRIBUTE:`/`CLAIM:` labels (seen in real use: a bare
- * first line like `ORDER` followed by the claim, no labels at all).
+ * A line that only names a kind ("WHO", "ATTRIBUTE: where"): the prompt no longer asks
+ * for one, but a model used to the old format may still write it before the claim.
  */
-function parseMutation(
-  text: string,
-): { attribute: ChangedAttribute; claim: string } | undefined {
-  const attributeLine = /attribute:\s*(.+)/i.exec(text)?.[1];
-  const claimLine = /claim:\s*(.+)/i.exec(text)?.[1]?.trim();
-  const labelledAttribute = attributeLine && findKeyword(attributeLine);
-  if (labelledAttribute && claimLine)
-    return { attribute: labelledAttribute, claim: claimLine };
+const KIND_LINE = /^(attribute\s*:.*|(cause|order|who|where)\W*)$/i;
 
-  // Fallback: an unlabelled short first line naming the attribute, rest is the claim.
-  const lines = text
+/** The changed claim in a reply: its first line that is not a kind label, unlabelled. */
+function readClaim(text: string): string | undefined {
+  const line = text
     .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-  if (lines.length >= 2 && lines[0].length <= 20) {
-    const bareAttribute = findKeyword(lines[0]);
-    if (bareAttribute)
-      return { attribute: bareAttribute, claim: lines.slice(1).join(' ') };
-  }
-  return undefined;
+    .map((candidate) => candidate.trim())
+    .find((candidate) => candidate.length > 0 && !KIND_LINE.test(candidate));
+  const claim = line
+    ?.replace(/^(changed claim|false claim|claim)\s*:\s*/i, '')
+    .replace(/^["“](.*)["”]$/, '$1')
+    .trim();
+  return claim || undefined;
 }
 
 /**
- * Asks the chat model for a changed version of `trueClaim` that alters exactly one
- * attribute, and the label naming which one.
+ * Asks the chat model for a false version of `trueClaim` that changes only its `kind`
+ * detail, telling it which versions were already rejected for this chunk and why.
  */
 export async function generateMutation(
   client: OllamaClient,
   model: string,
   passageText: string,
   trueClaim: string,
+  kind: ChangedAttribute,
+  rejected: readonly RejectedChange[] = [],
   signal?: AbortSignal,
 ): Promise<MutateResult> {
   const result = await runPrompt(
     client,
     model,
-    mutationPrompt(passageText, trueClaim),
+    mutationPrompt(passageText, trueClaim, kind, rejected),
     signal,
   );
   if (result.status !== 'ok') return result;
 
-  const parsed = parseMutation(result.text);
-  if (!parsed) return { status: 'unreadable', raw: result.text };
-  return {
-    status: 'ok',
-    claim: parsed.claim,
-    attribute: parsed.attribute,
-    raw: result.text,
-  };
+  const claim = readClaim(result.text);
+  if (!claim) return { status: 'unreadable', raw: result.text };
+  return { status: 'ok', claim, raw: result.text };
 }

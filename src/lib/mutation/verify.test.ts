@@ -21,33 +21,51 @@ const scripted = (content: string) =>
   ]);
 
 describe('verifyContradiction', () => {
-  it('confirms a contradiction', async () => {
-    const { client } = clientFor(() => scripted('CONTRADICTS'));
+  it.each([
+    'FALSE',
+    'False.',
+    'Answer: FALSE',
+    'false - the passage says Venice',
+  ])('confirms %j', async (reply) => {
+    const { client } = clientFor(() => scripted(reply));
 
     expect(
       await verifyContradiction(client, 'llama3.1:8b', 'passage', 'claim'),
-    ).toEqual({ status: 'ok', confirmed: true, raw: 'CONTRADICTS' });
+    ).toEqual({ status: 'ok', confirmed: true, raw: reply });
   });
 
-  it('does not confirm a claim the model says matches', async () => {
-    const { client } = clientFor(() => scripted('MATCHES'));
+  it.each([
+    'TRUE',
+    'MATCHES',
+    'CONTRADICTS',
+    'It is not false.',
+    'Not FALSE',
+    'The claim does not contradict the passage.',
+    'I am not sure about this one.',
+    '',
+  ])('does not confirm %j', async (reply) => {
+    const { client } = clientFor(() => scripted(reply));
 
     expect(
       await verifyContradiction(client, 'llama3.1:8b', 'passage', 'claim'),
-    ).toEqual({ status: 'ok', confirmed: false, raw: 'MATCHES' });
+    ).toEqual({ status: 'ok', confirmed: false, raw: reply });
   });
 
-  it('does not confirm an unparseable answer', async () => {
-    const { client } = clientFor(() =>
-      scripted('I am not sure about this one.'),
+  it('sends the passage and the claim, asking for TRUE or FALSE', async () => {
+    const { fake, client } = clientFor(() => scripted('FALSE'));
+
+    await verifyContradiction(
+      client,
+      'llama3.1:8b',
+      'the passage',
+      'the claim',
     );
 
-    expect(
-      await verifyContradiction(client, 'llama3.1:8b', 'passage', 'claim'),
-    ).toEqual({
-      status: 'ok',
-      confirmed: false,
-      raw: 'I am not sure about this one.',
-    });
+    const { messages } = JSON.parse(fake.requests[0].body!) as {
+      messages: { role: string; content: string }[];
+    };
+    expect(messages[0].content).toContain('the passage');
+    expect(messages[0].content).toContain('the claim');
+    expect(messages[0].content).toContain('TRUE or FALSE');
   });
 });

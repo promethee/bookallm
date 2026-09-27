@@ -20,8 +20,15 @@ const scripted = (content: string) =>
     ndjson({ message: { role: 'assistant', content: '' }, done: true }),
   ]);
 
+const systemMessage = (fake: ReturnType<typeof clientFor>['fake']) =>
+  (
+    JSON.parse(fake.requests[0].body!) as {
+      messages: { role: string; content: string }[];
+    }
+  ).messages[0];
+
 describe('extractClaim', () => {
-  it('sends the passage text and returns the drained claim', async () => {
+  it('sends the passage and the kind, and returns the drained claim', async () => {
     const { fake, client } = clientFor(() =>
       scripted('Mr. Bennet visited Mr. Bingley first.'),
     );
@@ -30,18 +37,44 @@ describe('extractClaim', () => {
       client,
       'llama3.1:8b',
       'Mr. Bennet was among the earliest of those who waited on Mr. Bingley.',
+      'who',
     );
 
     expect(result).toEqual({
       status: 'ok',
-      text: 'Mr. Bennet visited Mr. Bingley first.',
+      claim: 'Mr. Bennet visited Mr. Bingley first.',
+      raw: 'Mr. Bennet visited Mr. Bingley first.',
     });
-    const { messages } = JSON.parse(fake.requests[0].body!) as {
-      messages: { role: string; content: string }[];
-    };
-    expect(messages[0].role).toBe('system');
-    expect(messages[0].content).toContain(
+    const message = systemMessage(fake);
+    expect(message.role).toBe('system');
+    expect(message.content).toContain(
       'Mr. Bennet was among the earliest of those who waited on Mr. Bingley.',
     );
+    expect(message.content).toContain('who did or said something');
+    expect(message.content).toContain('NONE');
   });
+
+  it('asks for two events when the kind is order', async () => {
+    const { fake, client } = clientFor(() => scripted('A happened before B.'));
+
+    await extractClaim(client, 'llama3.1:8b', 'passage', 'order');
+
+    expect(systemMessage(fake).content).toContain('the order of two events');
+  });
+
+  it.each(['NONE', 'none.', 'None - the passage names no place.', ''])(
+    'reads %j as no claim of that kind',
+    async (reply) => {
+      const { client } = clientFor(() => scripted(reply));
+
+      const result = await extractClaim(
+        client,
+        'llama3.1:8b',
+        'passage',
+        'where',
+      );
+
+      expect(result).toEqual({ status: 'ok', raw: reply });
+    },
+  );
 });

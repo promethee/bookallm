@@ -19,7 +19,8 @@ const scripted = (content: string) =>
   ]);
 
 const EXTRACTED = 'Mr. Bennet visited Mr. Bingley first.';
-const MUTATED = 'ATTRIBUTE: where\nCLAIM: Mr. Bennet visited Mr. Darcy first.';
+const MUTATED = 'Mr. Bennet visited Mr. Darcy first.';
+const MUTATED_AGAIN = 'Mr. Bennet visited Mr. Collins first.';
 
 /** A fake `/api/chat` that answers each call in order from `replies`, cycling the last. */
 function sequencedClient(replies: readonly string[]) {
@@ -33,10 +34,27 @@ function sequencedClient(replies: readonly string[]) {
   return { fake, client: createOllamaClient({ fetch: fake.fetch }) };
 }
 
+/** The system prompt of the `index`-th chat request the fake received. */
+const promptOf = (
+  fake: ReturnType<typeof sequencedClient>['fake'],
+  index: number,
+) =>
+  (
+    JSON.parse(fake.requests[index].body!) as {
+      messages: { role: string; content: string }[];
+    }
+  ).messages[0].content;
+
+/*
+ * How `random` drives a call: one value to pick the chunk, three to shuffle the kinds
+ * (again for a fresh passage), then one for the true/changed coin. A constant 0.9 keeps
+ * the kinds in their listed order (cause, order, who, where) and offers the changed claim;
+ * a constant 0.1 starts with `order` and offers the true claim.
+ */
 describe('generateClaim', () => {
   it('returns the true claim, with the real citation, when the coin favours it', async () => {
     const book = makeIndexableBook([1]);
-    const { client } = sequencedClient([EXTRACTED, MUTATED, 'CONTRADICTS']);
+    const { client } = sequencedClient([EXTRACTED, MUTATED, 'FALSE']);
 
     const result = await generateClaim({
       book,
@@ -50,7 +68,9 @@ describe('generateClaim', () => {
       claim: {
         claim: EXTRACTED,
         isTrue: true,
+        trueClaim: EXTRACTED,
         changedAttribute: undefined,
+        changes: undefined,
         citation: {
           chunkId: book.chunks[0].id,
           locator: book.chunks[0].locator,
@@ -61,9 +81,9 @@ describe('generateClaim', () => {
     });
   });
 
-  it('returns the changed claim, with its attribute, when the coin favours it', async () => {
+  it('returns the changed claim with the chosen kind and the changed words', async () => {
     const book = makeIndexableBook([1]);
-    const { client } = sequencedClient([EXTRACTED, MUTATED, 'CONTRADICTS']);
+    const { client } = sequencedClient([EXTRACTED, MUTATED, 'FALSE']);
 
     const result = await generateClaim({
       book,
@@ -75,9 +95,11 @@ describe('generateClaim', () => {
     expect(result).toEqual({
       status: 'ok',
       claim: {
-        claim: 'Mr. Bennet visited Mr. Darcy first.',
+        claim: MUTATED,
         isTrue: false,
-        changedAttribute: 'where',
+        trueClaim: EXTRACTED,
+        changedAttribute: 'cause',
+        changes: [{ before: 'Bingley', after: 'Darcy' }],
         citation: {
           chunkId: book.chunks[0].id,
           locator: book.chunks[0].locator,
@@ -88,14 +110,79 @@ describe('generateClaim', () => {
     });
   });
 
-  it('retries the mutation once and succeeds on the second attempt', async () => {
+  it('asks for the kinds in the order random gives', async () => {
+    const book = makeIndexableBook([1]);
+    const { client, fake } = sequencedClient([EXTRACTED, MUTATED, 'FALSE']);
+
+    await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.1,
+    });
+
+    expect(promptOf(fake, 0)).toContain('the order of two events');
+    expect(promptOf(fake, 1)).toContain('the other way round');
+  });
+
+  it('moves to the next kind when the passage has none of the first', async () => {
+    const book = makeIndexableBook([1]);
+    const { client, fake } = sequencedClient([
+      'NONE',
+      EXTRACTED,
+      MUTATED,
+      'FALSE',
+    ]);
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.9,
+    });
+
+    expect(promptOf(fake, 0)).toContain('an event and its cause');
+    expect(promptOf(fake, 1)).toContain('the order of two events');
+    expect(result).toMatchObject({
+      status: 'ok',
+      claim: { changedAttribute: 'order' },
+    });
+  });
+
+  it('tries a fresh passage when the first has no claim of any kind', async () => {
+    const book = makeIndexableBook([2]);
+    const { client, fake } = sequencedClient([
+      'NONE',
+      'NONE',
+      'NONE',
+      'NONE',
+      EXTRACTED,
+      MUTATED,
+      'FALSE',
+    ]);
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.9,
+    });
+
+    // 0.9 picks the second of two chunks first, then the only one left.
+    expect(result).toMatchObject({
+      status: 'ok',
+      claim: { citation: { chunkId: book.chunks[0].id } },
+    });
+    expect(fake.requests).toHaveLength(7);
+  });
+
+  it('retries a change that alters nothing, saying why', async () => {
     const book = makeIndexableBook([1]);
     const { client, fake } = sequencedClient([
       EXTRACTED,
+      EXTRACTED,
       MUTATED,
-      'MATCHES', // first attempt: not confirmed
-      MUTATED,
-      'CONTRADICTS', // second attempt: confirmed
+      'FALSE',
     ]);
 
     const result = await generateClaim({
@@ -106,17 +193,97 @@ describe('generateClaim', () => {
     });
 
     expect(result.status).toBe('ok');
-    expect(fake.requests).toHaveLength(5);
+    expect(promptOf(fake, 2)).toContain(
+      `- "${EXTRACTED}" (it says the same as the true claim)`,
+    );
+  });
+
+  it('retries a change that rewrites too much', async () => {
+    const book = makeIndexableBook([1]);
+    const { client, fake } = sequencedClient([
+      EXTRACTED,
+      'Elizabeth refused Mr. Collins in the garden at Longbourn.',
+      MUTATED,
+      'FALSE',
+    ]);
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.9,
+    });
+
+    expect(result.status).toBe('ok');
+    expect(promptOf(fake, 2)).toContain(
+      '(it changes more than that one detail)',
+    );
+  });
+
+  it('retries an unreadable reply instead of failing', async () => {
+    const book = makeIndexableBook([1]);
+    const { client } = sequencedClient([
+      EXTRACTED,
+      'ATTRIBUTE: age',
+      MUTATED,
+      'FALSE',
+    ]);
+    const steps: ClaimStep[] = [];
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.9,
+      onStep: (step) => steps.push(step),
+    });
+
+    expect(result.status).toBe('ok');
+    expect(steps).toContainEqual(
+      expect.objectContaining({
+        stage: 'mutate',
+        outcome: 'rejected',
+        reason: 'unreadable',
+        raw: 'ATTRIBUTE: age',
+      }),
+    );
+  });
+
+  it('retries a change the check does not confirm, saying why', async () => {
+    const book = makeIndexableBook([1]);
+    const { client, fake } = sequencedClient([
+      EXTRACTED,
+      MUTATED,
+      'TRUE',
+      MUTATED_AGAIN,
+      'FALSE',
+    ]);
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      random: () => 0.9,
+    });
+
+    expect(result).toMatchObject({
+      status: 'ok',
+      claim: { claim: MUTATED_AGAIN },
+    });
+    expect(promptOf(fake, 3)).toContain(
+      `- "${MUTATED}" (it is still true according to the passage)`,
+    );
   });
 
   it('reports each step, in order, with the raw replies', async () => {
     const book = makeIndexableBook([1]);
     const { client } = sequencedClient([
+      'NONE',
       EXTRACTED,
       MUTATED,
-      'MATCHES',
+      'TRUE',
       MUTATED,
-      'CONTRADICTS',
+      'FALSE',
     ]);
     const steps: ClaimStep[] = [];
 
@@ -131,13 +298,28 @@ describe('generateClaim', () => {
     const chunkId = book.chunks[0].id;
     expect(steps.map((step) => ({ ...step, ms: 0 }))).toEqual([
       { stage: 'pick', chunkId, ms: 0 },
-      { stage: 'extract', chunkId, ms: 0, raw: EXTRACTED, outcome: 'claim' },
+      {
+        stage: 'extract',
+        chunkId,
+        ms: 0,
+        kind: 'cause',
+        raw: 'NONE',
+        outcome: 'none',
+      },
+      {
+        stage: 'extract',
+        chunkId,
+        ms: 0,
+        kind: 'order',
+        raw: EXTRACTED,
+        outcome: 'claim',
+      },
       {
         stage: 'mutate',
         chunkId,
         ms: 0,
+        kind: 'order',
         attempt: 0,
-        kind: 'where',
         raw: MUTATED,
         outcome: 'changed',
       },
@@ -146,15 +328,15 @@ describe('generateClaim', () => {
         chunkId,
         ms: 0,
         attempt: 0,
-        raw: 'MATCHES',
+        raw: 'TRUE',
         outcome: 'not-confirmed',
       },
       {
         stage: 'mutate',
         chunkId,
         ms: 0,
+        kind: 'order',
         attempt: 1,
-        kind: 'where',
         raw: MUTATED,
         outcome: 'changed',
       },
@@ -163,59 +345,105 @@ describe('generateClaim', () => {
         chunkId,
         ms: 0,
         attempt: 1,
-        raw: 'CONTRADICTS',
+        raw: 'FALSE',
         outcome: 'confirmed',
       },
     ]);
     expect(steps.every((step) => step.ms >= 0)).toBe(true);
   });
 
-  it('reports an unreadable change as a rejected step, then chat-failed', async () => {
-    const book = makeIndexableBook([1]);
-    const { client } = sequencedClient([EXTRACTED, 'ATTRIBUTE: age']);
-    const steps: ClaimStep[] = [];
+  it('reports unverified, not the true claim, after both passages fail', async () => {
+    const book = makeIndexableBook([2]);
+    const onePassage = [
+      EXTRACTED,
+      MUTATED,
+      'TRUE',
+      MUTATED,
+      'TRUE',
+      MUTATED,
+      'TRUE',
+    ];
+    const { client, fake } = sequencedClient([...onePassage, ...onePassage]);
 
     const result = await generateClaim({
       book,
       model: 'llama3.1:8b',
       client,
-      onStep: (step) => steps.push(step),
+      random: () => 0.1,
     });
 
-    expect(result).toMatchObject({
+    expect(result).toEqual({
       status: 'failed',
-      error: { code: 'chat-failed' },
+      error: {
+        code: 'unverified',
+        detail: 'No changed claim was confirmed to contradict its passage.',
+      },
     });
-    expect(steps.at(-1)).toMatchObject({
-      stage: 'mutate',
-      outcome: 'rejected',
-      reason: 'unreadable',
-      raw: 'ATTRIBUTE: age',
-    });
+    // Each passage: 1 extraction + (MUTATION_VERIFY_RETRIES + 1) x (mutate + verify).
+    expect(fake.requests).toHaveLength(14);
   });
 
-  it('reports unverified after exhausting the retry limit', async () => {
+  it('reports unverified after one passage when no other is left', async () => {
     const book = makeIndexableBook([1]);
-    // 1 extraction, then MUTATION_VERIFY_RETRIES + 1 = 3 (mutate, verify) attempts, each
-    // verified as MATCHES (not confirmed).
     const { client, fake } = sequencedClient([
       EXTRACTED,
       MUTATED,
-      'MATCHES',
+      'TRUE',
       MUTATED,
-      'MATCHES',
+      'TRUE',
       MUTATED,
-      'MATCHES',
+      'TRUE',
     ]);
+
+    const result = await generateClaim({ book, model: 'llama3.1:8b', client });
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { code: 'unverified' },
+    });
+    expect(fake.requests).toHaveLength(7);
+  });
+
+  it('says so when no passage yielded a claim', async () => {
+    const book = makeIndexableBook([1]);
+    const { client } = sequencedClient(['NONE']);
 
     const result = await generateClaim({ book, model: 'llama3.1:8b', client });
 
     expect(result).toEqual({
       status: 'failed',
-      error: { code: 'unverified' },
+      error: {
+        code: 'unverified',
+        detail: 'No passage yielded a claim of any kind.',
+      },
     });
-    // 1 extraction + 3 attempts x (mutate + verify)
-    expect(fake.requests).toHaveLength(7);
+  });
+
+  it('keeps the fresh passage out of the caller’s excluded chunks', async () => {
+    const book = makeIndexableBook([3]);
+    const { client } = sequencedClient([
+      'NONE',
+      'NONE',
+      'NONE',
+      'NONE',
+      EXTRACTED,
+      MUTATED,
+      'FALSE',
+    ]);
+
+    const result = await generateClaim({
+      book,
+      model: 'llama3.1:8b',
+      client,
+      excludeChunkIds: [book.chunks[0].id],
+      random: () => 0,
+    });
+
+    // 0 picks the first available chunk: chunk 1, then (chunk 1 tried) chunk 2.
+    expect(result).toMatchObject({
+      status: 'ok',
+      claim: { citation: { chunkId: book.chunks[2].id } },
+    });
   });
 
   it('reports no-chunks-available for a book with nothing to pick from', async () => {
@@ -308,11 +536,7 @@ describe('generateClaim', () => {
 
   it('never writes to any store, and only reaches the configured Ollama address', async () => {
     const book = makeIndexableBook([1]);
-    const { client, fake } = sequencedClient([
-      EXTRACTED,
-      MUTATED,
-      'CONTRADICTS',
-    ]);
+    const { client, fake } = sequencedClient([EXTRACTED, MUTATED, 'FALSE']);
 
     await generateClaim({ book, model: 'llama3.1:8b', client });
 
