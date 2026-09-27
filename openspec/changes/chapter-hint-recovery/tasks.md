@@ -19,7 +19,7 @@
 
 - [x] 3.1 Add the English and French `recovery.*` and announcement messages from design decision 7; verify with the existing i18n key-parity test
 - [x] 3.2 In `AskConversation.svelte`, show the chapter offer (labelled `<select>` of chapters with text plus "Look in this chapter") under an un-recovered nothing-found turn and on a `hint-unclear` turn, per design decision 5; verify with `ask-conversation.test.ts` cases: offer shown only there, empty chapters absent, choosing a chapter starts the retry, offer gone once recovered
-- [x] 3.3 Show a `chapter-retry` turn's "Looking in …: <question>" label, and the hand-over message with the `<details open>` scrolling chapter block (design decision 6); verify with component tests: label shown, block shown only on hand-over, paragraphs kept, collapse and expand work
+- [x] 3.3 Show a `chapter-retry` turn's `Looking in …: <question>` label, and the hand-over message with the `<details open>` scrolling chapter block (design decision 6); verify with component tests: label shown, block shown only on hand-over, paragraphs kept, collapse and expand work
 - [x] 3.4 Verify keyboard and French: a component test that reaches the select, chooses a chapter and toggles the block by keyboard alone, and one full recovery flow in French
 - [x] 3.5 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add chapter recovery to the Ask conversation")
 
@@ -31,6 +31,6 @@
 
 ## 5. Real-world check and wrap-up
 
-- [ ] 5.1 With the app on the local Ollama (`http://127.0.0.1:11434`, GPU machine) and a real indexed book, ask at least three questions that find nothing, recover each through a chapter (at least one by the list, one typed if the book's titles carry numbers), and record in this change's design.md: time per retry, how many answered with citations vs handed over, and how the book's chapter titles behaved for typed hints; verify the notes are written
-- [ ] 5.2 Update the README Status section to say retrieval recovery works end to end, removing it from the "not built yet" sentence; verify with markdownlint
-- [ ] 5.3 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), then commit ("Finish chapter-hint-recovery")
+- [x] 5.1 With the app on the local Ollama (`http://127.0.0.1:11434`, GPU machine) and a real indexed book, ask at least three questions that find nothing, recover each through a chapter (at least one by the list, one typed if the book's titles carry numbers), and record in this change's design.md: time per retry, how many answered with citations vs handed over, and how the book's chapter titles behaved for typed hints; verify the notes are written
+- [x] 5.2 Update the README Status section to say retrieval recovery works end to end, removing it from the "not built yet" sentence; verify with markdownlint
+- [x] 5.3 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), then commit ("Finish chapter-hint-recovery")

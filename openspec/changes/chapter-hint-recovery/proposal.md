@@ -6,11 +6,11 @@ When a search finds nothing relevant, Ask mode replies "could you tell me where 
 
 ## What Changes
 
-- A "nothing found" turn offers the book's chapters to choose from (number and title, only chapters that have text), as a way to answer its own question.
+- A "nothing found" turn offers the book’s chapters to choose from (by title, only chapters with text of their own), as a way to answer its own question.
 - Right after a "nothing found" turn, a message that names a chapter by number, in digits or Roman numerals ("try chapter 7", "chapitre VII"), is read as that answer, instead of as a new question. The chapter is matched against the chapters' own titles, since the table-of-contents position often differs from the book's numbering; when the match is not unique, the chapter list is offered instead of guessing.
 - The retry searches only that chapter: its passages are ranked against the original question and the best few are used even below the usual relevance bar, then answered from with exact citations, like any answer. It is not another search of the whole book.
 - One retry only. If the chapter retry's answer cites nothing, the app stops asking: it says plainly that it could not find it there and shows that chapter's full text in the conversation, in a scrollable block the reader can collapse, to scan themselves. No further AI attempt, no new chapter offer for that question.
-- The retry turn says what it is doing ("Looking in chapter …: <original question>"), so the reader can tell a hint from a new question.
+- The retry turn says what it is doing (`Looking in chapter …: <original question>`), so the reader can tell a hint from a new question.
 - English and French for all new text; everything reachable by keyboard and announced like other turns.
 - Real-world check against a real book and the real chat model.
 

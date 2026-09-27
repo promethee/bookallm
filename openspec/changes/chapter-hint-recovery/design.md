@@ -84,10 +84,32 @@ New keys in both languages: `recovery.offerLabel` ("Or choose where to look:"), 
 
 - [Many EPUBs have chapter titles without numbers] → A typed hint then matches nothing and the reader gets the chapter list with a plain "couldn't tell" line: slower, never wrong.
 - [Numbers listed as heading-only entries of their own, as in the Gutenberg *Candide*] → Heading-only entries are left out of the list and a typed match on one follows to the next entry with text (decision 2). A heading and a chapter title both naming the number count once. If a book put a heading-only entry *after* its chapter, the follow would land on the wrong chapter; not seen in practice, and the retry label names the chapter used.
-- [A message right after a nothing-found turn that mentions a chapter but is really a new question ("what happens in chapter 3?")] → It is taken as a hint for the previous question. The retry turn's "Looking in chapter …: <original question>" label makes this visible, and the reader can simply ask again. Accepted over trying to guess intent.
+- [A message right after a nothing-found turn that mentions a chapter but is really a new question ("what happens in chapter 3?")] → It is taken as a hint for the previous question. The retry turn's `Looking in chapter …: <original question>` label makes this visible, and the reader can simply ask again. Accepted over trying to guess intent.
 - [The model answers from the chapter but forgets to cite] → That counts as "could not answer" and hands over the chapter. The reader still gets the model's text plus the source to check it against, which errs on the app's side of the positioning.
 - [Chapter text can be long (tens of thousands of characters)] → Rendered once, as plain text in a bounded scroll area, only on escalation. No virtualisation needed at book-chapter sizes.
 - [Loading one chapter's vectors instead of all] → Faster, and restricted to data the index-complete check has already confirmed exists.
+
+## Real-world check (2026-09-27)
+
+Run in the real app (`pnpm dev` in a browser) against the local Ollama on the GPU machine (RTX 3060 12 GB, `llama3.1:8b`, `bge-m3`), with *Candide* (Project Gutenberg #19942, 72 contents entries) imported and indexed. Times run from submitting the message to the turn finishing.
+
+| # | Question | Search | Recovery | Result | Time |
+| --- | --- | --- | --- | --- | --- |
+| 1 | How does photosynthesis work in green plants? | Nothing found (0.7 s) | Typed "try chapter 5" | Uncited, chapter handed over (4,974 chars) | 26.8 s (cold model) |
+| 2 | What was the name of Pangloss's dog? | Relevant | None offered | Model: "no mention of a dog… [None]", no citation | 1.7 s |
+| 3 | Que trouve-t-on dans les rues d'Eldorado ? | Relevant | – | Cited answer | 2.2 s |
+| 4 | sheep? | Relevant | – | Cited answer | 3.9 s |
+| 5 | What is the best way to grow vegetables at home? | Nothing found (2.9 s) | List: THE CONCLUSION. | Cited answer ("their little plot of land produced plentiful crops") | 4.1 s |
+| 6 | Who won the 1998 football World Cup? | Nothing found (0.3 s) | List: INTRODUCTION | Uncited, chapter handed over (6,370 chars) | 1.8 s |
+| 7 | What is the capital of Australia? | Nothing found | Typed "try chapter 1" | "Couldn't tell which chapter", list offered | – |
+
+- **Heading-only entries, found and fixed during the check.** 32 of the 72 entries are a numeral ("V") whose text is only that heading, with the chapter in the next entry. The first run matched "chapter 5" to "V" and handed over the single word "V". Now heading-only entries are left out of the list (72 → 40 entries) and a typed match follows to the next entry with text ("chapter 5" → "TEMPEST, SHIPWRECK, EARTHQUAKE…"). See decision 2 and the risks above.
+- **Time per retry:** 1.8–4.1 s once the chat model is loaded; 26.8 s when it had to load first. The whole-book search that finds nothing takes under 3 s.
+- **Answered vs handed over:** of 3 recoveries, 1 answered with citations and 2 handed the chapter over; each hand-over followed the model saying the passages did not cover it.
+- **Typed hints on this edition:** "chapter 5" works through the heading-only entry; "chapter 1" does not, because chapter 1's entry is titled "CANDIDE I" (the number is at the end, not the start). The reader gets the list instead, as specified.
+- **Nothing found is rare for questions about the book.** Every on-topic question (including a French one and the one-word "sheep?") cleared the relevance cutoff. Recovery is therefore reached mostly through off-topic questions.
+- **On-topic but absent (question 2) bypasses recovery.** The search found passages, so the model answered "no mention of a dog" with no usable citation and no chapter offer. This is the cutoff limitation already documented in `passage-retrieval`. A follow-up could treat a whole-book answer with no citation like a nothing-found turn and offer the chapters. That would change `ask-conversation` behaviour beyond this change, so it is left for its own change.
+- **Screen:** the chapter list, the "Looking in …" label, the hand-over message and the collapsible, scrolling chapter block all rendered as specified.
 
 ## Migration Plan
 
