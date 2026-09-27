@@ -46,6 +46,20 @@ Changing the setting only affects later requests. Re-applying it at once would n
 - [The server's `OLLAMA_KEEP_ALIVE` is overridden by the app's value] → Intended: the reader's choice in the app wins; "Never" covers readers who want models kept.
 - [Other apps using the same Ollama model reset its expiry with their own values] → Out of the app's control; Ollama applies the latest request's value.
 
+## Real-world check (2026-09-28)
+
+In the real app (`pnpm dev` in a browser) against the local Ollama on the GPU machine (RTX 3060, `llama3.1:8b`, `bge-m3`), with *Candide* imported and indexed. `expires_at` read from `/api/ps` right after each step:
+
+| Setting | Step | `bge-m3` expires in | `llama3.1:8b` expires in |
+| --- | --- | --- | --- |
+| Default (10 min) | Indexing just finished | 9.7 min | (not loaded) |
+| 5 min | A question answered | 4.4 min | 4.9 min |
+| Never | A question answered | year 2319 | year 2319 |
+
+- Each value matches the setting, less the time since that model's last request. Ollama represents "never" as a far-future date.
+- Changing the setting sent no request; the new value took effect on the next question, as specified.
+- Afterwards the setting was put back to 10 minutes and both models were unloaded (`keep_alive: 0`), so the check left nothing held in GPU memory.
+
 ## Migration Plan
 
 One optional setting is added; existing saved settings without it get the default. Rollback: revert; the extra field is ignored by the old `parseSettings`.

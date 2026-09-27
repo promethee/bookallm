@@ -20,6 +20,6 @@
 
 ## 4. Real-world check and wrap-up
 
-- [ ] 4.1 In the real app against the local Ollama, ask a question with the default and read `/api/ps`: the chat model's `expires_at` is about 10 minutes ahead; choose 5 minutes, ask again, and check it is about 5 minutes ahead; choose Never and check it no longer expires soon. Record the readings in this change's design.md; verify the notes are written
-- [ ] 4.2 Update the README Status section to say models unload after the chosen idle time; verify with markdownlint
-- [ ] 4.3 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), then commit ("Finish idle-model-unload")
+- [x] 4.1 In the real app against the local Ollama, ask a question with the default and read `/api/ps`: the chat model's `expires_at` is about 10 minutes ahead; choose 5 minutes, ask again, and check it is about 5 minutes ahead; choose Never and check it no longer expires soon. Record the readings in this change's design.md; verify the notes are written
+- [x] 4.2 Update the README Status section to say models unload after the chosen idle time; verify with markdownlint
+- [x] 4.3 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), then commit ("Finish idle-model-unload")
