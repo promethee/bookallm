@@ -99,6 +99,11 @@ export interface OllamaClientOptions {
   fetch?: typeof fetch;
   /** Time limit for detection, in milliseconds. */
   timeoutMs?: number;
+  /**
+   * Ollama's `keep_alive` for requests that load a model (chat and embeddings): how
+   * long to keep it loaded afterwards. Left out of requests when undefined.
+   */
+  keepAlive?: string | number;
 }
 
 /** Progress update from pulling several models in sequence. */

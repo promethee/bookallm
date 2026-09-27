@@ -1,4 +1,9 @@
-import { DEFAULT_BASE_URL, DEFAULT_MODELS } from '../ollama/defaults';
+import {
+  DEFAULT_BASE_URL,
+  DEFAULT_MODELS,
+  isIdleUnload,
+  type IdleUnload,
+} from '../ollama/defaults';
 import { isLanguage, type Language } from '../i18n/language';
 
 /** The settings the app remembers between launches. */
@@ -16,6 +21,8 @@ export interface Settings {
    * means the check has not yet been resolved, so it runs again on the next launch.
    */
   hardwareCheckResolved?: boolean;
+  /** How long Ollama keeps models loaded after their last use; absent means the default. */
+  idleUnload?: IdleUnload;
 }
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
@@ -74,6 +81,7 @@ export function parseSettings(raw: unknown): Settings {
   if (activeBook) settings.activeBook = activeBook;
   if (source.hardwareCheckResolved === true)
     settings.hardwareCheckResolved = true;
+  if (isIdleUnload(source.idleUnload)) settings.idleUnload = source.idleUnload;
   return settings;
 }
 

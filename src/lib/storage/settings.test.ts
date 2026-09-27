@@ -192,6 +192,21 @@ describe('LocalStorageSettings', () => {
 });
 
 describe('parseSettings', () => {
+  it('leaves the idle unload time unset by default', () => {
+    expect(parseSettings({}).idleUnload).toBeUndefined();
+  });
+
+  it.each([5, 10, 30, 'never'])('keeps an idle unload time of %j', (value) => {
+    expect(parseSettings({ idleUnload: value }).idleUnload).toBe(value);
+  });
+
+  it.each([15, '10', 'forever', null])(
+    'drops an unknown idle unload time (%j)',
+    (value) => {
+      expect(parseSettings({ idleUnload: value }).idleUnload).toBeUndefined();
+    },
+  );
+
   it('drops an unknown language', () => {
     expect(parseSettings({ language: 'de' }).language).toBeUndefined();
   });

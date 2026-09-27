@@ -30,6 +30,23 @@ const ok = (embeddings: unknown) =>
   embedRoute(() => jsonResponse({ embeddings }));
 
 describe('embedTexts', () => {
+  it('asks Ollama to keep the model loaded for the client’s idle time', async () => {
+    const fake = createFakeFetch(ok([[1, 2]]));
+    const client = createOllamaClient({ fetch: fake.fetch, keepAlive: -1 });
+
+    await embedTexts(client, 'bge-m3', ['Hello']);
+
+    expect(JSON.parse(fake.requests[0].body!).keep_alive).toBe(-1);
+  });
+
+  it('sends no keep_alive when the client has none', async () => {
+    const { fake, client } = clientFor(ok([[1, 2]]));
+
+    await embedTexts(client, 'bge-m3', ['Hello']);
+
+    expect(JSON.parse(fake.requests[0].body!)).not.toHaveProperty('keep_alive');
+  });
+
   it('asks Ollama to embed the texts with the named model', async () => {
     const { fake, client } = clientFor(ok([[1, 2]]));
 

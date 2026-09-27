@@ -200,6 +200,9 @@ async function attemptChat(
           num_ctx: CHAT_CONTEXT_LENGTH,
           num_predict: CHAT_MAX_ANSWER_TOKENS,
         },
+        ...(client.keepAlive !== undefined
+          ? { keep_alive: client.keepAlive }
+          : {}),
       }),
       signal: controller.signal,
     });

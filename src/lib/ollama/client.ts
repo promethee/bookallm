@@ -7,6 +7,8 @@ export interface OllamaClient {
   readonly baseUrl: string;
   /** How long detection may take before Ollama counts as unreachable. */
   readonly timeoutMs: number;
+  /** Sent as `keep_alive` by requests that load a model; see `OllamaClientOptions`. */
+  readonly keepAlive?: string | number;
   /** Sends a request to a path on Ollama, e.g. `/api/version`. */
   request(path: string, init?: RequestInit): Promise<Response>;
 }
@@ -24,6 +26,7 @@ export function createOllamaClient(
   return {
     baseUrl,
     timeoutMs: options.timeoutMs ?? DETECTION_TIMEOUT_MS,
+    keepAlive: options.keepAlive,
     request: (path, init) => send(`${baseUrl}${path}`, init),
   };
 }

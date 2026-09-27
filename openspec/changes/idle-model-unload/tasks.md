@@ -2,10 +2,10 @@
 
 ## 1. Setting and requests
 
-- [ ] 1.1 Add `IDLE_UNLOAD_DEFAULT`, `IDLE_UNLOAD_CHOICES` and `keepAliveFor` to `src/lib/ollama/defaults.ts`, and `idleUnload` to `Settings` with validation in `parseSettings` (design decision 2); verify with settings tests: default when absent, each choice kept, an unknown value dropped, and `keepAliveFor` tests for each choice
-- [ ] 1.2 Add `keepAlive` to the Ollama client and send it as `keep_alive` from `streamChat` and `embedTexts` only when set (design decision 1); verify with chat and embed tests that the body carries it when set and has no `keep_alive` when not
-- [ ] 1.3 Pass `keepAliveFor(settings.idleUnload)` from the controller through `services.createClient`, and add `setIdleUnload`; verify with a new `controller.idle.test.ts` that an answer, a claim, indexing and the hardware check all send the saved keep-alive, that changing the setting applies to the next request, and that changing it sends nothing
-- [ ] 1.4 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Send the idle unload time with every model request")
+- [x] 1.1 Add `IDLE_UNLOAD_DEFAULT`, `IDLE_UNLOAD_CHOICES` and `keepAliveFor` to `src/lib/ollama/defaults.ts`, and `idleUnload` to `Settings` with validation in `parseSettings` (design decision 2); verify with settings tests: default when absent, each choice kept, an unknown value dropped, and `keepAliveFor` tests for each choice
+- [x] 1.2 Add `keepAlive` to the Ollama client and send it as `keep_alive` from `streamChat` and `embedTexts` only when set (design decision 1); verify with chat and embed tests that the body carries it when set and has no `keep_alive` when not
+- [x] 1.3 Pass `keepAliveFor(settings.idleUnload)` from the controller through `services.createClient`, and add `setIdleUnload`; verify with a new `controller.idle.test.ts` that an answer, a claim, indexing and the hardware check all send the saved keep-alive, that changing the setting applies to the next request, and that changing it sends nothing
+- [x] 1.4 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Send the idle unload time with every model request")
 
 ## 2. Interface
 

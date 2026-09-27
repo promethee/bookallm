@@ -112,8 +112,8 @@ export async function harness(
   const opened: string[] = [];
   const services: Services = {
     storage,
-    createClient: (baseUrl) =>
-      createOllamaClient({ fetch: fake.fetch, baseUrl }),
+    createClient: (baseUrl, keepAlive) =>
+      createOllamaClient({ fetch: fake.fetch, baseUrl, keepAlive }),
     platform: options.platform ?? 'windows',
     openExternal: async (url) => {
       opened.push(url);

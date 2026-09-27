@@ -10,7 +10,8 @@ import { openStorage, type AppStorage } from '../storage';
 /** Everything the controller needs from the outside world, so tests can supply fakes. */
 export interface Services {
   storage: AppStorage;
-  createClient(baseUrl: string): OllamaClient;
+  /** A client for Ollama at `baseUrl`, sending `keepAlive` with model-loading requests. */
+  createClient(baseUrl: string, keepAlive?: string | number): OllamaClient;
   platform: Platform;
   openExternal(url: string): Promise<boolean>;
   /** The system's preferred languages, most preferred first. */
@@ -44,7 +45,8 @@ export async function createServices(
 ): Promise<Services> {
   return {
     storage: overrides.storage ?? (await openStorage()),
-    createClient: (baseUrl) => createOllamaClient({ baseUrl }),
+    createClient: (baseUrl, keepAlive) =>
+      createOllamaClient({ baseUrl, keepAlive }),
     platform: detectPlatform(),
     openExternal,
     systemLanguages:

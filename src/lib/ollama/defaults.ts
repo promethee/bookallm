@@ -9,6 +9,31 @@ export const DEFAULT_MODELS: RequiredModels = {
   embedding: 'bge-m3',
 };
 
+/**
+ * How long Ollama keeps a model loaded after the app last used it, as the reader can
+ * choose it: minutes, or never unloaded. README: a configurable idle timeout, so the app
+ * does not hold GPU memory and RAM indefinitely.
+ */
+export type IdleUnload = 5 | 10 | 30 | 'never';
+
+export const IDLE_UNLOAD_CHOICES: readonly IdleUnload[] = [5, 10, 30, 'never'];
+
+/** README: "sensible default, e.g. 10 min". */
+export const IDLE_UNLOAD_DEFAULT: IdleUnload = 10;
+
+export const isIdleUnload = (value: unknown): value is IdleUnload =>
+  IDLE_UNLOAD_CHOICES.includes(value as IdleUnload);
+
+/**
+ * The `keep_alive` value Ollama expects for a choice: a duration such as `"10m"`, or a
+ * negative number to keep the model loaded with no time limit.
+ */
+export function keepAliveFor(
+  choice: IdleUnload = IDLE_UNLOAD_DEFAULT,
+): string | number {
+  return choice === 'never' ? -1 : `${choice}m`;
+}
+
 /** How long detection waits before deciding Ollama is unreachable. */
 export const DETECTION_TIMEOUT_MS = 3000;
 

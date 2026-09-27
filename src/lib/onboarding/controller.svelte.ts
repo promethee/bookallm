@@ -26,8 +26,11 @@ import {
   checkSetup,
   installGuidance,
   type InstallGuidance,
+  keepAliveFor,
   pullMissingModels,
+  type IdleUnload,
   type ModelPullProgress,
+  type OllamaClient,
   type PullError,
   type RequiredModels,
   type SetupReadiness,
@@ -343,7 +346,7 @@ export class OnboardingController {
     if (this.checking || this.destroyed) return;
     this.checking = true;
     try {
-      const client = this.services.createClient(this.settings.ollamaUrl);
+      const client = this.ollamaClient();
       const readiness = await checkSetup(client, this.models());
       if (!this.destroyed) {
         this.readiness = readiness;
@@ -376,7 +379,7 @@ export class OnboardingController {
       this.hardwareCheck = 'skip';
       return;
     }
-    const client = this.services.createClient(this.settings.ollamaUrl);
+    const client = this.ollamaClient();
     const result = await checkAcceleration(
       client,
       this.settings.embeddingModel,
@@ -461,7 +464,7 @@ export class OnboardingController {
     this.lastProgress = undefined;
     this.pull = { status: 'running' };
 
-    const client = this.services.createClient(this.settings.ollamaUrl);
+    const client = this.ollamaClient();
     const result = await pullMissingModels(client, models, {
       signal: abort.signal,
       onProgress: (progress) => {
@@ -710,7 +713,7 @@ export class OnboardingController {
       const result = await indexBook({
         book,
         model: this.models().embedding,
-        client: this.services.createClient(this.settings.ollamaUrl),
+        client: this.ollamaClient(),
         store: library.vectors,
         signal: abort.signal,
         onProgress: (progress) => {
@@ -906,7 +909,7 @@ export class OnboardingController {
         book,
         question: start.question,
         model: this.settings.embeddingModel,
-        client: this.services.createClient(this.settings.ollamaUrl),
+        client: this.ollamaClient(),
         store: library.vectors,
         chapterNumber: start.chapter?.number,
         signal: abort.signal,
@@ -944,7 +947,7 @@ export class OnboardingController {
         question: start.question,
         passages: retrieved.passages,
         model: this.settings.chatModel,
-        client: this.services.createClient(this.settings.ollamaUrl),
+        client: this.ollamaClient(),
         language: getLanguage(),
         signal: abort.signal,
       });
@@ -1040,7 +1043,7 @@ export class OnboardingController {
         generateClaim({
           book,
           model: this.settings.chatModel,
-          client: this.services.createClient(this.settings.ollamaUrl),
+          client: this.ollamaClient(),
           excludeChunkIds: this.usedChunkIds,
           random: this.services.random,
           signal: abort.signal,
@@ -1110,6 +1113,16 @@ export class OnboardingController {
     this.usedChunkIds = [];
   }
 
+  // ---- idle unload -----------------------------------------------------------------
+
+  /**
+   * Saves how long Ollama keeps models loaded after their last use. It applies to
+   * requests sent afterwards; nothing is sent because of the change.
+   */
+  setIdleUnload(choice: IdleUnload): void {
+    this.save({ idleUnload: choice });
+  }
+
   // ---- deleting the active book -----------------------------------------------------
 
   /**
@@ -1152,6 +1165,18 @@ export class OnboardingController {
   }
 
   // ---- helpers ----------------------------------------------------------------------
+
+  /**
+   * A client for the saved Ollama address that asks Ollama to keep models loaded for the
+   * saved idle time. Made per piece of work, so a changed setting applies from the next
+   * request.
+   */
+  private ollamaClient(): OllamaClient {
+    return this.services.createClient(
+      this.settings.ollamaUrl,
+      keepAliveFor(this.settings.idleUnload),
+    );
+  }
 
   /** The active book's chapters with text, loading the book when none are known yet. */
   private async activeChapters(): Promise<ChapterChoice[]> {

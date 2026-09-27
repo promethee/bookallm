@@ -48,6 +48,15 @@ async function drain(chunks: AsyncGenerator<string, void, undefined>) {
 }
 
 describe('streamChat: success', () => {
+  it('asks Ollama to keep the model loaded for the client’s idle time', async () => {
+    const fake = createFakeFetch(scripted(...SUCCESS_LINES));
+    const client = createOllamaClient({ fetch: fake.fetch, keepAlive: '5m' });
+
+    await streamChat(client, 'llama3.1:8b', MESSAGES);
+
+    expect(JSON.parse(fake.requests[0].body!).keep_alive).toBe('5m');
+  });
+
   it('sends the model, messages and stream:true to /api/chat', async () => {
     const { fake, client } = clientFor(scripted(...SUCCESS_LINES));
 

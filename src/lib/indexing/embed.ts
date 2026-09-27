@@ -143,7 +143,13 @@ export async function embedTexts(
     const response = await client.request('/api/embed', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, input: texts }),
+      body: JSON.stringify({
+        model,
+        input: texts,
+        ...(client.keepAlive !== undefined
+          ? { keep_alive: client.keepAlive }
+          : {}),
+      }),
       signal: controller.signal,
     });
     if (!response.ok)
