@@ -120,6 +120,48 @@ archive step needs the order.
   answered] → Out of scope. The Verify-mode habit and the shown passage text are
   the reader's check there.
 
+## Real-world check (2026-09-27)
+
+Run in the real app (`pnpm dev` on port 5287, in the browser pane) against the
+local Ollama on the GPU machine (`llama3.1:8b`, `bge-m3`), with the same indexed
+_Candide_ (Project Gutenberg #19942) as the `chapter-hint-recovery` check. Times
+run from submitting the message, or clicking "Look in this chapter", to the turn
+finishing.
+
+<!-- markdownlint-disable MD013 -->
+
+| #   | Question                                            | Answer                           | Offer | Recovery                       | Retry result                 | Time           |
+| --- | --------------------------------------------------- | -------------------------------- | ----- | ------------------------------ | ---------------------------- | -------------- |
+| 1   | What was the name of Pangloss's dog?                | "No mention of a dog", no marker | Yes   | List: HOW CANDIDE FOUND…       | Uncited, chapter handed over | 27.9 s + 1.9 s |
+| 2   | What did Cunegonde eat for breakfast at the castle? | "No mention…", no citation       | Yes   | List: HOW CANDIDE WAS BROUGHT… | Uncited, chapter handed over | 4.6 s + 1.5 s  |
+| 3   | How many children did Cacambo have?                 | "No mention…", no citation       | Yes   | Typed "try chapter 5"          | Uncited, chapter handed over | 4.4 s + 1.8 s  |
+| 4   | What happened to Candide and Pangloss in Lisbon?    | Cited                            | No    | –                              | –                            | 3.0 s          |
+| 5   | Why was Candide expelled from the castle?           | Cited                            | No    | –                              | –                            | 1.5 s          |
+| 6   | Que trouve-t-on dans les rues d'Eldorado ?          | A real answer, with no citation  | Yes   | List: ARRIVAL OF CANDIDE…      | Cited answer                 | 3.4 s + 2.4 s  |
+| 7   | sheep?                                              | Cited                            | No    | –                              | –                            | 2.1 s          |
+
+<!-- markdownlint-enable MD013 -->
+
+- **The dead end is gone.** All three on-topic questions the book does not
+  answer (1–3) now end with the "cites no passage" line and the chapter list,
+  where before they ended with the model's text alone. Each chapter retry handed
+  the chapter over, which is right: the book does not say.
+- **No offer on cited answers.** The three answers that cited passages (4, 5, 7)
+  showed no line and no list.
+- **Forgot-to-cite answers are caught and recovered.** Question 6 was cited in
+  the `chapter-hint-recovery` check, but this time the model answered in French
+  without any marker. It got the offer; the retry in the Eldorado chapter came
+  back with a citation to the passage about the red sheep drawing carriages.
+  This is the risk listed above, playing out as intended: the reader ends with a
+  checkable answer.
+- **Question 1 had no `[None]` marker this run**, unlike the earlier check; both
+  forms are covered by the "no resolved citation" rule.
+- **Typed hint after an uncited answer** ("try chapter 5") followed the
+  heading-only "V" entry to its chapter, as after a nothing-found turn.
+- **Times:** the first question took 27.9 s because the chat model loaded cold;
+  after that, whole-book answers took 1.5–4.6 s and chapter retries 1.5–2.4 s.
+- **Of 4 recoveries, 1 answered with citations and 3 handed the chapter over.**
+
 ## Migration Plan
 
 No stored data changes. Turns are in memory only. Rollback is reverting the

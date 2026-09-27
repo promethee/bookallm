@@ -63,17 +63,17 @@
 
 ## 5. Real-world check and wrap-up
 
-- [ ] 5.1 With the app (`pnpm dev`, port 5287) on the local Ollama
+- [x] 5.1 With the app (`pnpm dev`, port 5287) on the local Ollama
       (`llama3.1:8b`, `bge-m3`) and the indexed Gutenberg _Candide_, ask "What
       was the name of Pangloss's dog?" and at least two other on-topic questions
       the book does not answer, plus two it does. Record in this change's
       design.md: which answers were uncited and got the offer, whether any cited
       answer wrongly got it, the outcome of each chapter retry (cited or handed
       over) and its time; verify the notes are written
-- [ ] 5.2 Update the README Status paragraph to say recovery is also offered
+- [x] 5.2 Update the README Status paragraph to say recovery is also offered
       after an answer that cites no passage; verify with
       `npx markdownlint-cli README.md openspec/changes/uncited-answer-recovery/**/*.md`
-- [ ] 5.3 Add `recovery.uncited` (French) to the deferred French review memory
+- [x] 5.3 Add `recovery.uncited` (French) to the deferred French review memory
       file (`french-indexing-text-review-deferred.md`), then run `pnpm test`,
       `pnpm test:e2e` and `pnpm lint` and commit ("Finish
       uncited-answer-recovery")

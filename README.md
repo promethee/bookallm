@@ -286,9 +286,10 @@ real passage (true, or with exactly one attribute changed and verified
 to contradict the source), judges it true or false, then sees whether
 they were right, what was changed, and the exact passage, with a
 session-only tally per book. Retrieval recovery works end to end in
-English and French: after a nothing-found reply, the reader points to a
-chapter (from a list, or by typing "chapter 7" / "chapitre VII"), the
-app looks once more in that chapter only, and if it still cannot answer
-with a citation it hands over the chapter's text to look through.
+English and French: after a nothing-found reply, or an answer that cites
+no passage, the reader points to a chapter (from a list, or by typing
+"chapter 7" / "chapitre VII"), the app looks once more in that chapter
+only, and if it still cannot answer with a citation it hands over the
+chapter's text to look through.
 Conversation history trimming is not built yet: each question is still
 answered on its own.
