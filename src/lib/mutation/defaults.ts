@@ -1,12 +1,13 @@
 import type { ChangedAttribute, RejectReason } from './types';
 
 /**
- * How many times a changed claim is regenerated after a first attempt that verification
- * did not confirm, before giving up with a typed `unverified` failure. Provisional: no
- * real run of this pipeline has measured how often verification actually fails on the
- * first try. See design.md's real-world check for what this should become once it has.
+ * How many times a changed claim is regenerated after a first attempt that was rejected
+ * or not confirmed, before trying a fresh passage. Measured (design.md, Real-world check,
+ * "After, two kinds"): of 37 confirmed changes, 29 were confirmed on the first attempt,
+ * 7 on the second and 1 on the third, so a third round adds under 10 % while costing
+ * two more model calls per failing passage (minutes on a CPU-only machine).
  */
-export const MUTATION_VERIFY_RETRIES = 2;
+export const MUTATION_VERIFY_RETRIES = 1;
 
 /**
  * Chapter titles of front and back matter Verify mode does not build claims from, in
@@ -59,13 +60,21 @@ export const MUTATION_MAX_CHANGED_RUNS = 2;
 export const MUTATION_MAX_CHANGED_SHARE = 0.5;
 export const MUTATION_MIN_CHANGED_WORDS = 3;
 
-/** The four kinds of detail a claim is about, and the one its changed version alters. */
-export const CLAIM_KINDS: readonly ChangedAttribute[] = [
-  'cause',
-  'order',
-  'who',
-  'where',
-];
+/**
+ * The kinds of detail a claim is about, and the one its changed version alters. Only
+ * `who` and `where` in v1.1: in the real-world check, a changed cause or order came back
+ * as a rewrite of the whole sentence far more often than as one checkable change (see
+ * design.md), so those two kinds wait for a later version that builds claims from
+ * extracted parts instead of free rewriting. Their prompt wording and interface text
+ * stay, ready for it.
+ */
+export const CLAIM_KINDS: readonly ChangedAttribute[] = ['who', 'where'];
+
+/**
+ * A true claim shorter than this many words is too vague to judge ("He said.") and is
+ * treated like a passage with no claim of that kind.
+ */
+export const MIN_CLAIM_WORDS = 5;
 
 /** What a claim of each kind states, for the extraction prompt. */
 const KIND_CLAIM: Record<ChangedAttribute, string> = {

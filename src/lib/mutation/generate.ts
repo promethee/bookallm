@@ -3,6 +3,7 @@ import type { OllamaClient } from '../ollama';
 import {
   CLAIM_KINDS,
   MUTATION_FRESH_PASSAGE_ATTEMPTS,
+  MIN_CLAIM_WORDS,
   MUTATION_VERIFY_RETRIES,
   type RejectedChange,
 } from './defaults';
@@ -56,7 +57,7 @@ interface ChunkContext {
   report: (step: ClaimStep) => void;
 }
 
-/** The four kinds in an unpredictable order (Fisher-Yates with the injected `random`). */
+/** The claim kinds in an unpredictable order (Fisher-Yates with the injected `random`). */
 function shuffledKinds(random: () => number): ChangedAttribute[] {
   const kinds = [...CLAIM_KINDS];
   for (let i = kinds.length - 1; i > 0; i--) {
@@ -66,6 +67,8 @@ function shuffledKinds(random: () => number): ChangedAttribute[] {
   return kinds;
 }
 
+const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
+
 /** Milliseconds since the call, read when the returned function is called. */
 const startTimer = () => {
   const started = performance.now();
@@ -73,7 +76,8 @@ const startTimer = () => {
 };
 
 /**
- * Extracts a claim of the first kind (in `kinds` order) the chunk has, then asks for a
+ * Extracts a claim of the first kind (in `kinds` order) the chunk has, at least
+ * `MIN_CLAIM_WORDS` long, then asks for a
  * changed version up to `1 + MUTATION_VERIFY_RETRIES` times. A version is rejected when it
  * cannot be read, changes nothing or too much (word diff), or is not confirmed false by
  * the verification check; each retry lists the rejected versions and why.
@@ -96,22 +100,25 @@ async function attemptChunk(
       signal,
     );
     if (extracted.status !== 'ok') return extracted;
+    const tooShort =
+      extracted.claim !== undefined &&
+      wordCount(extracted.claim) < MIN_CLAIM_WORDS;
     report({
       stage: 'extract',
       chunkId: chunk.id,
       ms: elapsed(),
       kind: candidate,
       raw: extracted.raw,
-      outcome: extracted.claim ? 'claim' : 'none',
+      outcome: tooShort ? 'too-short' : extracted.claim ? 'claim' : 'none',
     });
-    if (extracted.claim) {
+    if (extracted.claim && !tooShort) {
       trueClaim = extracted.claim;
       kind = candidate;
       break;
     }
   }
   if (!trueClaim || !kind) return { status: 'no-claim' };
-  const trueWordCount = trueClaim.split(/\s+/).filter(Boolean).length;
+  const trueWordCount = wordCount(trueClaim);
 
   const rejected: RejectedChange[] = [];
   for (let attempt = 0; attempt <= MUTATION_VERIFY_RETRIES; attempt++) {

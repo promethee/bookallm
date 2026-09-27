@@ -12,7 +12,8 @@ A study tool whose reveal can be wrong, or that tests the reader on the wrong te
 
 ## What Changes
 
-- **The system picks the kind of detail first, not the model.** Before extraction, the code picks one of the four kinds (cause, order of events, who, where). Extraction asks for a claim of that kind (for order: two events in sequence), or `NONE` when the passage has none, in which case the next kind is tried. The model never labels its own change, so the label cannot be wrong or unreadable (`ATTRIBUTE: age`).
+- **The system picks the kind of detail first, not the model.** Before extraction, the code picks the kind. Extraction asks for a claim of that kind, or `NONE` when the passage has none, in which case the next kind is tried. The model never labels its own change, so the label cannot be wrong or unreadable (`ATTRIBUTE: age`).
+- **Only two kinds in v1.1: who did or said it, and where.** **Changes a core decision:** the README promised four kinds. The "after" measurements showed a changed cause or order came back as a rewrite of the whole sentence far more often than as one checkable change (order 6 % accepted, cause 14 %, against who 64 %). Cause and order move to a later version that extracts the parts of a claim and builds the changed claim in code. A claim under five words ("He said.") counts as no claim.
 - **The change must be to that kind and matter to what happens**, not a word choice or minor detail. The code compares the true and changed wording word by word, and rejects a change that alters nothing or rewrites too much.
 - **The reveal shows exactly what was changed:** "The book says: {true claim}" and the changed words ("**Cunégonde** → **Paquette**"), alongside the kind and the passage as today.
 - **Fewer failures reach the reader:** an unreadable or rejected reply is retried instead of ending the attempt; each retry tells the model why the previous version was rejected; after the retries on one passage run out, the whole pipeline is tried once more on a fresh passage before reporting a failure.
@@ -25,6 +26,7 @@ A study tool whose reveal can be wrong, or that tests the reader on the wrong te
 - Adaptive difficulty, or letting the reader pick a kind.
 - Changing the true/false choice (still an unpredictable 50/50, made only after a changed claim is confirmed).
 - A fifth kind of change (`what`, number, detail).
+- Making cause and order reliable (a later change; see design.md, "Later: cause and order").
 - Marking front matter at import time (would need a re-import or a storage migration); the filter works on the chapters already stored.
 - The chapter title showing twice under "From the book" (cosmetic, Project Gutenberg passages start with their own title).
 - A different chat model or model-specific prompts.
@@ -45,5 +47,5 @@ None.
 - `src/lib/mutation/`: `select.ts` (front/back-matter filter), `defaults.ts` (new prompts, kinds, diff limits, restart constant), `extract.ts` (claim of a given kind or `NONE`), `mutate.ts` (no attribute label; kind given by caller; feedback on retries), new `diff.ts` (word-level comparison), `verify.ts` (first-word parsing), `generate.ts` (orchestration, fresh-passage attempt, optional step trace), `types.ts` (`trueClaim`, `changes`), `real-claim.manual.test.ts` (tally and trace), with their unit tests.
 - `src/components/VerifySession.svelte` and `src/lib/i18n/messages.ts`: reveal shows the true claim and changed words; new English and French messages.
 - `src/lib/ollama/testing/simulated-ollama.ts` and `e2e/verify-mode.spec.ts`: follow the new prompts and reveal.
-- README Verify section and Status: reveal now shows the changed words.
+- README Verify section and Status: two kinds in v1.1, cause and order planned; the reveal shows the changed words.
 - No new dependencies, no storage or schema change, no new Ollama endpoint. Worst-case time per claim roughly doubles when the fresh-passage attempt runs (a few seconds on a GPU, minutes on CPU-only machines).

@@ -154,9 +154,12 @@ undermines the same verifiability positioning the app is built on.
 ### v1.1 — Verify mode
 
 Retrieve a real passage/fact via RAG, then deliberately mutate one
-concrete attribute (cause, order of events, who did/said it, where)
-while keeping everything else accurate. Present the claim to the
-user, who judges true/false, then reveal the citation. Distinct
+concrete attribute while keeping everything else accurate: who did or
+said it, or where, in v1.1. Cause and order of events are planned for a
+later version: with a small local model, changing them by rewriting the
+sentence proved unreliable (see the `improve-claim-mutation-quality`
+change), so they wait for claims built from extracted parts. Present
+the claim to the user, who judges true/false, then reveal the citation. Distinct
 generation pipeline from Ask mode (retrieve → mutate → verify the
 mutation actually contradicts the source), not a variant of the
 normal answer flow. Built after Ask mode, since it reuses its
@@ -282,10 +285,13 @@ reply when nothing is relevant, and a plain-language retry for a failed
 turn. The conversation is session-only, per book. Verify mode works end
 to end in English and French, reached through Ask/Verify tabs and
 styled apart from Ask mode: the reader asks for a claim built from a
-real passage (true, or with exactly one attribute changed and verified
-to contradict the source), judges it true or false, then sees whether
-they were right, what was changed, and the exact passage, with a
-session-only tally per book. Retrieval recovery works end to end in
+real passage of the story (front and back matter such as the
+introduction or the licence are skipped), true or with who did something
+or where changed and verified to contradict the source, judges it true or
+false, then sees whether they were right and the exact passage; for a
+changed claim it also shows what the book says and the exact words that
+were changed, with a session-only tally per book. Retrieval recovery
+works end to end in
 English and French: after a nothing-found reply, or an answer that cites
 no passage, the reader points to a chapter (from a list, or by typing
 "chapter 7" / "chapitre VII"), the app looks once more in that chapter

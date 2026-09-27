@@ -33,22 +33,27 @@ The system SHALL pick one chunk from the active book's already-indexed chunks to
 
 ### Requirement: The claim states one concrete, checkable fact from the source chunk
 
-The system SHALL choose, before asking the chat model for a claim, which kind of fact the claim is about: a cause, the order of two events, who did or said something, or where something happened. The first kind SHALL be chosen unpredictably. The system SHALL have the configured chat model state one concrete claim of that kind that the source chunk actually supports, or say that the chunk has none. When the chunk has none, the system SHALL try the next kind, until every kind has been tried.
+The system SHALL choose, before asking the chat model for a claim, which kind of fact the claim is about: who did or said something, or where something happened. (A cause and the order of two events are planned for a later version; see the change's design.) The first kind SHALL be chosen unpredictably. The system SHALL have the configured chat model state one concrete claim of that kind that the source chunk actually supports, or say that the chunk has none. A claim shorter than a documented minimum number of words SHALL be treated as none. When the chunk has none, the system SHALL try the next kind, until every kind has been tried.
 
 #### Scenario: A checkable claim
 
 - **WHEN** a claim is generated from a source chunk
-- **THEN** the claim names a concrete cause, order, actor or place drawn from that chunk's text, of the kind the system chose
+- **THEN** the claim names a concrete actor or place drawn from that chunk's text, of the kind the system chose
 
 #### Scenario: A claim of the chosen kind
 
 - **WHEN** a claim is generated from a source chunk with the kind "who"
 - **THEN** the claim names who did or said something, drawn from that chunk's text
 
-#### Scenario: An order claim names two events
+#### Scenario: Only who and where
 
-- **WHEN** the chosen kind is the order of events
-- **THEN** the claim states two events from the chunk and which came first
+- **WHEN** many claims are generated
+- **THEN** every claim is about who did or said something or where something happened, never a cause or an order of events
+
+#### Scenario: A claim too vague to judge
+
+- **WHEN** the model's claim is shorter than the documented minimum, such as "He said."
+- **THEN** it is treated as no claim of that kind, and the next kind is tried
 
 #### Scenario: Kind not in the chunk
 
@@ -57,7 +62,7 @@ The system SHALL choose, before asking the chat model for a claim, which kind of
 
 #### Scenario: No kind in the chunk
 
-- **WHEN** the model says the chunk has no fact of any of the four kinds
+- **WHEN** the model says the chunk has no fact of any kind
 - **THEN** no claim is built from that chunk
 
 ### Requirement: A changed version alters exactly one concrete attribute, keeping the rest accurate

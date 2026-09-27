@@ -31,8 +31,8 @@
 
 ## 5. Real-world check and wrap-up
 
-- [ ] 5.1 Run the manual test 3 × 20 claims on *Candide* with the same setup as 1.3, plus one French EPUB; record the tally next to the baseline in this design: `unverified` rate, offered true/changed, confirmations by attempt, `NONE` per kind, fresh-passage attempts, diff rejections, front-matter claims (expected 0), time per claim, and a by-eye judgement of whether each change matters to the story; verify the notes are written
-- [ ] 5.2 Set `MUTATION_VERIFY_RETRIES` (design decision 9) and, if the trace calls for it, the diff limits and the kind order; update the doc comments to say they are measured; verify `pnpm test` still passes
+- [x] 5.1 Run the manual test 3 × 20 claims on *Candide* with the same setup as 1.3, plus one French EPUB; record the tally next to the baseline in this design: `unverified` rate, offered true/changed, confirmations by attempt, `NONE` per kind, fresh-passage attempts, diff rejections, front-matter claims (expected 0), time per claim, and a by-eye judgement of whether each change matters to the story; verify the notes are written
+- [x] 5.2 Set `MUTATION_VERIFY_RETRIES` (design decision 9) and, if the trace calls for it, the diff limits and the kind order; update the doc comments to say they are measured; verify `pnpm test` still passes
 - [ ] 5.3 Check the reveal once in the real app (`pnpm dev`) with a changed claim; verify the true claim and changed words show correctly in English and French
-- [ ] 5.4 Update the README Verify section (the reveal shows the true claim and changed words) and Status; run markdownlint on the edited markdown files
+- [x] 5.4 Update the README Verify section (the reveal shows the true claim and changed words) and Status; run markdownlint on the edited markdown files
 - [ ] 5.5 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), run `pnpm test` and `pnpm lint`, then commit ("Finish improve-claim-mutation-quality")

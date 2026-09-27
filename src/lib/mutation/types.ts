@@ -84,7 +84,8 @@ export type ClaimStep = {
       stage: 'extract';
       kind?: ChangedAttribute;
       raw: string;
-      outcome: 'claim' | 'none';
+      /** `too-short`: a claim under `MIN_CLAIM_WORDS` words, treated like `none`. */
+      outcome: 'claim' | 'none' | 'too-short';
     }
   | {
       stage: 'mutate';

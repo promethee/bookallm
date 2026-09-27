@@ -85,8 +85,11 @@ function recordAttempt(
   for (const step of steps) {
     if (step.stage === 'verify' && step.outcome === 'confirmed')
       bump(tally.confirmedAtAttempt, step.attempt);
-    if (step.stage === 'extract' && step.outcome === 'none')
-      bump(tally.extractNone, step.kind ?? '?');
+    if (step.stage === 'extract' && step.outcome !== 'claim')
+      bump(
+        tally.extractNone,
+        `${step.kind ?? '?'}${step.outcome === 'too-short' ? ' (too short)' : ''}`,
+      );
     if (step.stage === 'mutate' && step.outcome === 'rejected')
       bump(tally.rejected, step.reason ?? '?');
     if (step.stage === 'verify' && step.outcome === 'not-confirmed')

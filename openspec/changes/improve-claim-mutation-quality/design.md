@@ -60,7 +60,21 @@ The real-world check in the archived `verify-mode-screen` design (GPU, `llama3.1
 
 9. **`MUTATION_VERIFY_RETRIES` from data.** The "before" run (tasks group 1, trace and tally on today's pipeline) is the baseline. After the change, run 3 × 20 claims on *Candide* and set the constant to the smallest value past which one more round would have confirmed less than 10 % of the claims that were confirmed at all. Recorded in this design with the numbers.
 
-10. **Reveal layout.** Under "This claim was false. What was changed: {kind}." add "The book says: {true claim}" and one line per change: `<before> → <after>`, the book's words struck through or muted and the new words emphasised; an empty side shows "(added)" or "(removed)" instead. New English and French messages: `verify.bookSays`, `verify.changed`, `verify.added`, `verify.removed` (names final in implementation; added to the deferred French review memory). The passage block is unchanged.
+10. **Reveal layout.** Under "This claim was false. What was changed: {kind}." add "The book says: {true claim}" and one line per change: `<before> → <after>`, the book's words struck through or muted and the new words emphasised; an empty side shows "(added)" or "(removed)" instead. New English and French messages: `verify.bookSays`, `verify.changedWords`, and, read by screen readers in place of the arrow, `verify.swapped`, `verify.added`, `verify.removed` (added to the deferred French review memory). The passage block is unchanged.
+
+11. **Only `who` and `where` in v1.1, and a five-word minimum for a true claim.** Decided after the first "after" run (see Real-world check, "After"): with the word-diff check in place, a changed order was accepted 5 times out of 85 and a changed cause 10 out of 70, against 21 of 33 for `who`. The model rewrites the sentence for clause-sized or reordering changes, and the diff (rightly, for cause; wrongly, for a correct swap of two events) rejects it; in practice readers saw almost only `who`/`where` changes anyway, after long retry chains. `CLAIM_KINDS` becomes `['who', 'where']`; the `ChangedAttribute` type, the prompt wording for all four kinds and the four interface strings stay, so the later version adds kinds back without a type or text change. `MIN_CLAIM_WORDS = 5`: a shorter true claim ("He said.", "Candide said that.") is too vague to judge without the passage and is treated as `NONE`, reported as `too-short` in the trace.
+    - *Considered:* per-kind diff rules (order compared as a bag of words, cause allowed one large run): about 1.5 hours, but it would accept muddled order claims the trace also showed, and it keeps free rewriting at the root; loosening the limits for every kind: lets real rewrites through; keeping four kinds as is: long retries, order almost never shown.
+    - **Changes a core decision** (README promised four kinds); agreed with the user on 2026-09-27.
+
+## Later: cause and order
+
+Not in this change; recorded so the follow-up starts from what was learned.
+
+- **Build claims from extracted parts instead of rewriting.** Order: the model returns the two events as separate fields (`FIRST:` / `THEN:`), and the code writes "E1 before E2" (true) and "E2 before E1" (changed). Cause: the model returns `EFFECT` and `CAUSE`, then one short alternative cause, and the code writes "EFFECT because ALTERNATIVE". The change is confined to its slot by construction, so the diff check becomes unnecessary for these kinds; verification still checks both claims against the passage.
+- **Ollama structured outputs** (`format` with a JSON schema, constrained decoding) to make that extraction dependable. Decision 4 of the archived claim-mutation design avoided JSON because small models produced it unreliably; constrained output removes that failure mode. Needs `chat.ts` to pass `format`, and a check of the minimum Ollama version.
+- **Replacements from the book itself:** a list of the book's characters and places, so the code chooses a plausible replacement (instead of "the Countess" or "De Soto", seen in the trace). Would also help `who`/`where`.
+- **A larger model for the change step only** (`qwen2.5:14b` is installed on the GPU machine): easy to measure, but slower and heavier than the hardware target.
+- **Checking the true claim too:** today only the changed claim is verified; a true claim the model got wrong would be offered as true.
 
 ## Risks / Trade-offs
 
@@ -103,3 +117,37 @@ What the trace shows:
 - **Front matter is worse than the first run suggested:** 22 % of offered claims, including the licence. The book's table of contents also has title-page sections ("THE MODERN LIBRARY", "OF THE WORLD'S BEST BOOKS", "CANDIDE BY VOLTAIRE"), "FOOTNOTES:" and "Typographical errors corrected in text:" (decision 7 updated).
 - The true/changed split was 11 / 12, consistent with a fair coin.
 - No verification reply was a negated sentence ("does not contradict"); `llama3.1:8b` answered with one word every time. The first-word parsing (decision 4) still closes the gap for other models.
+
+## Real-world check (2026-09-27): after the change
+
+Same setup as the baseline. The first "after" runs had the GPU shared with another workload at first (every call fell back to the CPU, about 55 s each); they were stopped and re-run once the GPU was free.
+
+### After, four kinds (3 runs of 20)
+
+| | Total (60 attempts) |
+| --- | --- |
+| Offered true / changed | 26 / 17 |
+| `unverified` | 17 (28 %) |
+| Unreadable reply ending the attempt | 0 |
+| Claims from front or back matter | 0 of 43 |
+| Changes rejected as "changed too much" | 166 (order 80, cause 60, where 14, who 12) |
+| Changes accepted by the diff | who 21, where 11, cause 10, order 5 |
+| Median time per attempt | 5.4 s |
+
+The verification check, reworded as TRUE/FALSE, now confirmed plainly false swaps ("Cunegonde" to "the old woman", "prevent utter ruin" to "bring about utter ruin") and rejected few changes. The diff check became the bottleneck: correct order swaps ("A before B" to "B before A") look like rewrites word by word, and changed causes were usually whole new clauses. This led to decision 11.
+
+### After, two kinds (`who`, `where`; five-word minimum)
+
+| | 2 runs of 20, 2 retries | 20 claims, 1 retry | French *Candide*, 20 claims, 1 retry |
+| --- | --- | --- | --- |
+| Offered true / changed | 19 / 18 | 5 / 12 | 9 / 11 |
+| `unverified` | 3 (7.5 %) | 3 (15 %) | 0 |
+| Confirmed at attempt 0 / 1 / 2 | 29 / 7 / 1 | 14 / 3 / - | 17 / 3 / - |
+| Fresh-passage attempts | 11 | 7 | 5 |
+| Claims from front or back matter | 0 | 0 | 0 |
+| Median time per attempt | 2.5 s | 2.9 s | 3.1 s |
+
+- **`MUTATION_VERIFY_RETRIES` set to 1** (decision 9): the third round confirmed 1 of 37 changes. With 1 retry, 3 of 40 attempts failed across the English and French runs, the same count as with 2 retries; the samples are small, so this is a direction, not a precise rate.
+- **Failures shown to the reader: 42 % before, 7.5 % to 15 % after**, and none from an unreadable reply.
+- **Quality by eye:** most changed `who` claims swap in another character of the book ("Columbus" to "Vasco da Gama", "the Pope has delivered Candide out of the galleys"); some true claims are still bland ("Candide was being preached at"), and a `where` claim sometimes changes a person instead ("The narrator was sold to the Sultan of Morocco"). Both are for the later change (extracted parts, replacements from the book).
+- **French book, found in passing and out of scope here:** most claims came out in English or mixed ("They aborded the rivage of the Dniepr"), because the prompts are in English and never ask for the passage's language. This predates the change; a follow-up should ask for the claim in the passage's language.
