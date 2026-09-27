@@ -4,6 +4,7 @@
   import type { Mode } from '../lib/onboarding/controller.svelte';
   import AskConversation from './AskConversation.svelte';
   import Button from './Button.svelte';
+  import DeleteBook from './DeleteBook.svelte';
   import Heading from './Heading.svelte';
   import VerifySession from './VerifySession.svelte';
 
@@ -13,6 +14,12 @@
   const verifying = $derived(
     book !== undefined && controller.mode === 'verify',
   );
+
+  // After a deletion the focused control is gone: focus the line naming the new book.
+  let notice = $state<HTMLParagraphElement>();
+  $effect(() => {
+    if (controller.bookNotice) notice?.focus();
+  });
 
   const modes: Mode[] = ['ask', 'verify'];
   const tabs: Record<Mode, HTMLButtonElement | undefined> = $state({
@@ -59,6 +66,19 @@
       <p class="text-sm text-slate-700">
         {t('common.chapters', { count: book.chapterCount })}
       </p>
+      {#if controller.bookNotice}
+        <p
+          bind:this={notice}
+          tabindex="-1"
+          class="mt-2 text-sm font-medium text-indigo-900 outline-none"
+        >
+          {t('landing.nowShowing', { title: controller.bookNotice.title })}
+        </p>
+      {/if}
+      <!-- A fresh control per book: a confirmation never carries over to the next one. -->
+      {#key book.hash}
+        <DeleteBook />
+      {/key}
     </div>
     <Button variant="secondary" onclick={() => controller.requestImport()}>
       {t('landing.import')}

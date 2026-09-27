@@ -9,10 +9,10 @@
 
 ## 2. Interface
 
-- [ ] 2.1 Add the English and French messages from design decision 5; verify with the existing i18n key-parity test
-- [ ] 2.2 Add the delete action, inline confirmation, failure line and "now showing" line to the landing screen's book card (design decisions 1 to 4); verify with a new `delete-book.test.ts` component test: confirmation text, Cancel changes nothing, Delete deletes, notice shown, failure message with retry
-- [ ] 2.3 Verify keyboard focus and French: component tests that Cancel is focused on open, focus returns to the action on cancel and moves to the notice after a deletion, and one full flow in French
-- [ ] 2.4 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add deleting the active book to the landing screen")
+- [x] 2.1 Add the English and French messages from design decision 5; verify with the existing i18n key-parity test
+- [x] 2.2 Add the delete action, inline confirmation, failure line and "now showing" line to the landing screen's book card (design decisions 1 to 4); verify with a new `delete-book.test.ts` component test: confirmation text, Cancel changes nothing, Delete deletes, notice shown, failure message with retry
+- [x] 2.3 Verify keyboard focus and French: component tests that Cancel is focused on open, focus returns to the action on cancel and moves to the notice after a deletion, and one full flow in French
+- [x] 2.4 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add deleting the active book to the landing screen")
 
 ## 3. End to end
 

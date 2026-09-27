@@ -48,6 +48,13 @@ export const en = {
   'landing.byAuthors': 'by {authors}',
   'landing.noBook': 'No book is selected yet. Import an EPUB to get started.',
   'landing.import': 'Import a book',
+  'landing.nowShowing': 'Now showing: {title}',
+  'delete.action': 'Delete this book',
+  'delete.confirm':
+    'This removes BookaLLM’s copy of the book and its index. Your EPUB file stays where it is.',
+  'delete.yes': 'Delete',
+  'delete.cancel': 'Cancel',
+  'delete.failed': 'BookaLLM could not delete this book. Nothing was removed.',
 
   'ollama.get.title': 'Let’s get Ollama running',
   'ollama.get.intro':
@@ -290,6 +297,14 @@ export const fr: Record<MessageKey, Message> = {
   'landing.noBook':
     'Aucun livre n’est sélectionné pour l’instant. Importez un EPUB pour commencer.',
   'landing.import': 'Importer un livre',
+  'landing.nowShowing': 'Livre affiché : {title}',
+  'delete.action': 'Supprimer ce livre',
+  'delete.confirm':
+    'Cela supprime la copie du livre et son index dans BookaLLM. Votre fichier EPUB reste où il est.',
+  'delete.yes': 'Supprimer',
+  'delete.cancel': 'Annuler',
+  'delete.failed':
+    'BookaLLM n’a pas pu supprimer ce livre. Rien n’a été retiré.',
 
   'ollama.get.title': 'Mettons Ollama en marche',
   'ollama.get.intro':
