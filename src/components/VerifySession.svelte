@@ -122,11 +122,11 @@
                       </span>
                       <span class="sr-only">
                         {#if change.before && change.after}
-                          {t('verify.swapped', change)}
+                          {t('verify.swapped', { ...change })}
                         {:else if change.after}
-                          {t('verify.added', change)}
+                          {t('verify.added', { ...change })}
                         {:else}
-                          {t('verify.removed', change)}
+                          {t('verify.removed', { ...change })}
                         {/if}
                       </span>
                     </li>
