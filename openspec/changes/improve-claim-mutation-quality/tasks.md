@@ -5,12 +5,12 @@
 - [x] 1.1 Add the optional `onStep` trace to `generateClaim` (design decision 8) without changing any other behaviour; verify with a `generate.test.ts` case that a scripted run reports pick, extract, mutate and verify steps in order with their raw replies, and that existing tests pass unchanged
 - [x] 1.2 Rework `real-claim.manual.test.ts`: keep going after failures, print each step's raw reply, print the end tally (design decision 8), default `CLAIM_COUNT` to 20; verify it is still skipped without `OLLAMA_URL`/`EPUB_PATH` (`pnpm test` passes)
 - [x] 1.3 Run it against the local Ollama (`OLLAMA_URL=http://127.0.0.1:11434`, `llama3.1:8b`, GPU machine) with *Candide* (Project Gutenberg #19942) and record the baseline tally in this design under "Real-world check": offered true/changed, `unverified`, parse failures, confirmations by attempt, front-matter claims, time per claim, and which cause of `unverified` dominates (bad change vs cautious check vs near-identical retries); verify the notes are written
-- [ ] 1.4 Run `pnpm test` and `pnpm lint`, then commit ("Add claim generation trace and tally")
+- [x] 1.4 Run `pnpm test` and `pnpm lint`, then commit ("Add claim generation trace and tally")
 
 ## 2. Passage selection
 
-- [ ] 2.1 Add the front/back-matter title patterns and the `Project Gutenberg` text check to `defaults.ts`, and the eligible pool with whole-book fallback to `pickChunk` (design decision 7); verify with `select.test.ts` cases: introduction, preface, contents, footnotes, errata and licence chapters skipped, chunks under `MIN_CLAIM_CHUNK_LENGTH` skipped (English and French titles, accents and case ignored), Gutenberg header chunk skipped, "Prologue" and "Notes from Underground"-style story titles kept, all-front-matter book falls back to all chunks, exclusions applied after the fallback, `no-chunks-available` when every eligible chunk is excluded
-- [ ] 2.2 Run `pnpm test` and `pnpm lint`, then commit ("Skip front and back matter in claim selection")
+- [x] 2.1 Add the front/back-matter title patterns and the `Project Gutenberg` text check to `defaults.ts`, and the eligible pool with whole-book fallback to `pickChunk` (design decision 7); verify with `select.test.ts` cases: introduction, preface, contents, footnotes, errata and licence chapters skipped, chunks under `MIN_CLAIM_CHUNK_LENGTH` skipped (English and French titles, accents and case ignored), Gutenberg header chunk skipped, "Prologue" and "Notes from Underground"-style story titles kept, all-front-matter book falls back to all chunks, exclusions applied after the fallback, `no-chunks-available` when every eligible chunk is excluded
+- [x] 2.2 Run `pnpm test` and `pnpm lint`, then commit ("Skip front and back matter in claim selection")
 
 ## 3. Claim pipeline
 

@@ -103,4 +103,3 @@ What the trace shows:
 - **Front matter is worse than the first run suggested:** 22 % of offered claims, including the licence. The book's table of contents also has title-page sections ("THE MODERN LIBRARY", "OF THE WORLD'S BEST BOOKS", "CANDIDE BY VOLTAIRE"), "FOOTNOTES:" and "Typographical errors corrected in text:" (decision 7 updated).
 - The true/changed split was 11 / 12, consistent with a fair coin.
 - No verification reply was a negated sentence ("does not contradict"); `llama3.1:8b` answered with one word every time. The first-word parsing (decision 4) still closes the gap for other models.
-
