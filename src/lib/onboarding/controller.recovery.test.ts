@@ -75,6 +75,188 @@ async function nothingFound(
   return { ...context, book, state, turn };
 }
 
+/** What the model said in the real-world check: a marker that resolves to no passage. */
+const UNCITED =
+  'There is no mention of a dog in any of the passages provided[None]';
+
+/**
+ * A question whose search finds relevant passages, answered with `reply`, which cites
+ * nothing unless told otherwise.
+ */
+async function uncitedAnswer(reply: string[] = [UNCITED]) {
+  const state: OllamaState = { ...READY, chatChunks: reply };
+  const book = await threePartBook();
+  const context = await harness(state, {
+    language: 'en',
+    books: [book],
+    indexed: true,
+  });
+  await context.controller.start();
+  await context.controller.askQuestion(FIRST);
+  const [turn] = context.controller.turns;
+  if (turn.verdict !== 'relevant')
+    throw new Error(`expected relevant passages: ${JSON.stringify(turn)}`);
+  return { ...context, book, state, turn };
+}
+
+describe('an answer that cites no passage', () => {
+  it('is recoverable when its only marker resolves to no passage', async () => {
+    const { controller, turn } = await uncitedAnswer();
+
+    expect(turn).toMatchObject({ state: 'done', text: UNCITED, citations: [] });
+    expect(controller.canRecover(turn)).toBe(true);
+    expect(controller.chapterChoices).toEqual([
+      { number: 1, title: 'Introduction' },
+      { number: 2, title: 'Chapter 1' },
+      { number: 3, title: 'Chapter 2' },
+    ]);
+    controller.destroy();
+  });
+
+  it('is recoverable when it has no marker at all', async () => {
+    const { controller, turn } = await uncitedAnswer([
+      'The passages do not say.',
+    ]);
+
+    expect(controller.canRecover(turn)).toBe(true);
+    controller.destroy();
+  });
+
+  it('is not recoverable once one citation resolves', async () => {
+    const { controller, turn } = await uncitedAnswer([
+      'The keeper watched the storm [1] and the rest is unclear [None].',
+    ]);
+
+    expect(turn.citations.length).toBeGreaterThan(0);
+    expect(controller.canRecover(turn)).toBe(false);
+    controller.destroy();
+  });
+
+  it('is not recoverable when stopped before it finished', async () => {
+    const state: OllamaState = {
+      ...READY,
+      chatChunks: ['The passages ', 'do not say.'],
+      chatStallAfterChunks: 1,
+    };
+    const context = await harness(state, {
+      language: 'en',
+      books: [await threePartBook()],
+      indexed: true,
+    });
+    const { controller } = context;
+    await controller.start();
+
+    const pending = controller.askQuestion(FIRST);
+    await vi.waitFor(() =>
+      expect(controller.turns[0]?.state).toBe('streaming'),
+    );
+    controller.stopAnswer();
+    await pending;
+
+    expect(controller.turns[0]).toMatchObject({ stopped: true, citations: [] });
+    expect(controller.canRecover(controller.turns[0])).toBe(false);
+    controller.destroy();
+  });
+
+  it('is not recoverable when it failed', async () => {
+    const state: OllamaState = { ...READY, chatError: 'boom' };
+    const context = await harness(state, {
+      language: 'en',
+      books: [await threePartBook()],
+      indexed: true,
+    });
+    const { controller } = context;
+    await controller.start();
+
+    await controller.askQuestion(FIRST);
+
+    expect(controller.turns[0].state).toBe('failed');
+    expect(controller.canRecover(controller.turns[0])).toBe(false);
+    controller.destroy();
+  });
+
+  it('is retried in a chosen chapter, once', async () => {
+    const { controller, turn, state } = await uncitedAnswer();
+    state.chatChunks = undefined;
+
+    await controller.retryInChapter(turn.id, 3);
+    await controller.retryInChapter(turn.id, 2);
+
+    expect(controller.turns).toHaveLength(2);
+    expect(controller.turns[0].recovered).toBe(true);
+    expect(controller.turns[1]).toMatchObject({
+      kind: 'chapter-retry',
+      question: FIRST,
+      chapter: { number: 3, title: 'Chapter 2' },
+      retryOf: turn.id,
+      state: 'done',
+    });
+    for (const citation of controller.turns[1].citations)
+      expect(citation.locator.chapterNumber).toBe(3);
+    controller.destroy();
+  });
+
+  it('never makes a chapter retry that cites nothing recoverable itself', async () => {
+    const { controller, turn, book } = await uncitedAnswer();
+
+    await controller.retryInChapter(turn.id, 3);
+
+    const retry = controller.turns[1];
+    expect(retry.citations).toEqual([]);
+    expect(retry.handedOver).toBe(book.chapters[2].text);
+    expect(controller.canRecover(retry)).toBe(false);
+    controller.destroy();
+  });
+
+  it('takes a typed chapter as a hint for its question', async () => {
+    const { controller, turn } = await uncitedAnswer();
+
+    await controller.askQuestion('try chapter 2');
+
+    expect(controller.turns[1]).toMatchObject({
+      kind: 'chapter-retry',
+      question: FIRST,
+      retryOf: turn.id,
+      chapter: { number: 3, title: 'Chapter 2' },
+    });
+    controller.destroy();
+  });
+
+  it('says the chapter is unclear, then accepts a second typed try', async () => {
+    const { controller, turn } = await uncitedAnswer();
+
+    await controller.askQuestion('try chapter 9');
+    expect(controller.turns[1]).toMatchObject({
+      kind: 'hint-unclear',
+      retryOf: turn.id,
+    });
+
+    await controller.askQuestion('chapter 1 then');
+    expect(controller.turns[2]).toMatchObject({
+      kind: 'chapter-retry',
+      question: FIRST,
+      retryOf: turn.id,
+      chapter: { number: 2, title: 'Chapter 1' },
+    });
+    controller.destroy();
+  });
+
+  it('asks a chapter mention after a cited answer as a new question', async () => {
+    const { controller, state } = await uncitedAnswer();
+    state.chatChunks = undefined;
+    await controller.askQuestion(SECOND);
+    expect(controller.turns[1].citations.length).toBeGreaterThan(0);
+
+    await controller.askQuestion('what happens in chapter 2?');
+
+    expect(controller.turns[2]).toMatchObject({
+      kind: 'question',
+      question: 'what happens in chapter 2?',
+    });
+    controller.destroy();
+  });
+});
+
 describe('the chapters offered after nothing is found', () => {
   it('lists the chapters with text, by title, in book order', async () => {
     const { controller } = await nothingFound();

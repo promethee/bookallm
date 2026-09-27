@@ -70,7 +70,7 @@ export interface AskCitation extends Citation {
   text: string;
 }
 
-/** A chapter the reader can point a nothing-found question to. */
+/** A chapter the reader can point a recoverable question to (see `canRecover`). */
 export interface ChapterChoice {
   /** 1-based table-of-contents position, as in a chunk's locator. */
   number: number;
@@ -80,7 +80,7 @@ export interface ChapterChoice {
 export interface Turn {
   id: string;
   /**
-   * `question`: an ordinary question over the whole book. `chapter-retry`: a nothing-found
+   * `question`: an ordinary question over the whole book. `chapter-retry`: a recoverable
    * question asked again in one chapter. `hint-unclear`: a typed chapter hint that did not
    * name exactly one chapter; it carries no answer, only the chapter offer again.
    */
@@ -98,9 +98,9 @@ export interface Turn {
   verdict?: Verdict;
   /** The chapter a `chapter-retry` turn looks in. */
   chapter?: ChapterChoice;
-  /** The nothing-found turn a `chapter-retry` or `hint-unclear` turn belongs to. */
+  /** The recoverable turn a `chapter-retry` or `hint-unclear` turn belongs to. */
   retryOf?: string;
-  /** On a nothing-found turn: a chapter retry has started for it, so none is offered. */
+  /** On a recoverable turn: a chapter retry has started for it, so none is offered. */
   recovered?: boolean;
   /** On a `chapter-retry` turn that could not answer: the chapter's full text. */
   handedOver?: string;
@@ -247,8 +247,8 @@ export class OnboardingController {
 
   turns = $state.raw<Turn[]>([]);
   /**
-   * The active book's chapters that have text, in book order, for pointing a nothing-found
-   * question to a chapter. Filled when a question's search first finds nothing.
+   * The active book's chapters that have text, in book order, for pointing a recoverable
+   * question to a chapter. Filled when a whole-book question's search returns.
    */
   chapterChoices = $state.raw<ChapterChoice[]>([]);
   /** True while a question is being answered, so only one turn runs at a time. */
@@ -778,8 +778,8 @@ export class OnboardingController {
   async askQuestion(question: string): Promise<void> {
     if (this.askBusy || question.trim() === '') return;
 
-    // Right after a nothing-found turn (or a "which chapter?" turn about it), a message
-    // naming a chapter answers that turn's "where in the book?" instead of starting a
+    // Right after a recoverable turn (or a "which chapter?" turn about it), a message
+    // naming a chapter points that turn's question to a chapter instead of starting a
     // new search.
     let last = this.turns.at(-1);
     if (last?.kind === 'hint-unclear')
@@ -822,22 +822,23 @@ export class OnboardingController {
   }
 
   /**
-   * Whether a turn is a nothing-found question that can still be retried in a chapter:
-   * its whole-book search found nothing relevant, it finished, and no chapter retry has
-   * started for it.
+   * Whether a whole-book question can still be retried in a chapter: it finished (not
+   * stopped, not failed) with no resolved citation, and no chapter retry has started for
+   * it. That covers a search that found nothing relevant (whose fixed reply never cites)
+   * and an answer that cites no passage, which the reader cannot check either.
    */
   canRecover(turn: Turn): boolean {
     return (
       turn.kind === 'question' &&
-      turn.verdict === 'nothing-relevant' &&
       turn.state === 'done' &&
       !turn.stopped &&
-      !turn.recovered
+      !turn.recovered &&
+      turn.citations.length === 0
     );
   }
 
   /**
-   * Asks a nothing-found turn's question again, in one chapter only. Does nothing if the
+   * Asks a recoverable turn's question again, in one chapter only. Does nothing if the
    * turn cannot be recovered (see `canRecover`), the chapter is not one with text, or a
    * question is being answered. Only one chapter retry is ever made per question.
    */
@@ -922,8 +923,8 @@ export class OnboardingController {
         : '';
       if (!retry) {
         start = { ...start, verdict: retrieved.verdict };
-        if (retrieved.verdict === 'nothing-relevant')
-          this.chapterChoices = choicesOf(book.chapters);
+        // Offered if the turn ends recoverable: nothing found, or an uncited answer.
+        this.chapterChoices = choicesOf(book.chapters);
       } else if (retrieved.passages.length === 0) {
         this.setTurn({ ...start, state: 'done', handedOver: chapterText });
         this.announce('announce.chapterShown');

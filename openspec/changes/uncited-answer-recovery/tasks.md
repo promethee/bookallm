@@ -12,24 +12,24 @@
 
 ## 2. Controller
 
-- [ ] 2.1 Change `canRecover` to: `question` turn, done, not stopped, not
+- [x] 2.1 Change `canRecover` to: `question` turn, done, not stopped, not
       recovered, no citations (design decision 1), and update its doc comment;
       verify with new `controller.recovery.test.ts` cases: a `relevant` answer
       ending with an unresolved `[None]` marker is recoverable, one with no
       marker is recoverable, one with a resolved citation is not, a stopped
       uncited answer is not, a failed answer is not, a chapter retry that cites
       nothing is not, and existing nothing-found cases still pass
-- [ ] 2.2 Load `chapterChoices` for every whole-book `question` turn once
+- [x] 2.2 Load `chapterChoices` for every whole-book `question` turn once
       retrieval returns (design decision 2); verify with a recovery controller
       test that `retryInChapter` on an uncited `relevant` turn creates a
       `chapter-retry` turn with the chosen chapter and the original question,
       marks the original `recovered`, and that a second retry is ignored
-- [ ] 2.3 Verify typed hints after an uncited answer (design decision 5) with
+- [x] 2.3 Verify typed hints after an uncited answer (design decision 5) with
       recovery controller tests: "try chapter N" with one title match retries,
       no match adds a `hint-unclear` turn, a second typed try after it retries
       the original question, and a chapter mention after a cited answer is a new
       question
-- [ ] 2.4 Run `pnpm test` and `pnpm lint`, then commit ("Make uncited whole-book
+- [x] 2.4 Run `pnpm test` and `pnpm lint`, then commit ("Make uncited whole-book
       answers recoverable")
 
 ## 3. Interface
