@@ -2,12 +2,19 @@
   import { t } from '../lib/i18n';
   import { getController } from '../lib/onboarding/context';
   import Button from './Button.svelte';
+  import ChapterOffer from './ChapterOffer.svelte';
 
   const controller = getController();
   const turns = $derived(controller.turns);
   const busy = $derived(controller.askBusy);
 
   let question = $state('');
+
+  /** The nothing-found turn a "which chapter?" turn belongs to, if it can still be retried. */
+  function openTarget(id: string | undefined) {
+    const target = turns.find((turn) => turn.id === id);
+    return target && controller.canRecover(target) ? target : undefined;
+  }
 
   function submit(event: SubmitEvent): void {
     event.preventDefault();
@@ -45,7 +52,23 @@
         turn.state === 'streaming' ||
         undefined}
     >
-      <p class="font-medium text-slate-900">{turn.question}</p>
+      {#if turn.kind === 'chapter-retry' && turn.chapter}
+        <p class="font-medium text-slate-900">
+          {t('recovery.lookingIn', {
+            chapter: turn.chapter.title,
+            question: turn.question,
+          })}
+        </p>
+      {:else}
+        <p class="font-medium text-slate-900">{turn.question}</p>
+      {/if}
+
+      {#if turn.kind === 'hint-unclear'}
+        <p class="text-slate-800">{t('recovery.unclear')}</p>
+        {#if openTarget(turn.retryOf)}
+          <ChapterOffer turnId={turn.retryOf ?? ''} />
+        {/if}
+      {/if}
 
       {#if turn.state === 'waiting'}
         <p class="text-sm text-slate-700">{t('ask.waiting')}</p>
@@ -76,6 +99,29 @@
         <Button onclick={() => void controller.retryTurn(turn.id)}
           >{t('common.tryAgain')}</Button
         >
+      {/if}
+
+      {#if controller.canRecover(turn)}
+        <ChapterOffer turnId={turn.id} />
+      {/if}
+
+      {#if turn.handedOver !== undefined && turn.chapter}
+        <p class="text-slate-800">{t('recovery.handOver')}</p>
+        <details open class="rounded-md border border-slate-200 bg-slate-50">
+          <summary
+            class="cursor-pointer px-3 py-2 text-sm font-medium text-slate-900"
+            >{turn.chapter.title}</summary
+          >
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+          <div
+            tabindex="0"
+            role="region"
+            aria-label={turn.chapter.title}
+            class="max-h-96 overflow-y-auto border-t border-slate-200 px-3 py-2 text-sm whitespace-pre-wrap text-slate-800"
+          >
+            {turn.handedOver}
+          </div>
+        </details>
       {/if}
 
       {#if turn.citations.length > 0}

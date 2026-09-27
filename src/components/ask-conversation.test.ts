@@ -10,7 +10,10 @@ import {
   READY,
   type HarnessOptions,
 } from '../lib/onboarding/testing/harness';
-import type { OllamaState } from '../lib/ollama/testing/simulated-ollama';
+import {
+  DEFAULT_EMBED_DIMENSION,
+  type OllamaState,
+} from '../lib/ollama/testing/simulated-ollama';
 import AskConversation from './AskConversation.svelte';
 
 const withController = (controller: OnboardingController) => ({
@@ -280,5 +283,258 @@ describe('AskConversation: in French', () => {
     );
     expect(screen.getByRole('button', { name: 'Réessayer' })).toBeTruthy();
     controller.destroy();
+  });
+});
+
+const UNRELATED = 'zebra quantum xylophone';
+/** Fake embeddings are never negative, so this vector finds nothing relevant anywhere. */
+const AWAY = new Array<number>(DEFAULT_EMBED_DIMENSION).fill(
+  -1 / Math.sqrt(DEFAULT_EMBED_DIMENSION),
+);
+
+/**
+ * A ready book with an introduction, an empty section and two chapters, where the
+ * unrelated question finds nothing. `second` is the last chapter's text; blank lines in
+ * it become separate paragraphs.
+ */
+async function recoverable(
+  overrides: Partial<OllamaState> = {},
+  options: HarnessOptions = {},
+  second = 'Candide reached Lisbon just before the earthquake struck the city.',
+) {
+  const result = await ingestEpub(
+    epub('Candide', undefined, {
+      documents: [
+        { href: 'a.xhtml', body: '<p>A note on the printing history.</p>' },
+        { href: 'b.xhtml', body: '' },
+        { href: 'c.xhtml', body: '<p>The lighthouse keeper watched.</p>' },
+        {
+          href: 'd.xhtml',
+          body: second
+            .split('\n\n')
+            .map((paragraph) => `<p>${paragraph}</p>`)
+            .join(''),
+        },
+      ],
+      toc: [
+        { title: 'Introduction', href: 'a.xhtml' },
+        { title: 'Illustrations', href: 'b.xhtml' },
+        { title: 'Chapter 1', href: 'c.xhtml' },
+        { title: 'Chapter 2', href: 'd.xhtml' },
+      ],
+    }),
+    { registry: new InMemoryRegistry() },
+  );
+  if (result.status !== 'new') throw new Error('expected a new book');
+  const book = result.book;
+  const context = await harness(
+    { ...READY, embedFixed: { [UNRELATED]: AWAY }, ...overrides },
+    { language: 'en', books: [book], indexed: true, ...options },
+  );
+  await context.controller.start();
+  return { ...context, book };
+}
+
+/** Asks the unrelated question and waits for its nothing-found reply. */
+async function askNothingFound(controller: OnboardingController) {
+  ask(UNRELATED);
+  await waitFor(() =>
+    expect(controller.turns[0]?.verdict).toBe('nothing-relevant'),
+  );
+}
+
+function chooseChapter(
+  title: string,
+  label = 'Chapter',
+  action = 'Look in this chapter',
+) {
+  const select = screen.getByLabelText(label) as HTMLSelectElement;
+  const option = [...select.options].find((o) => o.textContent === title)!;
+  fireEvent.change(select, { target: { value: option.value } });
+  fireEvent.click(screen.getByRole('button', { name: action }));
+}
+
+const HAND_OVER =
+  'I couldn’t find it in this chapter. Here it is, so you can look through it yourself.';
+
+describe('AskConversation: choosing a chapter after nothing is found', () => {
+  it('offers the chapters with text under the nothing-found reply', async () => {
+    const { controller } = await recoverable();
+    render(AskConversation, withController(controller));
+
+    await askNothingFound(controller);
+
+    expect(await screen.findByText('Or choose where to look:')).toBeTruthy();
+    const select = screen.getByLabelText('Chapter') as HTMLSelectElement;
+    expect([...select.options].map((option) => option.textContent)).toEqual([
+      'Introduction',
+      'Chapter 1',
+      'Chapter 2',
+    ]);
+    controller.destroy();
+  });
+
+  it('offers no chapters under an answer that found something', async () => {
+    const { controller, book } = await recoverable();
+    render(AskConversation, withController(controller));
+
+    ask(book.chunks[0].text);
+    await waitFor(() => expect(controller.turns[0]?.state).toBe('done'));
+
+    expect(screen.queryByLabelText('Chapter')).toBeNull();
+    controller.destroy();
+  });
+
+  it('retries in the chosen chapter, names it, and stops offering', async () => {
+    const { controller } = await recoverable();
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+
+    chooseChapter('Chapter 2');
+
+    expect(
+      await screen.findByText(`Looking in “Chapter 2”: ${UNRELATED}`),
+    ).toBeTruthy();
+    await waitFor(() => expect(controller.turns[1]?.state).toBe('done'));
+    expect(screen.getByText('Sources')).toBeTruthy();
+    expect(screen.queryByLabelText('Chapter')).toBeNull();
+    controller.destroy();
+  });
+
+  it('asks which chapter, with the list, when a typed one is unclear', async () => {
+    const { controller } = await recoverable();
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+
+    ask('try chapter 9');
+
+    expect(
+      await screen.findByText(
+        'I couldn’t tell which chapter you meant. Choose it below.',
+      ),
+    ).toBeTruthy();
+    expect(screen.getAllByLabelText('Chapter')).toHaveLength(2);
+    controller.destroy();
+  });
+});
+
+describe('AskConversation: handing over the chapter', () => {
+  it('shows the chapter text when the retry cannot answer', async () => {
+    const { controller } = await recoverable({
+      chatChunks: ['These passages do not say.'],
+    });
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+
+    chooseChapter('Chapter 2');
+
+    expect(await screen.findByText(HAND_OVER)).toBeTruthy();
+    const region = screen.getByRole('region', { name: 'Chapter 2' });
+    expect(region.textContent).toContain('Candide reached Lisbon');
+    controller.destroy();
+  });
+
+  it('shows no chapter text when the retry answers with a citation', async () => {
+    const { controller } = await recoverable();
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+
+    chooseChapter('Chapter 2');
+    await waitFor(() => expect(controller.turns[1]?.state).toBe('done'));
+
+    expect(screen.queryByText(HAND_OVER)).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Chapter 2' })).toBeNull();
+    controller.destroy();
+  });
+
+  it('keeps the chapter’s paragraphs', async () => {
+    const { controller } = await recoverable(
+      { chatChunks: ['Nothing cited.'] },
+      {},
+      'First paragraph here.\n\nSecond paragraph here.',
+    );
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+
+    chooseChapter('Chapter 2');
+
+    const region = await screen.findByRole('region', { name: 'Chapter 2' });
+    expect(region.textContent).toContain(
+      'First paragraph here.\n\nSecond paragraph here.',
+    );
+    controller.destroy();
+  });
+
+  // Collapsing itself is the browser's native <details> behaviour; the e2e spec clicks it.
+  it('is shown open, in a block that collapses from its title', async () => {
+    const { controller } = await recoverable({ chatChunks: ['Nothing.'] });
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+    chooseChapter('Chapter 2');
+
+    const region = await screen.findByRole('region', { name: 'Chapter 2' });
+    const details = region.closest('details')!;
+    expect(details.open).toBe(true);
+    expect(details.firstElementChild?.tagName).toBe('SUMMARY');
+    expect(details.firstElementChild?.textContent).toBe('Chapter 2');
+    controller.destroy();
+  });
+});
+
+describe('AskConversation: recovery by keyboard', () => {
+  it('uses only native, focusable controls', async () => {
+    const { controller } = await recoverable({ chatChunks: ['Nothing.'] });
+    render(AskConversation, withController(controller));
+    await askNothingFound(controller);
+
+    const select = await screen.findByLabelText('Chapter');
+    const button = screen.getByRole('button', {
+      name: 'Look in this chapter',
+    });
+    expect(select.tagName).toBe('SELECT');
+    expect(button.tagName).toBe('BUTTON');
+    expect(button.closest('form')).toBe(select.closest('form'));
+
+    select.focus();
+    expect(document.activeElement).toBe(select);
+    // Pressing Enter in a form control submits its form, as a keyboard user would.
+    fireEvent.submit(select.closest('form')!);
+
+    const region = await screen.findByRole('region', {
+      name: 'Introduction',
+    });
+    expect(region.tabIndex).toBe(0);
+    expect(region.closest('details')?.querySelector('summary')).toBeTruthy();
+    controller.destroy();
+  });
+});
+
+describe('AskConversation: recovery in French', () => {
+  it('shows the French text throughout a recovery', async () => {
+    setLanguage('fr');
+    const { controller } = await recoverable(
+      { chatChunks: ['Rien ici.'] },
+      { language: 'fr' },
+    );
+    render(AskConversation, withController(controller));
+
+    fireEvent.input(screen.getByLabelText('Votre question'), {
+      target: { value: UNRELATED },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Demander' }));
+
+    expect(await screen.findByText('Ou choisissez où chercher :')).toBeTruthy();
+    chooseChapter('Chapter 2', 'Chapitre', 'Chercher dans ce chapitre');
+
+    expect(
+      await screen.findByText(`Recherche dans « Chapter 2 » : ${UNRELATED}`),
+    ).toBeTruthy();
+    expect(
+      await screen.findByText(
+        'Je ne l’ai pas trouvé dans ce chapitre. Le voici, pour que vous puissiez le parcourir vous-même.',
+      ),
+    ).toBeTruthy();
+    controller.destroy();
+    setLanguage('en');
   });
 });

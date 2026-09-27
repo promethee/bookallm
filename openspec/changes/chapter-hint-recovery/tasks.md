@@ -17,11 +17,11 @@
 
 ## 3. Interface
 
-- [ ] 3.1 Add the English and French `recovery.*` and announcement messages from design decision 7; verify with the existing i18n key-parity test
-- [ ] 3.2 In `AskConversation.svelte`, show the chapter offer (labelled `<select>` of chapters with text plus "Look in this chapter") under an un-recovered nothing-found turn and on a `hint-unclear` turn, per design decision 5; verify with `ask-conversation.test.ts` cases: offer shown only there, empty chapters absent, choosing a chapter starts the retry, offer gone once recovered
-- [ ] 3.3 Show a `chapter-retry` turn's "Looking in …: <question>" label, and the hand-over message with the `<details open>` scrolling chapter block (design decision 6); verify with component tests: label shown, block shown only on hand-over, paragraphs kept, collapse and expand work
-- [ ] 3.4 Verify keyboard and French: a component test that reaches the select, chooses a chapter and toggles the block by keyboard alone, and one full recovery flow in French
-- [ ] 3.5 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add chapter recovery to the Ask conversation")
+- [x] 3.1 Add the English and French `recovery.*` and announcement messages from design decision 7; verify with the existing i18n key-parity test
+- [x] 3.2 In `AskConversation.svelte`, show the chapter offer (labelled `<select>` of chapters with text plus "Look in this chapter") under an un-recovered nothing-found turn and on a `hint-unclear` turn, per design decision 5; verify with `ask-conversation.test.ts` cases: offer shown only there, empty chapters absent, choosing a chapter starts the retry, offer gone once recovered
+- [x] 3.3 Show a `chapter-retry` turn's "Looking in …: <question>" label, and the hand-over message with the `<details open>` scrolling chapter block (design decision 6); verify with component tests: label shown, block shown only on hand-over, paragraphs kept, collapse and expand work
+- [x] 3.4 Verify keyboard and French: a component test that reaches the select, chooses a chapter and toggles the block by keyboard alone, and one full recovery flow in French
+- [x] 3.5 Run `pnpm exec vitest run` and `pnpm lint`, then commit ("Add chapter recovery to the Ask conversation")
 
 ## 4. End to end
 

@@ -187,6 +187,14 @@ export const en = {
   'ask.waiting':
     'Getting the AI ready. The first answer can take a few minutes.',
   'ask.sources': 'Sources',
+  'recovery.offerLabel': 'Or choose where to look:',
+  'recovery.chapterLabel': 'Chapter',
+  'recovery.lookHere': 'Look in this chapter',
+  'recovery.lookingIn': 'Looking in “{chapter}”: {question}',
+  'recovery.unclear':
+    'I couldn’t tell which chapter you meant. Choose it below.',
+  'recovery.handOver':
+    'I couldn’t find it in this chapter. Here it is, so you can look through it yourself.',
   'ask.error.unreachable':
     'Ollama seems to have stopped. Make sure it is running, then try again.',
   'ask.error.modelNotFound':
@@ -414,6 +422,14 @@ export const fr: Record<MessageKey, Message> = {
   'ask.waiting':
     'Préparation de l’IA. La première réponse peut prendre quelques minutes.',
   'ask.sources': 'Sources',
+  'recovery.offerLabel': 'Ou choisissez où chercher :',
+  'recovery.chapterLabel': 'Chapitre',
+  'recovery.lookHere': 'Chercher dans ce chapitre',
+  'recovery.lookingIn': 'Recherche dans « {chapter} » : {question}',
+  'recovery.unclear':
+    'Je n’ai pas compris de quel chapitre il s’agit. Choisissez-le ci-dessous.',
+  'recovery.handOver':
+    'Je ne l’ai pas trouvé dans ce chapitre. Le voici, pour que vous puissiez le parcourir vous-même.',
   'ask.error.unreachable':
     'Ollama semble s’être arrêté. Vérifiez qu’il est lancé, puis réessayez.',
   'ask.error.modelNotFound':
