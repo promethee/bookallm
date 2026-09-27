@@ -296,6 +296,9 @@ English and French: after a nothing-found reply, or an answer that cites
 no passage, the reader points to a chapter (from a list, or by typing
 "chapter 7" / "chapitre VII"), the app looks once more in that chapter
 only, and if it still cannot answer with a citation it hands over the
-chapter's text to look through.
+chapter's text to look through. The active book can be deleted from its
+card after an inline confirmation: BookaLLM's copy and index go, the
+EPUB file stays where it is, and the previous book (or the import
+screen) comes next.
 Conversation history trimming is not built yet: each question is still
 answered on its own.

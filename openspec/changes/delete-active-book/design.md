@@ -58,6 +58,15 @@ New keys in both languages: `delete.action` ("Delete this book"), `delete.confir
 - [The next book appears without the reader having chosen it] → The "now showing" line and the announcement make the switch explicit.
 - [A long IndexedDB transaction on a big book] → Removal of a few thousand vector records is one transaction and takes well under a second; the Delete button shows busy meanwhile.
 
+## Real-world check (2026-09-27)
+
+In the real app (`pnpm dev` in a browser, local Ollama on the GPU machine) with *Candide* (Project Gutenberg #19942) imported and fully indexed with `bge-m3`: the browser's IndexedDB held 1 book, 1 registry record and 72 vector records.
+
+- Opening the confirmation showed the disclosure and put focus on Cancel.
+- Delete took 0.06 s from the click to the "Add a book" screen, whose heading took focus; the polite announcement read "Candide was deleted."
+- Afterwards the IndexedDB stores held 0 books, 0 registry records and 0 vector records.
+- The path with a remaining book ("Now showing: …") is covered by the component and e2e tests; only one real EPUB was on this machine.
+
 ## Migration Plan
 
 No stored data format changes. Rollback is reverting the change; books deleted meanwhile stay deleted.

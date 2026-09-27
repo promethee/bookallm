@@ -21,6 +21,6 @@
 
 ## 4. Real-world check and wrap-up
 
-- [ ] 4.1 In the real app (`pnpm dev`, local Ollama) with the real *Candide* imported and indexed, delete it and record in this change's design.md: time taken, the screen shown after, and that the browser's IndexedDB has no book, registry entry or vectors left for it (checked in the page); verify the notes are written
-- [ ] 4.2 Update the README Status section to say the active book can be deleted; verify with markdownlint
-- [ ] 4.3 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), then commit ("Finish delete-active-book")
+- [x] 4.1 In the real app (`pnpm dev`, local Ollama) with the real *Candide* imported and indexed, delete it and record in this change's design.md: time taken, the screen shown after, and that the browser's IndexedDB has no book, registry entry or vectors left for it (checked in the page); verify the notes are written
+- [x] 4.2 Update the README Status section to say the active book can be deleted; verify with markdownlint
+- [x] 4.3 Add the new French messages to the deferred French review memory file (`french-indexing-text-review-deferred.md`), then commit ("Finish delete-active-book")
