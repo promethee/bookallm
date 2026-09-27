@@ -47,16 +47,18 @@
 
 ## 4. End to end
 
-- [ ] 4.1 Extend the mocked Ollama in `e2e/support.ts` so a question finds
-      relevant passages and the mocked chat reply carries no resolvable citation
-      (for example ending in `[None]`), without changing existing mocks; verify
+- [x] 4.1 Make the mocked Ollama give a question with relevant passages a chat
+      reply with no resolvable citation (ending in `[None]`), then a cited reply
+      for the retry, without changing existing mocks. No `e2e/support.ts` change
+      was needed: the spec sets the mock's `chatChunks` before the question and
+      clears it before the retry, as the existing hand-over test does; verify
       existing e2e specs still pass
-- [ ] 4.2 Add cases to `e2e/retrieval-recovery.spec.ts`: an uncited answer shows
+- [x] 4.2 Add cases to `e2e/retrieval-recovery.spec.ts`: an uncited answer shows
       the model's text, the "cites no passage" line and the chapter list;
       choosing a chapter gives a cited retry; typing "chapter N" after an
       uncited answer retries; a cited answer shows no offer; verify with
       `pnpm test:e2e`
-- [ ] 4.3 Run `pnpm test`, `pnpm test:e2e` and `pnpm lint`, then commit ("Add
+- [x] 4.3 Run `pnpm test`, `pnpm test:e2e` and `pnpm lint`, then commit ("Add
       uncited-answer recovery e2e tests")
 
 ## 5. Real-world check and wrap-up

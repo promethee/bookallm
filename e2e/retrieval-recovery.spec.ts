@@ -158,3 +158,71 @@ test.describe('recovering from nothing found', () => {
     await expect(chapter).toBeFocused();
   });
 });
+
+// On-topic, but the model's answer cites nothing, as in the real-world check.
+const ON_TOPIC = 'The old lighthouse keeper watched the storm from his window.';
+const UNCITED =
+  'There is no mention of a dog in any of the passages provided[None]';
+const UNCITED_LINE = 'This answer cites no passage, so it can’t be checked.';
+
+async function askUncited(page: Page, ollama: MockOllama) {
+  ollama.chatChunks = [UNCITED];
+  await ask(page, ON_TOPIC);
+  await expect(page.getByText(UNCITED_LINE)).toBeVisible(LATER);
+  // The retry that follows answers with the default, cited reply.
+  ollama.chatChunks = undefined;
+}
+
+test.describe('recovering from an answer that cites no passage', () => {
+  test('keeps the answer, says why, and answers from a chosen chapter', async ({
+    page,
+  }) => {
+    const ollama = READY();
+    await mockOllama(page, ollama);
+    await landOnBook(page);
+    await askUncited(page, ollama);
+
+    await expect(page.getByText(UNCITED)).toBeVisible();
+    await expect(page.getByText('Or choose where to look:')).toBeVisible();
+    await expect(page.getByText('Sources')).toHaveCount(0);
+
+    await page
+      .getByLabel('Chapter', { exact: true })
+      .selectOption({ label: 'Chapter 2' });
+    await page.getByRole('button', { name: 'Look in this chapter' }).click();
+
+    await expect(
+      page.getByText(`Looking in “Chapter 2”: ${ON_TOPIC}`),
+    ).toBeVisible();
+    await expect(page.getByText('[1] Chapter 2')).toBeVisible(LATER);
+    await expect(page.getByText(UNCITED_LINE)).toHaveCount(0);
+    await expect(page.getByLabel('Chapter', { exact: true })).toHaveCount(0);
+  });
+
+  test('reads a typed chapter number as a hint for its question', async ({
+    page,
+  }) => {
+    const ollama = READY();
+    await mockOllama(page, ollama);
+    await landOnBook(page);
+    await askUncited(page, ollama);
+
+    await ask(page, 'try chapter 2');
+
+    await expect(
+      page.getByText(`Looking in “Chapter 2”: ${ON_TOPIC}`),
+    ).toBeVisible(LATER);
+    await expect(page.getByText('[1] Chapter 2')).toBeVisible(LATER);
+  });
+
+  test('offers nothing under an answer with a citation', async ({ page }) => {
+    await mockOllama(page, READY());
+    await landOnBook(page);
+
+    await ask(page, ON_TOPIC);
+
+    await expect(page.getByText('Sources')).toBeVisible(LATER);
+    await expect(page.getByText(UNCITED_LINE)).toHaveCount(0);
+    await expect(page.getByLabel('Chapter', { exact: true })).toHaveCount(0);
+  });
+});
