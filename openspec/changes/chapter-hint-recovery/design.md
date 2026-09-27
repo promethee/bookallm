@@ -6,7 +6,7 @@
 - Each question is sent alone: no conversation history reaches the model. That is why history trimming and hint pinning (README) are out of scope; see proposal Non-goals.
 - `retrievePassages` loads every chapter's vectors from the store (`loadChapter` per chapter) and ranks all chunks. Chunks carry `locator.chapterNumber`, the 1-based table-of-contents position; `Book.chapters[]` has `number`, `title` and full `text`.
 - Answers have no "I don't know" signal. The system prompt asks for a citation after every claim, and `parseCitations` resolves them after the stream ends.
-- Chapter titles vary widely between EPUBs: "Chapter 7", "CHAPTER VII.", "VII", "Chapitre 7 : Le bal", or no number at all. In the Gutenberg *Candide* used for the verify-mode check, titles are headings only ("ADVENTURES OF THE TWO TRAVELLERS…"), and the table-of-contents position is shifted by the introduction.
+- Chapter titles vary widely between EPUBs: "Chapter 7", "CHAPTER VII.", "VII", "Chapitre 7 : Le bal", or no number at all. In the Gutenberg *Candide*, each chapter is two contents entries: a numeral ("II") whose text is only that heading, then the chapter's own heading ("WHAT BECAME OF CANDIDE AMONG THE BULGARIANS.") with its text. Front matter shifts the positions too.
 
 ## Goals / Non-Goals
 
@@ -35,7 +35,7 @@ Alternative: a separate `retrieveInChapter`. Rejected: it would duplicate the va
 `src/lib/recovery/chapter-hint.ts`:
 
 - `findChapterReference(message)` returns the referenced number or `undefined`. It matches `chapter`, `chapitre`, `chap.` or `ch.` (case-insensitive, word boundary), optional spaces, then digits or a Roman numeral (I to CCCXCIX, only well-formed numerals, since some books have over a hundred chapters). It also accepts `n°`/`no.` between the word and the number. Nothing else is parsed: no number words, no bare numbers ("7" alone could be anything).
-- `matchChapterByTitle(chapters, number)` returns the chapters with text whose title names that number. A title names n when it contains `chapter`/`chapitre`/`chap.` followed by n (digits or Roman), or when it *starts* with n (digits or Roman) followed by `.`, `:`, `)`, `-`, `—`, whitespace or end of title. Matching uses the whole number (7 never matches 17 or VII in "VIII"). A lone Roman "I" at the start counts only when followed by `.`, `:`, `—`, `-` or end, so a title like "I Meet Him" is not chapter 1.
+- `matchChapterByTitle(chapters, number)` returns the chapters whose title names that number. An entry whose text is only its own title (`hasOwnText` is false) stands for the next entry with text of its own; see the real-world check below. A title names n when it contains `chapter`/`chapitre`/`chap.` followed by n (digits or Roman), or when it *starts* with n (digits or Roman) followed by `.`, `:`, `)`, `-`, `—`, whitespace or end of title. Matching uses the whole number (7 never matches 17 or VII in "VIII"). A lone Roman "I" at the start counts only when followed by `.`, `:`, `—`, `-` or end, so a title like "I Meet Him" is not chapter 1.
 
 The controller treats one match as the chapter and zero or several as "unclear" (decision 4).
 
@@ -82,7 +82,8 @@ New keys in both languages: `recovery.offerLabel` ("Or choose where to look:"), 
 
 ## Risks / Trade-offs
 
-- [Many EPUBs have chapter titles without numbers, *Candide* on Gutenberg among them] → A typed hint then matches nothing and the reader gets the chapter list with a plain "couldn't tell" line: slower, never wrong. The real-world check records how the book at hand behaves.
+- [Many EPUBs have chapter titles without numbers] → A typed hint then matches nothing and the reader gets the chapter list with a plain "couldn't tell" line: slower, never wrong.
+- [Numbers listed as heading-only entries of their own, as in the Gutenberg *Candide*] → Heading-only entries are left out of the list and a typed match on one follows to the next entry with text (decision 2). A heading and a chapter title both naming the number count once. If a book put a heading-only entry *after* its chapter, the follow would land on the wrong chapter; not seen in practice, and the retry label names the chapter used.
 - [A message right after a nothing-found turn that mentions a chapter but is really a new question ("what happens in chapter 3?")] → It is taken as a hint for the previous question. The retry turn's "Looking in chapter …: <original question>" label makes this visible, and the reader can simply ask again. Accepted over trying to guess intent.
 - [The model answers from the chapter but forgets to cite] → That counts as "could not answer" and hands over the chapter. The reader still gets the model's text plus the source to check it against, which errs on the app's side of the positioning.
 - [Chapter text can be long (tens of thousands of characters)] → Rendered once, as plain text in a bounded scroll area, only on escalation. No virtualisation needed at book-chapter sizes.

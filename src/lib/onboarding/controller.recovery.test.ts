@@ -22,13 +22,14 @@ const UNRELATED = 'zebra quantum xylophone';
  */
 async function threePartBook(
   titles = ['Introduction', 'Chapter 1', 'Chapter 2'],
+  texts = [INTRO, FIRST, SECOND],
 ) {
   const result = await ingestEpub(
     epub('Candide', undefined, {
       documents: [
-        { href: 'a.xhtml', body: `<p>${INTRO}</p>` },
-        { href: 'b.xhtml', body: `<p>${FIRST}</p>` },
-        { href: 'c.xhtml', body: `<p>${SECOND}</p>` },
+        { href: 'a.xhtml', body: `<p>${texts[0]}</p>` },
+        { href: 'b.xhtml', body: `<p>${texts[1]}</p>` },
+        { href: 'c.xhtml', body: `<p>${texts[2]}</p>` },
       ],
       toc: [
         { title: titles[0], href: 'a.xhtml' },
@@ -53,13 +54,14 @@ const AWAY = new Array<number>(DEFAULT_EMBED_DIMENSION).fill(
 async function nothingFound(
   overrides: Partial<OllamaState> = {},
   titles?: string[],
+  texts?: string[],
 ) {
   const state: OllamaState = {
     ...READY,
     embedFixed: { [UNRELATED]: AWAY },
     ...overrides,
   };
-  const book = await threePartBook(titles);
+  const book = await threePartBook(titles, texts);
   const context = await harness(state, {
     language: 'en',
     books: [book],
@@ -355,6 +357,35 @@ describe('announcements', () => {
     await controller.retryInChapter(turn.id, 3);
 
     expect(controller.announcement?.key).toBe('announce.answerFailed');
+    controller.destroy();
+  });
+});
+
+describe('a book whose chapter numbers are headings of their own', () => {
+  // As in the Gutenberg Candide: "V" is an entry holding only its heading, and the
+  // chapter's text is in the entry after it.
+  const titles = ['Introduction', 'V', 'TEMPEST, SHIPWRECK, EARTHQUAKE'];
+  const texts = [INTRO, 'V', SECOND];
+
+  it('does not offer the heading-only entry', async () => {
+    const { controller } = await nothingFound({}, titles, texts);
+
+    expect(controller.chapterChoices).toEqual([
+      { number: 1, title: 'Introduction' },
+      { number: 3, title: 'TEMPEST, SHIPWRECK, EARTHQUAKE' },
+    ]);
+    controller.destroy();
+  });
+
+  it('follows a typed number from the heading to its chapter', async () => {
+    const { controller } = await nothingFound({}, titles, texts);
+
+    await controller.askQuestion('try chapter 5');
+
+    expect(controller.turns[1]).toMatchObject({
+      kind: 'chapter-retry',
+      chapter: { number: 3, title: 'TEMPEST, SHIPWRECK, EARTHQUAKE' },
+    });
     controller.destroy();
   });
 });

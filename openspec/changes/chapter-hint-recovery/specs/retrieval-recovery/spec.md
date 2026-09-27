@@ -8,7 +8,7 @@ Gives a "nothing found" answer a way forward: the reader points to a chapter, th
 
 ### Requirement: A nothing-found turn offers the book's chapters
 
-The system SHALL, under a nothing-found turn's reply, offer the active book's chapters to choose from, each shown with its title, in book order. Only chapters that contain text SHALL be offered. The offer SHALL be shown only on a turn whose whole-book search found nothing relevant, never on a chapter retry, and SHALL no longer be usable once that turn has been retried in a chapter.
+The system SHALL, under a nothing-found turn's reply, offer the active book's chapters to choose from, each shown with its title, in book order. Only chapters with text of their own SHALL be offered: a chapter that is empty, or whose text is only its own title (as when an EPUB lists a chapter's number as its own entry), SHALL NOT be offered. The offer SHALL be shown only on a turn whose whole-book search found nothing relevant, never on a chapter retry, and SHALL no longer be usable once that turn has been retried in a chapter.
 
 #### Scenario: Chapters offered
 
@@ -20,6 +20,11 @@ The system SHALL, under a nothing-found turn's reply, offer the active book's ch
 - **WHEN** the book has a chapter with no text
 - **THEN** that chapter is not offered
 
+#### Scenario: Heading-only entries left out
+
+- **WHEN** the book has an entry whose text is only its own title, such as "V"
+- **THEN** that entry is not offered
+
 #### Scenario: Offered once per question
 
 - **WHEN** the reader has already chosen a chapter for a nothing-found turn
@@ -27,7 +32,7 @@ The system SHALL, under a nothing-found turn's reply, offer the active book's ch
 
 ### Requirement: A typed chapter number right after a nothing-found turn is read as a hint
 
-The system SHALL, when the reader's message immediately follows a nothing-found turn (or the "could not tell which chapter" reply about it) and names a chapter by number, treat it as a chapter hint for that turn's question instead of a new question. A chapter is named by the word "chapter" or "chapitre" (any letter case, optionally abbreviated "ch." or "chap.") followed by a number in digits or Roman numerals. The number SHALL be matched against the chapters' own titles, not their position in the table of contents. When exactly one chapter with text matches, that chapter SHALL be used. When none or several match, the system SHALL NOT guess: it SHALL say it could not tell which chapter was meant and offer the chapter list for that question.
+The system SHALL, when the reader's message immediately follows a nothing-found turn (or the "could not tell which chapter" reply about it) and names a chapter by number, treat it as a chapter hint for that turn's question instead of a new question. A chapter is named by the word "chapter" or "chapitre" (any letter case, optionally abbreviated "ch." or "chap.") followed by a number in digits or Roman numerals. The number SHALL be matched against the chapters' own titles, not their position in the table of contents. A matching entry without text of its own SHALL stand for the next entry that has text of its own, since that is where its chapter is. When exactly one chapter results, that chapter SHALL be used. When none or several match, the system SHALL NOT guess: it SHALL say it could not tell which chapter was meant and offer the chapter list for that question.
 
 #### Scenario: Digits
 
@@ -43,6 +48,11 @@ The system SHALL, when the reader's message immediately follows a nothing-found 
 
 - **WHEN** the book's seventh entry is an introduction and its "Chapter 7" is a later entry
 - **THEN** "chapter 7" means the entry titled as chapter 7, not the seventh entry
+
+#### Scenario: A number that is its own entry
+
+- **WHEN** "chapter 5" matches an entry titled "V" whose text is only "V", followed by an entry with the chapter's text
+- **THEN** that turn's question is retried in the entry with the chapter's text
 
 #### Scenario: No unique match
 

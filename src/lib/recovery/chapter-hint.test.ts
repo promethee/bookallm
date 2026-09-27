@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   findChapterReference,
+  hasOwnText,
   matchChapterByTitle,
   parseRoman,
 } from './chapter-hint';
@@ -141,5 +142,47 @@ describe('matchChapterByTitle', () => {
     ];
 
     expect(matchChapterByTitle(chapters, 1)).toHaveLength(2);
+  });
+
+  it('follows a heading-only entry to the next entry with text of its own', () => {
+    // As in the Gutenberg Candide: "V" holds only its heading, the chapter comes next.
+    const chapters = [
+      chapter(1, 'IV', 'IV'),
+      chapter(2, 'HOW CANDIDE FOUND HIS OLD MASTER', 'Candide met Pangloss.'),
+      chapter(3, 'V', 'V'),
+      chapter(4, 'TEMPEST, SHIPWRECK, EARTHQUAKE', 'The storm broke.'),
+    ];
+
+    expect(matchChapterByTitle(chapters, 5)).toEqual([chapters[3]]);
+  });
+
+  it('leaves out a heading-only entry with nothing after it', () => {
+    expect(matchChapterByTitle([chapter(1, 'XXX', 'XXX')], 30)).toEqual([]);
+  });
+
+  it('counts a heading and the entry it leads to once', () => {
+    const chapters = [
+      chapter(1, 'Chapter 3', 'Chapter 3'),
+      chapter(2, 'Chapter 3: The ball', 'They danced.'),
+    ];
+
+    expect(matchChapterByTitle(chapters, 3)).toEqual([chapters[1]]);
+  });
+});
+
+describe('hasOwnText', () => {
+  it.each([
+    ['II', 'II'],
+    ['CANDIDE I', 'CANDIDE  I'],
+    ['Chapter 3', 'chapter 3.'],
+    ['Anything', '   '],
+  ])('is false for %j whose text is %j', (title, text) => {
+    expect(hasOwnText({ title, text })).toBe(false);
+  });
+
+  it('is true for a chapter with text beyond its title', () => {
+    expect(hasOwnText({ title: 'II', text: 'II\n\nCandide walked.' })).toBe(
+      true,
+    );
   });
 });

@@ -73,18 +73,40 @@ function titleNumber(title: string): number | undefined {
   return parseNumber(leading[1]);
 }
 
+/** Spaces collapsed, ends trimmed, a trailing `.` or `:` dropped, lower case. */
+const normalize = (text: string): string =>
+  text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.:]+$/, '')
+    .toLowerCase();
+
 /**
- * The chapters whose own title names chapter `number`, in book order, leaving out any
- * whose `text` is given and empty. Titles are used, not table-of-contents positions,
- * because front matter such as an introduction shifts the positions away from the book's
- * own numbering. The caller decides what zero or several matches mean.
+ * Whether a chapter has text of its own: not empty, and not only its own title. Many
+ * EPUBs list a chapter's number ("II") as its own contents entry whose text is just that
+ * heading, with the chapter itself in the next entry; such an entry has nothing to read.
+ */
+export function hasOwnText(chapter: Pick<Chapter, 'title' | 'text'>): boolean {
+  const text = normalize(chapter.text);
+  return text !== '' && text !== normalize(chapter.title);
+}
+
+/**
+ * The chapters whose own title names chapter `number`, in book order. Titles are used,
+ * not table-of-contents positions, because front matter such as an introduction shifts
+ * the positions away from the book's own numbering. A matching entry without text of its
+ * own (see `hasOwnText`) stands for the next entry that has some, since that is where
+ * its chapter's text is; one with no such entry after it is left out. The caller decides
+ * what zero or several matches mean.
  */
 export function matchChapterByTitle<
-  T extends Pick<Chapter, 'number' | 'title'> & { text?: string },
+  T extends Pick<Chapter, 'number' | 'title' | 'text'>,
 >(chapters: readonly T[], number: number): T[] {
-  return chapters.filter(
-    (chapter) =>
-      (chapter.text === undefined || chapter.text.trim() !== '') &&
-      titleNumber(chapter.title) === number,
-  );
+  const matches: T[] = [];
+  chapters.forEach((chapter, position) => {
+    if (titleNumber(chapter.title) !== number) return;
+    const target = chapters.slice(position).find(hasOwnText);
+    if (target && !matches.includes(target)) matches.push(target);
+  });
+  return matches;
 }

@@ -44,7 +44,11 @@ import {
   type RetrievalError,
   type Verdict,
 } from '../retrieval';
-import { findChapterReference, matchChapterByTitle } from '../recovery';
+import {
+  findChapterReference,
+  hasOwnText,
+  matchChapterByTitle,
+} from '../recovery';
 import { generateAnswer, type AnswerError, type Citation } from '../answering';
 import { checkAcceleration } from '../hardware';
 import {
@@ -782,7 +786,12 @@ export class OnboardingController {
       last = this.turns.find((turn) => turn.id === last?.retryOf);
     const number = findChapterReference(question);
     if (last && this.canRecover(last) && number !== undefined) {
-      const matches = matchChapterByTitle(await this.activeChapters(), number);
+      // Matched against every chapter, including heading-only ones such as "II":
+      // they carry the numbers, and stand for the chapter after them.
+      const matches = matchChapterByTitle(
+        await this.activeBookChapters(),
+        number,
+      );
       if (matches.length === 1) {
         await this.retryInChapter(last.id, matches[0].number);
         return;
@@ -914,7 +923,7 @@ export class OnboardingController {
       if (!retry) {
         start = { ...start, verdict: retrieved.verdict };
         if (retrieved.verdict === 'nothing-relevant')
-          this.chapterChoices = choicesOf(book);
+          this.chapterChoices = choicesOf(book.chapters);
       } else if (retrieved.passages.length === 0) {
         this.setTurn({ ...start, state: 'done', handedOver: chapterText });
         this.announce('announce.chapterShown');
@@ -1097,12 +1106,18 @@ export class OnboardingController {
   /** The active book's chapters with text, loading the book when none are known yet. */
   private async activeChapters(): Promise<ChapterChoice[]> {
     if (this.chapterChoices.length > 0) return this.chapterChoices;
+    const chapters = await this.activeBookChapters();
+    if (chapters.length > 0) this.chapterChoices = choicesOf(chapters);
+    return this.chapterChoices;
+  }
+
+  /** Every chapter of the active book, with its text; empty when there is no book. */
+  private async activeBookChapters(): Promise<Book['chapters']> {
     const entry = this.activeBook;
     const book = entry
       ? await this.services.storage.library.getBook(entry.hash)
       : undefined;
-    if (book) this.chapterChoices = choicesOf(book);
-    return this.chapterChoices;
+    return book?.chapters ?? [];
   }
 
   private save(patch: Partial<Settings>): void {
@@ -1120,9 +1135,12 @@ export class OnboardingController {
   }
 }
 
-/** A book's chapters that have text, in book order, as choices for a chapter retry. */
-function choicesOf(book: Book): ChapterChoice[] {
-  return book.chapters
-    .filter((chapter) => chapter.text.trim() !== '')
+/**
+ * A book's chapters that have text of their own, in book order, as choices for a chapter
+ * retry. Empty and heading-only entries (see `hasOwnText`) have nothing to look in.
+ */
+function choicesOf(chapters: Book['chapters']): ChapterChoice[] {
+  return chapters
+    .filter(hasOwnText)
     .map(({ number, title }) => ({ number, title }));
 }
