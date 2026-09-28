@@ -11,9 +11,9 @@
 
 ## 2. Native side
 
-- [ ] 2.1 Enable the `tray-icon` feature in `src-tauri/Cargo.toml` and add the tray icon, tooltip and menu, the show helper, the close handling and the `configure_tray` command in `src-tauri/src/lib.rs` (design decisions 1, 3, 4), with brief comments on Rust-specific syntax; verify with `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` and `pnpm format:rust:check`
-- [ ] 2.2 Build the desktop app in debug (`pnpm tauri build --debug --no-bundle`); verify it compiles and the executable starts
-- [ ] 2.3 Commit ("Add the system tray to the desktop app")
+- [x] 2.1 Enable the `tray-icon` feature in `src-tauri/Cargo.toml` and add the tray icon, tooltip and menu, the show helper, the close handling and the `configure_tray` command in `src-tauri/src/lib.rs` (design decisions 1, 3, 4), with brief comments on Rust-specific syntax; verify with `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` and `pnpm format:rust:check`
+- [x] 2.2 Build the desktop app in debug (`pnpm tauri build --debug --no-bundle`); verify it compiles and the executable starts
+- [x] 2.3 Commit ("Add the system tray to the desktop app")
 
 ## 3. End to end and manual tests
 
