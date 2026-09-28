@@ -17,9 +17,9 @@
 
 ## 3. End to end and manual tests
 
-- [ ] 3.1 Add `e2e/tray-option.spec.ts`: the checkbox is on by default, turning it off survives a reload, keyboard-only toggle; verify with `pnpm exec playwright test`
-- [ ] 3.2 Create `MANUAL_TESTS.md` with a tray section (start, close with the setting on, reopen from icon and menu with the conversation kept, quit from the menu, setting off then close quits, French menu), each step with the action and the expected result; verify with markdownlint
-- [ ] 3.3 Commit ("Add tray e2e and manual tests")
+- [x] 3.1 Add `e2e/tray-option.spec.ts`: the checkbox is on by default, turning it off survives a reload, keyboard-only toggle; verify with `pnpm exec playwright test`
+- [x] 3.2 Create `MANUAL_TESTS.md` with a tray section (start, close with the setting on, reopen from icon and menu with the conversation kept, quit from the menu, setting off then close quits, French menu), each step with the action and the expected result; verify with markdownlint
+- [x] 3.3 Commit ("Add tray e2e and manual tests")
 
 ## 4. Real-world check and wrap-up
 
