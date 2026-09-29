@@ -64,8 +64,17 @@ source.
 ## How to install
 
 1. Download the installer for your system from the
-   [latest release](https://github.com/promethee/bookallm/releases/latest).
-2. Run it, then open BookaLLM.
+   [latest release](https://github.com/promethee/bookallm/releases/latest):
+   - **Windows:** the file ending in `-setup.exe`;
+   - **macOS:** the `.dmg` ending in `aarch64` for an Apple chip (M1 or
+     later), or in `x64` for an Intel chip;
+   - **Linux:** the `.AppImage` (make it executable) or the `.deb`.
+2. Run it, then open BookaLLM. The installers are not signed yet, so your
+   system asks once to confirm:
+   - **Windows** may say "Windows protected your PC": choose "More info",
+     then "Run anyway";
+   - **macOS**, the first time: right-click BookaLLM, choose Open, then
+     Open again.
 
 That is all: BookaLLM guides you through the rest in plain language. It
 helps you install Ollama if you do not have it, offers to download the

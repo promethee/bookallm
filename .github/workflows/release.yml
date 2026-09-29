@@ -1,0 +1,81 @@
+# Builds BookaLLM's installers for Windows, macOS and Linux when a version tag is pushed
+# (for example v1.0.0), and attaches them to a draft GitHub release. The author checks the
+# draft and publishes it by hand. See openspec/changes/archive/*-release-pipeline.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            args: ''
+          - platform: macos-latest
+            args: '--target aarch64-apple-darwin'
+          - platform: macos-latest
+            args: '--target x86_64-apple-darwin'
+          - platform: ubuntu-22.04
+            args: ''
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm version comes from the `packageManager` field in package.json
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Check the tag matches the version in the code
+        if: startsWith(github.ref, 'refs/tags/')
+        run: node scripts/check-version.ts ${{ github.ref_name }}
+
+      - name: Install Linux system packages
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: BookaLLM ${{ github.ref_name }}
+          releaseBody: |
+            BookaLLM is a free study companion for EPUB books that runs on your own computer: ask questions and check every answer against the exact passage it came from.
+
+            **Which file to download**
+            - Windows: `BookaLLM_…_x64-setup.exe`
+            - macOS with an Apple chip (M1 or later): `BookaLLM_…_aarch64.dmg`
+            - macOS with an Intel chip: `BookaLLM_…_x64.dmg`
+            - Linux: `.AppImage` (make it executable) or `.deb`
+
+            These installers are not signed yet. Windows may say "Windows protected your PC": choose "More info", then "Run anyway". On macOS, the first time, right-click the app, choose Open, then Open again. macOS and Linux are not tested yet.
+
+            How to install and get started: see the README.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
