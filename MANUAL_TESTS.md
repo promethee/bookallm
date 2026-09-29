@@ -11,6 +11,29 @@ what only exists in the desktop app is checked here.
    already imported and indexed (import one from the app if not).
 3. Start `src-tauri\target\debug\bookallm.exe`.
 
+## Storage in SQLite (Windows)
+
+The desktop app keeps its library in
+`%APPDATA%\com.promethee.bookallm\bookallm.db`. Each step lists the action,
+then the expected result.
+
+1. **Open `%APPDATA%\com.promethee.bookallm`** in File Explorer while the app
+   is running.
+   - Expected: `bookallm.db` is there.
+2. **Import a book** (for example _Candide_ from Project Gutenberg) and wait
+   until it is ready.
+   - Expected: indexing finishes as usual, and `bookallm.db` has grown to
+     several megabytes.
+3. **Ask a question.**
+   - Expected: a cited answer, as usual.
+4. **Quit the app from the tray menu, then start it again.**
+   - Expected: the same book is shown at once, ready; it is not indexed
+     again.
+5. **Delete the book** ("Delete this book", then "Delete").
+   - Expected: the import screen (or the previous book) appears;
+     `bookallm.db` does not hold the book any more (it may keep its size until
+     SQLite reuses the space); your EPUB file is untouched.
+
 ## System tray (Windows)
 
 Each step lists the action, then the expected result.
