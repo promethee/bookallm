@@ -58,32 +58,19 @@ source.
   Ollama is not using a GPU.
 - About 8 GB of memory free for the answering model.
 
-## Getting started
+## How to install
 
-Release downloads come with the release pipeline (see the
-[roadmap](INTENT.md#roadmap)). For now, BookaLLM runs from source:
+1. Download the installer for your system from the
+   [latest release](https://github.com/promethee/bookallm/releases/latest).
+2. Run it, then open BookaLLM.
 
-1. Install [Ollama](https://ollama.com/download) and start it.
-2. Install [Node.js](https://nodejs.org) 22 or later, then enable pnpm:
-   `corepack enable`.
-3. For the desktop app, install [Rust](https://rustup.rs) and Microsoft
-   C++ Build Tools (see [Tauri's prerequisites](https://tauri.app/start/prerequisites/)).
-4. Get the code and its dependencies:
-
-   ```bash
-   git clone https://github.com/promethee/bookallm.git
-   cd bookallm
-   pnpm install
-   ```
-
-5. Start it:
-   - as a desktop app: `pnpm tauri dev`;
-   - or in your browser: `pnpm dev`, then open <http://127.0.0.1:5287>.
-
-On first start BookaLLM asks for your language, checks Ollama, offers
-the models, and asks for a book. Indexing a book takes a few minutes
-the first time (about two minutes for _Candide_ on a GPU) and is kept
+That is all: BookaLLM guides you through the rest in plain language. It
+helps you install Ollama if you do not have it, offers to download the
+AI models (only after you agree), and asks for your first book.
+Getting to know a book takes a few minutes the first time and is kept
 for next time.
+
+The first release is being prepared.
 
 ## Where to find free EPUBs
 
@@ -129,30 +116,6 @@ as free, DRM-free EPUBs:
 Each question is answered on its own for now. What is left for v1 and
 planned for v2 is in the [roadmap](INTENT.md#roadmap); why things are
 the way they are is in [INTENT.md](INTENT.md).
-
-## Development
-
-| Command                      | What it does                             |
-| ---------------------------- | ---------------------------------------- |
-| `pnpm dev`                   | Interface in the browser, port 5287      |
-| `pnpm tauri dev`             | Desktop app                              |
-| `pnpm test`                  | Unit and component tests (Vitest)        |
-| `pnpm test:e2e`              | End-to-end tests (Playwright, mocked AI) |
-| `pnpm lint`, `pnpm format`   | ESLint and Prettier                      |
-| `pnpm typecheck`             | Svelte and TypeScript checks             |
-| `pnpm check`                 | Everything above in one go               |
-| `pnpm screenshots book.epub` | Retake this page's screenshots (real AI) |
-
-- The automated tests never need Ollama. What only a person can check,
-  such as the system tray, is in [MANUAL_TESTS.md](MANUAL_TESTS.md).
-- Git hooks run lint and formatting before each commit and the full test
-  suite before each push; CI runs them again on every push.
-- Every feature is planned and recorded with
-  [OpenSpec](https://github.com/Fission-AI/OpenSpec) in
-  [openspec/](openspec/): the specs of what the app does, and one
-  archived change per feature with its design and real-world checks.
-- [INTENT.md](INTENT.md) is the source of truth for the project's
-  positioning, scope and decisions.
 
 ## License
 
