@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-09-29
+# Build and release tooling only: no behaviour of the app changes.
+skip_specs: true
