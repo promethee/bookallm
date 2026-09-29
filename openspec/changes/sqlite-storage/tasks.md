@@ -16,5 +16,5 @@
 
 - [x] 3.1 Add a storage section to `MANUAL_TESTS.md` (import, restart keeps the book, delete removes it, the database file exists in the app's data folder); verify with markdownlint
 - [x] 3.2 Run the full suites (`pnpm test`, `pnpm test:e2e`, lint, format, clippy), then commit ("Add storage manual tests")
-- [ ] 3.3 With the reader, run the storage section in the desktop app with *Candide*, timing indexing and one search against the IndexedDB figures, and record it in this change's design.md
-- [ ] 3.4 Update INTENT.md's Roadmap (SQLite done), then commit ("Finish sqlite-storage")
+- [x] 3.3 With the reader, run the storage section in the desktop app with *Candide*, timing indexing and one search against the IndexedDB figures, and record it in this change's design.md
+- [x] 3.4 Update INTENT.md's Roadmap (SQLite done), then commit ("Finish sqlite-storage")

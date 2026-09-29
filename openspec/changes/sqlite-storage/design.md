@@ -77,6 +77,21 @@ The capability gets `sql:default` and `sql:allow-execute`. `tauri.conf.json` pre
 - [Books imported in the desktop app before this change disappear from it] → No release yet; the proposal says so, and re-importing restores them.
 - [`node:sqlite` behaves differently from the plugin's SQLite] → Same SQL, same engine; the manual desktop check covers the plugin path.
 
+## Real-world check (2026-09-29)
+
+The debug desktop app on the GPU machine (RTX 3060, local Ollama with `llama3.1:8b` and `bge-m3`), driven through its WebView2 with remote debugging so the real app, plugin and database were used. With _Candide_ (Project Gutenberg #19942, 72 contents entries):
+
+| Step | Result |
+| --- | --- |
+| Import and index | The book row and 72 chapters of vectors in SQLite; nothing in IndexedDB |
+| Close the app, start it again | Main screen with the book ready after 13.2 s (including the Ollama checks); not indexed again |
+| Delete, then import and index again | 51.7 s from choosing the file to the main screen (IndexedDB run: about 2 minutes, with the models cold) |
+| A question, then a second one | 3.4 s, then 2.4 s, each with citations |
+
+- The database is `%APPDATA%\com.promethee.bookallm\bookallm.db`; SQLite keeps recent writes in `bookallm.db-wal` (2.9 MB after indexing _Candide_), so the main file can look small until SQLite merges them.
+- No slowdown from the plugin's JSON bridge: base64 vectors keep indexing and search at least as fast as with IndexedDB.
+- The reader can repeat the check with the "Storage in SQLite" section of `MANUAL_TESTS.md`; it was run here by driving the desktop app rather than by hand.
+
 ## Migration Plan
 
 None (no release). Rollback: revert; the database file is left unused.

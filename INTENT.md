@@ -286,14 +286,17 @@ MIT.
 
 ## Roadmap
 
-What works today is listed in the [README](README.md#what-works-today).
+How to use what works today is in the
+[README](README.md#getting-started).
+
+Done since the drift review of 2026-09-29: the desktop app keeps its
+library in SQLite (`bookallm.db` in the app's data folder); the browser
+build used for development and tests keeps the webview's IndexedDB.
 
 Left in v1, in order:
 
-1. Storage in SQLite, replacing the webview's IndexedDB (decided
-   2026-09-29: SQLite was the agreed choice).
-2. A command palette (Ctrl/Cmd+K), to be explored first.
-3. The release pipeline (tauri-action matrix across macOS, Linux and
+1. A command palette (Ctrl/Cmd+K), to be explored first.
+2. The release pipeline (tauri-action matrix across macOS, Linux and
    Windows), last.
 
 v2: general-knowledge context and the Socratic style for Ask mode
