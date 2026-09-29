@@ -91,28 +91,38 @@ as free, DRM-free EPUBs:
 - [Wikisource](https://fr.wikisource.org): chaque œuvre peut être
   téléchargée en EPUB (« Télécharger en EPUB »).
 
-## What works today
+## Getting started
 
-- **First start, in English or French:** Ollama detection with
-  plain-language guidance, model download after your OK, a warning when
-  the AI would run without a GPU, EPUB import with DRM and duplicate
-  detection, and indexing with live progress and a time estimate, which
-  resumes where it stopped.
-- **Ask mode:** streamed, cited answers with the exact passages, a note
-  when the first answer is slow, stop and retry, and recovery by chapter
-  when nothing is found or an answer cites nothing.
-- **Verify mode:** true or changed claims from the story (not the
-  introduction or licence pages), the reveal with the changed words, and
-  a session tally.
-- **Books:** deleting the active book removes BookaLLM's copy and index,
-  never your file.
-- **Resources:** models are unloaded after an idle time you choose
-  (10 minutes by default); the desktop app stays in the system tray
-  when closed, unless you turn that off.
+BookaLLM works with **one book at a time** for now: the last book you
+add is the one you study. Adding another switches to it; deleting it
+brings back the previous one.
 
-Each question is answered on its own for now. What is left for v1 and
-planned for v2 is in the [roadmap](INTENT.md#roadmap); why things are
-the way they are is in [INTENT.md](INTENT.md).
+Once your book is ready, the main screen offers two modes, as tabs.
+
+### Ask mode: check your understanding
+
+**Why:** to get answers you can verify, not answers you have to trust.
+
+**How:** type a question about the book, for example "Why is Candide
+driven out of the castle?", and press Ask. The answer marks each claim
+with a number like `[4]`; under it, each number shows the exact passage
+and its chapter. Read the passage and judge for yourself.
+
+If nothing is found, choose a chapter from the list (or type "chapter
+7") and BookaLLM looks there. If it still cannot answer, it shows you
+the chapter to read.
+
+### Verify mode: train your eye
+
+**Why:** AI can misstate a book with confidence. Verify mode shows you
+claims that may be false on purpose, so that checking becomes a habit.
+
+**How:** press "Give me a claim", read it, and answer True or False.
+BookaLLM then reveals whether you were right, shows what the book really
+says and which words were changed, and keeps score for the session.
+
+Each question is answered on its own for now. What is planned next is in
+the [roadmap](INTENT.md#roadmap).
 
 ## License
 
