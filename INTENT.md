@@ -295,8 +295,10 @@ Done since the drift review of 2026-09-29: the desktop app keeps its
 library in SQLite (`bookallm.db` in the app's data folder); the browser
 build used for development and tests keeps the webview's IndexedDB.
 
-Left in v1: the release pipeline (tauri-action matrix across macOS,
-Linux and Windows).
+v1 is complete: released as BookaLLM 1.0.0 on 2026-09-29, with
+unsigned installers for Windows, macOS and Linux built by the release
+workflow (a `vX.Y.Z` tag builds a draft release, published by hand).
+Only the Windows installer has been tested.
 
 v2: general-knowledge context and the Socratic style for Ask mode
 (with conversation memory and history trimming), a book switcher and

@@ -82,8 +82,6 @@ AI models (only after you agree), and asks for your first book.
 Getting to know a book takes a few minutes the first time and is kept
 for next time.
 
-The first release is being prepared.
-
 ## Where to find free EPUBs
 
 BookaLLM needs DRM-free EPUB files. It recognises protected books and
