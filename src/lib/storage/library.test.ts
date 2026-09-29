@@ -12,6 +12,8 @@ import {
 import type { Book } from '../ingest/types';
 import { openLibrary, StorageFullError, type BookLibrary } from './library';
 import { MemoryLibrary } from './memory-library';
+import { openSqliteLibrary } from './sqlite-library';
+import { nodeSqliteDatabase } from './testing/node-sqlite';
 
 let counter = 0;
 const nextName = () => `library-test-${(counter += 1)}`;
@@ -26,6 +28,14 @@ runVectorStoreContract(
   async () => (await openLibrary({ name: nextName() })).vectors,
 );
 runVectorStoreContract('in-memory library', () => new MemoryLibrary().vectors);
+runRegistryContract(
+  'SQLite library',
+  async () => (await openSqliteLibrary(nodeSqliteDatabase())).registry,
+);
+runVectorStoreContract(
+  'SQLite library',
+  async () => (await openSqliteLibrary(nodeSqliteDatabase())).vectors,
+);
 
 const makeBook = (hash: string, title = 'Candide'): Book => ({
   hash,
@@ -53,6 +63,7 @@ const makeBook = (hash: string, title = 'Candide'): Book => ({
 const openers: [string, () => Promise<BookLibrary>][] = [
   ['IndexedDB library', () => openLibrary({ name: nextName() })],
   ['in-memory library', async () => new MemoryLibrary()],
+  ['SQLite library', () => openSqliteLibrary(nodeSqliteDatabase())],
 ];
 
 describe.each(openers)('%s books', (_name, open) => {

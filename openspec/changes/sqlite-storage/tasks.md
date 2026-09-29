@@ -2,9 +2,9 @@
 
 ## 1. Library over SQL
 
-- [ ] 1.1 Add `src/lib/storage/sql.ts` (the `SqlDatabase` interface), the base64 Float32 helpers (design decision 2) and a `node:sqlite` adapter for tests; verify with unit tests that vectors round-trip exactly
-- [ ] 1.2 Write `SqliteLibrary` (schema and every `BookLibrary`, registry and vector-store method, design decisions 1, 3 and 5); verify it passes the registry and vector-store contract suites and a `sqlite-library.test.ts` for saveBook/getBook, removal of everything, list order, and disk-full mapping
-- [ ] 1.3 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add a SQLite implementation of the library")
+- [x] 1.1 Add `src/lib/storage/sql.ts` (the `SqlDatabase` interface), the base64 Float32 helpers (design decision 2) and a `node:sqlite` adapter for tests; verify with unit tests that vectors round-trip exactly
+- [x] 1.2 Write `SqliteLibrary` (schema and every `BookLibrary`, registry and vector-store method, design decisions 1, 3 and 5); verify it passes the registry and vector-store contract suites and a `sqlite-library.test.ts` for saveBook/getBook, removal of everything, list order, and disk-full mapping
+- [x] 1.3 Run `pnpm exec vitest run src/lib` and `pnpm lint`, then commit ("Add a SQLite implementation of the library")
 
 ## 2. Desktop app
 
