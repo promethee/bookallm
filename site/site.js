@@ -69,8 +69,8 @@ const TEXTS = {
     downloadFor: (label, version) =>
       `Télécharger pour ${label}${version ? ` (${version})` : ''}`,
     windows: 'Windows',
-    macArm: 'Mac à puce Apple (M1 ou plus récent)',
-    macIntel: 'Mac à puce Intel',
+    macArm: 'Mac Apple Silicon (M1 ou plus récent)',
+    macIntel: 'Mac cpu Intel',
     linuxAppImage: 'Linux (AppImage)',
     linuxDeb: 'Linux (.deb)',
     otherSystems: 'Autres systèmes',
