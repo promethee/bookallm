@@ -172,3 +172,17 @@ the real app by the author before being archived.
 - **Memory:** not measured for the building sessions. At run time, the
   app's two models use about 5.5 GB (`llama3.1:8b`) and 1.2 GB
   (`bge-m3`) of GPU memory while loaded.
+
+## AI disclaimer
+
+- **The answers come from an AI and can be wrong.** BookaLLM runs a
+  local language model that can misread a passage, leave something out
+  or state something the book does not say. That is why every answer
+  cites its passages: read them before you rely on an answer.
+- **Verify mode shows false claims on purpose.** A claim in Verify mode
+  may have been changed; only the book decides.
+- **Not a substitute for reading.** BookaLLM helps you check your
+  understanding of a book you are reading; it does not replace it.
+- **This project was built with AI.** The code and documentation were
+  written with Claude (Anthropic) through Claude Code, and reviewed,
+  tested and approved by the author.
