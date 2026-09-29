@@ -235,7 +235,9 @@ disproportionate risk for a portfolio build.
 - Ask mode and Verify mode must be visually distinct (color/layout),
   so Verify mode's deliberately planted false claims don't bleed
   distrust into Ask mode's sincere answers.
-- Command palette (Ctrl/Cmd+K) as a power-user accelerant for
+- Command palette (Ctrl/Cmd+K), v2 (moved 2026-09-29: with one book
+  and two modes one click apart, v1 has little for it to speed up; its
+  value comes with the book switcher): a power-user accelerant for
   book/mode switching, layered on top of the top bar — not a
   replacement for it, since a portfolio reviewer clicking around
   won't know the shortcut exists.
@@ -293,13 +295,11 @@ Done since the drift review of 2026-09-29: the desktop app keeps its
 library in SQLite (`bookallm.db` in the app's data folder); the browser
 build used for development and tests keeps the webview's IndexedDB.
 
-Left in v1, in order:
-
-1. A command palette (Ctrl/Cmd+K), to be explored first.
-2. The release pipeline (tauri-action matrix across macOS, Linux and
-   Windows), last.
+Left in v1: the release pipeline (tauri-action matrix across macOS,
+Linux and Windows).
 
 v2: general-knowledge context and the Socratic style for Ask mode
 (with conversation memory and history trimming), a book switcher and
-per-book index management, adaptive Verify difficulty, cause and order
-changes in Verify mode, and the corroboration layer.
+per-book index management with the command palette (Ctrl/Cmd+K),
+adaptive Verify difficulty, cause and order changes in Verify mode,
+and the corroboration layer.
