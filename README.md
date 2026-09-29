@@ -120,18 +120,9 @@ the way they are is in [INTENT.md](INTENT.md).
 
 ## How this was built
 
-BookaLLM was built with [Claude Code](https://claude.com/claude-code),
-working with Claude Opus 5.5, between 2026-09-20 and 2026-09-29: 185
-commits and 17 OpenSpec changes, each planned, reviewed and checked in
-the real app by the author before being archived.
-
-- **Model:** Claude Opus 5.5 (`claude-opus-5-5`), through Claude Code.
-- **Tokens:** not recorded across all sessions and machines. The
-  longest single session reached about 714,000 tokens of context.
-- **Time:** ten calendar days, from the first commit to this README.
-- **Memory:** not measured for the building sessions. At run time, the
-  app's two models use about 5.5 GB (`llama3.1:8b`) and 1.2 GB
-  (`bge-m3`) of GPU memory while loaded.
+Built with Claude Opus 5.5 in [Claude Code](https://claude.com/claude-code)
+over ten days (2026-09-20 to 2026-09-29). Tokens: about 714,000 in the
+longest session; totals and memory were not recorded.
 
 ## AI disclaimer
 
