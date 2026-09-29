@@ -20,5 +20,5 @@
 
 ## 4. Wrap-up
 
-- [ ] 4.1 Update the project memory notes that call the README the source of truth; verify they name INTENT.md
-- [ ] 4.2 Run `pnpm test`, `pnpm lint` and `pnpm format:check` (nothing should change), then commit ("Finish intent-and-user-readme")
+- [x] 4.1 Update the project memory notes that call the README the source of truth; verify they name INTENT.md
+- [x] 4.2 Run `pnpm test`, `pnpm lint` and `pnpm format:check` (nothing should change), then commit ("Finish intent-and-user-readme")
