@@ -10,8 +10,8 @@
 
 - [x] 2.1 Write `.github/workflows/pages.yml` (design decisions 4 and 5) and `site/README.md` (how to preview locally); verify the YAML parses
 - [x] 2.2 Add a link to the site near the top of the README; verify with markdownlint, then commit ("Publish the site with GitHub Pages")
-- [ ] 2.3 The author turns Pages on (Settings → Pages → Source: GitHub Actions) and pushes; check `https://promethee.github.io/bookallm/` loads, shows the screenshots and offers the right installer
+- [x] 2.3 The author turns Pages on (Settings → Pages → Source: GitHub Actions) and pushes; check `https://promethee.github.io/bookallm/` loads, shows the screenshots and offers the right installer
 
 ## 3. Wrap-up
 
-- [ ] 3.1 Note the site in INTENT.md's Roadmap, then commit ("Finish project-site")
+- [x] 3.1 Note the site in INTENT.md's Roadmap, then commit ("Finish project-site")

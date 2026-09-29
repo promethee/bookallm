@@ -300,6 +300,10 @@ unsigned installers for Windows, macOS and Linux built by the release
 workflow (a `vX.Y.Z` tag builds a draft release, published by hand).
 Only the Windows installer has been tested.
 
+The project site, a one-page bilingual pitch with a download button
+for the visitor's system, is published with GitHub Pages at
+<https://promethee.github.io/bookallm/> from `site/`.
+
 v2: general-knowledge context and the Socratic style for Ask mode
 (with conversation memory and history trimming), a book switcher and
 per-book index management with the command palette (Ctrl/Cmd+K),
