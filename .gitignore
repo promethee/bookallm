@@ -10,3 +10,6 @@ node_modules
 playwright-report
 test-results
 blob-report
+
+# Copied from docs/images by the Pages workflow; local preview only.
+site/images/

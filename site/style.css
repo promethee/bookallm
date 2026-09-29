@@ -1,0 +1,195 @@
+/* BookaLLM's project page: the app's colours (indigo for Ask, amber for Verify), light and
+   dark following the system, one column that works from phones to desktops. */
+
+:root {
+  color-scheme: light dark;
+  --text: #0f172a;
+  --muted: #475569;
+  --background: #ffffff;
+  --panel: #f8fafc;
+  --border: #e2e8f0;
+  --ask: #4f46e5;
+  --ask-soft: #eef2ff;
+  --verify: #b45309;
+  --verify-soft: #fef3c7;
+  --on-accent: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --background: #0b1020;
+    --panel: #111827;
+    --border: #1f2937;
+    --ask: #818cf8;
+    --ask-soft: #1e1b4b;
+    --verify: #f59e0b;
+    --verify-soft: #451a03;
+    --on-accent: #0b1020;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font:
+    17px/1.6 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+main,
+.bar,
+footer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--ask);
+}
+
+.languages button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.languages button[aria-pressed='true'] {
+  background: var(--ask-soft);
+  color: var(--ask);
+  border-color: var(--ask);
+  font-weight: 600;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+  margin: 48px 0 12px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin: 0 0 12px;
+}
+
+.lead {
+  font-size: 1.25rem;
+  color: var(--muted);
+  margin-top: 0;
+}
+
+section {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.download {
+  margin: 24px 0;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--ask);
+  color: var(--ask);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.button.primary {
+  background: var(--ask);
+  color: var(--on-accent);
+}
+
+.button:focus-visible,
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--ask);
+  outline-offset: 2px;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.others summary {
+  cursor: pointer;
+  color: var(--ask);
+}
+
+.shot {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 24px auto 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.mode.ask h2 {
+  color: var(--ask);
+}
+
+.mode.verify {
+  border-left: 4px solid var(--verify);
+  padding-left: 16px;
+}
+
+.mode.verify h2 {
+  color: var(--verify);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+a {
+  color: var(--ask);
+}
+
+footer {
+  padding-top: 32px;
+  padding-bottom: 48px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+footer h2 {
+  font-size: 1.1rem;
+  color: var(--text);
+}

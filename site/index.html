@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BookaLLM: AI makes mistakes. Use them to learn.</title>
+    <meta
+      name="description"
+      content="A free study companion for EPUB books that runs on your own computer: ask questions and check every answer against the exact passage it came from."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="site.js"></script>
+  </head>
+  <body>
+    <header class="bar">
+      <span class="brand">BookaLLM</span>
+      <div class="languages" role="group" aria-label="Language">
+        <button type="button" data-lang="en" lang="en">EN</button>
+        <button type="button" data-lang="fr" lang="fr">FR</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1 data-i18n="pitch">AI makes mistakes. Use them to learn.</h1>
+        <p class="lead" data-i18n="sub">
+          Ask your book questions, and check every answer against the page it
+          came from.
+        </p>
+        <p data-i18n="free"></p>
+
+        <div class="download" aria-live="polite">
+          <div id="download-buttons" class="buttons">
+            <a
+              class="button primary"
+              href="https://github.com/promethee/bookallm/releases/latest"
+              data-i18n="downloadLatest"
+              >Download the latest version</a
+            >
+          </div>
+          <p class="note" id="download-note" data-i18n="unsigned"></p>
+          <details class="others">
+            <summary data-i18n="otherSystems">Other systems</summary>
+            <ul id="all-downloads">
+              <li>
+                <a
+                  href="https://github.com/promethee/bookallm/releases/latest"
+                  data-i18n="allReleases"
+                  >All installers on GitHub</a
+                >
+              </li>
+            </ul>
+          </details>
+        </div>
+
+        <img
+          class="shot"
+          src="images/ask.png"
+          data-i18n-alt="askAlt"
+          alt="A question about Candide answered with citations to the exact passages"
+          width="1280"
+          height="1080"
+        />
+      </section>
+
+      <section class="mode ask">
+        <h2 data-i18n="askTitle">Ask mode: check your understanding</h2>
+        <p>
+          <strong data-i18n="why">Why:</strong> <span data-i18n="askWhy"></span>
+        </p>
+        <p>
+          <strong data-i18n="how">How:</strong> <span data-i18n="askHow"></span>
+        </p>
+        <img
+          class="shot"
+          src="images/recovery.png"
+          data-i18n-alt="recoveryAlt"
+          alt=""
+          loading="lazy"
+          width="656"
+          height="736"
+        />
+      </section>
+
+      <section class="mode verify">
+        <h2 data-i18n="verifyTitle">Verify mode: train your eye</h2>
+        <p>
+          <strong data-i18n="why">Why:</strong>
+          <span data-i18n="verifyWhy"></span>
+        </p>
+        <p>
+          <strong data-i18n="how">How:</strong>
+          <span data-i18n="verifyHow"></span>
+        </p>
+        <img
+          class="shot"
+          src="images/verify.png"
+          data-i18n-alt="verifyAlt"
+          alt=""
+          loading="lazy"
+          width="1280"
+          height="1370"
+        />
+      </section>
+
+      <section class="private">
+        <h2 data-i18n="privateTitle">Everything stays on your computer</h2>
+        <p data-i18n="privateText"></p>
+      </section>
+
+      <section class="books">
+        <h2 data-i18n="booksTitle">Where to find free EPUBs</h2>
+        <p data-i18n="booksText"></p>
+        <div class="columns">
+          <div>
+            <h3>In English</h3>
+            <ul>
+              <li>
+                <a href="https://www.gutenberg.org">Project Gutenberg</a>
+              </li>
+              <li>
+                <a href="https://standardebooks.org/ebooks">Standard Ebooks</a>
+              </li>
+            </ul>
+          </div>
+          <div lang="fr">
+            <h3>En français</h3>
+            <ul>
+              <li>
+                <a href="https://www.ebooksgratuits.com"
+                  >Ebooks libres et gratuits</a
+                >
+              </li>
+              <li><a href="https://www.bibebook.com">Bibebook</a></li>
+              <li><a href="https://fr.wikisource.org">Wikisource</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <h2 data-i18n="disclaimerTitle">AI disclaimer</h2>
+      <ul>
+        <li data-i18n="disclaimer1"></li>
+        <li data-i18n="disclaimer2"></li>
+        <li data-i18n="disclaimer3"></li>
+        <li data-i18n="disclaimer4"></li>
+      </ul>
+      <p>
+        <span data-i18n="license"
+          >Free and open source under the MIT license.</span
+        >
+        <a href="https://github.com/promethee/bookallm" data-i18n="source"
+          >Source code on GitHub</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

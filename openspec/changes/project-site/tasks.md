@@ -2,7 +2,7 @@
 
 ## 1. The page
 
-- [ ] 1.1 Write `site/download.js` (`detectSystem`, `pickAssets`, design decision 2) and `site/download.test.js`, and add `site/**/*.test.js` to Vitest's includes; verify the tests cover each system, a Mac's two installers, a missing asset and an unknown system
+- [x] 1.1 Write `site/download.js` (`detectSystem`, `pickAssets`, design decision 2) and `site/download.test.js`, and add `site/**/*.test.js` to Vitest's includes; verify the tests cover each system, a Mac's two installers, a missing asset and an unknown system
 - [ ] 1.2 Write `site/index.html`, `site/style.css` and `site/site.js` (content from the proposal, languages per design decision 3, download button with its fallback); verify in the browser at desktop and phone widths, in both languages and both colour schemes, and with the API request blocked
 - [ ] 1.3 Run lint and format on `site/` and `pnpm test`, then commit ("Add the project site")
 
