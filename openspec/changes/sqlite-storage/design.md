@@ -72,7 +72,7 @@ The capability gets `sql:default` and `sql:allow-execute`. `tauri.conf.json` pre
 
 ## Risks / Trade-offs
 
-- [The plugin's JSON bridge is slow for big books] → Vectors travel base64-encoded, one chapter per call, as IndexedDB did; the real-world check times indexing and a search on *Candide* against the IndexedDB figures (about 2 minutes, about 1 second).
+- [The plugin's JSON bridge is slow for big books] → Vectors travel base64-encoded, one chapter per call, as IndexedDB did; the real-world check times indexing and a search on _Candide_ against the IndexedDB figures (about 2 minutes, about 1 second).
 - [Two storage implementations to keep in step] → Both pass the same contract suites.
 - [Books imported in the desktop app before this change disappear from it] → No release yet; the proposal says so, and re-importing restores them.
 - [`node:sqlite` behaves differently from the plugin's SQLite] → Same SQL, same engine; the manual desktop check covers the plugin path.
