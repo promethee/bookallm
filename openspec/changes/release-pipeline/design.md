@@ -36,7 +36,7 @@
 
 ### 3. The tag must match the code
 
-A first step compares the tag (without its `v`) with `version` in `package.json` and fails with a clear message if they differ. The three version declarations are kept equal by this change, and a unit test (`tests` in `src/lib` would not fit; a tiny `scripts/check-version.ts`, also used by the workflow) checks that `package.json`, `Cargo.toml` and `tauri.conf.json` agree.
+A first step compares the tag (without its `v`) with `version` in `package.json` and fails with a clear message if they differ. A small `scripts/check-version.ts`, run by the workflow and by `pnpm check:version`, does both checks: `package.json`, `Cargo.toml` and `tauri.conf.json` declare the same version, and, when given a tag, the tag matches it.
 
 ### 4. Unsigned installers, explained
 
