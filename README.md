@@ -143,7 +143,8 @@ them find out the hard way.
 Sincere, RAG-grounded Q&A. User asks a question, the AI answers
 from the retrieved passages only, and every factual claim carries a
 citation back to the exact passage — so the answer is checkable, not
-just asserted. Response style: concise. When retrieval finds nothing relevant to a question, the AI
+just asserted. Response style: concise. When retrieval finds nothing
+relevant to a question, the AI
 says so plainly and asks the user to point toward where it might
 be — e.g. "I can't find anything about that — could you tell me
 where in the book that comes up?" Never phrased as "this isn't in
