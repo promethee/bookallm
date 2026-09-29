@@ -20,6 +20,7 @@
     "format:rust:check": "cargo fmt --manifest-path src-tauri/Cargo.toml --check",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "screenshots": "node scripts/screenshots.ts",
     "check": "pnpm lint && pnpm format:check && pnpm format:rust:check && pnpm typecheck && pnpm test && pnpm test:e2e",
     "prepare": "husky"
   },

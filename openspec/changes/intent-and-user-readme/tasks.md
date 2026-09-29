@@ -8,9 +8,9 @@
 
 ## 2. Screenshots
 
-- [ ] 2.1 Write `scripts/screenshots.ts` and a `screenshots` script in `package.json` (design decision 3); verify it runs against the dev server and the local Ollama with *Candide* and writes three PNGs to `docs/images/`
-- [ ] 2.2 Look at the three images and keep them only if each clearly shows its feature; verify by viewing them
-- [ ] 2.3 Commit ("Add a screenshot script and screenshots")
+- [x] 2.1 Write `scripts/screenshots.ts` and a `screenshots` script in `package.json` (design decision 3); verify it runs against the dev server and the local Ollama with *Candide* and writes three PNGs to `docs/images/`
+- [x] 2.2 Look at the three images and keep them only if each clearly shows its feature; verify by viewing them
+- [x] 2.3 Commit ("Add a screenshot script and screenshots")
 
 ## 3. User-facing README
 
