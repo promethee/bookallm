@@ -3,12 +3,16 @@
 **Ask your book questions, and check every answer against the page it
 came from.**
 
-BookaLLM is a study companion for EPUB books that runs entirely on your
-own computer. Ask "why does Candide leave the castle?" and you get a
-short answer in which every claim points to the exact passage it rests
-on, so you can read it and judge for yourself. It is made for readers
-who have read, or are studying, a book and want to test their
-understanding against the text, not for skipping the reading.
+**BookaLLM is free**: no price, no account, no subscription, and open
+source under the MIT license.
+
+It is a study companion for EPUB books that runs entirely on your own
+computer, made **mainly for people studying a book**: students, and
+anyone who has read a book and wants to test their understanding
+against the text. It is not for skipping the reading. Ask "why does
+Candide leave the castle?" and you get a short answer in which every
+claim points to the exact passage it rests on, so you can read it and
+judge for yourself.
 
 AI can misstate what a text says. BookaLLM makes checking part of the
 experience: answers are cited, and a second mode deliberately shows you
