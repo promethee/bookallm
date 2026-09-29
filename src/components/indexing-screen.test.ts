@@ -244,7 +244,7 @@ describe('IndexingScreen: in French', () => {
     ).toBeTruthy();
     expect(await screen.findByText('Chapitre 2 sur 3')).toBeTruthy();
     expect(
-      screen.getByText('On reprend là où l’on s’était arrêté.'),
+      screen.getByText('Reprise là où la préparation s’était arrêtée.'),
     ).toBeTruthy();
     expect(
       screen.getByRole('progressbar', {

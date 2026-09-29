@@ -355,7 +355,7 @@ function chooseChapter(
 }
 
 const HAND_OVER =
-  'I couldn’t find it in this chapter. Here it is, so you can look through it yourself.';
+  'I couldn’t find the answer in this chapter. Here it is, so you can look through it yourself.';
 
 describe('AskConversation: choosing a chapter after nothing is found', () => {
   it('offers the chapters with text under the nothing-found reply', async () => {
@@ -626,7 +626,7 @@ describe('AskConversation: recovery in French', () => {
     ).toBeTruthy();
     expect(
       await screen.findByText(
-        'Je ne l’ai pas trouvé dans ce chapitre. Le voici, pour que vous puissiez le parcourir vous-même.',
+        'Je n’ai pas trouvé la réponse dans ce chapitre. Le voici, pour que vous puissiez le parcourir vous-même.',
       ),
     ).toBeTruthy();
     controller.destroy();

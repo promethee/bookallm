@@ -128,7 +128,7 @@ export const en = {
 
   'hardware.title': 'This computer will likely be very slow at this',
   'hardware.body':
-    'This computer does not appear to accelerate local AI. A single answer can take a very long time to appear, sometimes ten minutes or more, and may occasionally fail to finish at all. You can still use BookaLLM, but expect it to be really slow, not just a little slower.',
+    'No graphics card (GPU) that the local AI can use was found on this computer. Without one, a single answer can take ten minutes or more, and sometimes never finishes. You can still use BookaLLM, but it will be really slow.',
   'hardware.continue': 'Continue anyway',
 
   'import.title': 'Add a book',
@@ -210,7 +210,7 @@ export const en = {
   'recovery.unclear':
     'I couldn’t tell which chapter you meant. Choose it below.',
   'recovery.handOver':
-    'I couldn’t find it in this chapter. Here it is, so you can look through it yourself.',
+    'I couldn’t find the answer in this chapter. Here it is, so you can look through it yourself.',
   'ask.error.unreachable':
     'Ollama seems to have stopped. Make sure it is running, then try again.',
   'ask.error.modelNotFound':
@@ -254,7 +254,7 @@ export const en = {
   'verify.next': 'Next claim',
   'verify.tally': 'This session: {correct} right out of {judged}',
   'verify.error.unverified':
-    'A fair claim could not be made from this passage this time. Try again for another one.',
+    'This passage didn’t give a reliable claim this time. Try again for a new one.',
   'verify.error.other': 'A claim could not be made this time.',
   'announce.claimReady': 'A claim is ready.',
   'announce.claimFailed': 'A claim could not be made.',
@@ -386,7 +386,7 @@ export const fr: Record<MessageKey, Message> = {
 
   'hardware.title': 'Cet ordinateur sera probablement très lent',
   'hardware.body':
-    'Cet ordinateur ne semble pas accélérer l’IA locale. Une seule réponse peut mettre très longtemps à apparaître, parfois dix minutes ou plus, et peut même ne jamais aboutir. Vous pouvez quand même utiliser BookaLLM, mais attendez-vous à ce que ce soit vraiment lent, pas juste un peu plus lent.',
+    'Aucune carte graphique (GPU) utilisable par l’IA locale n’a été trouvée sur cet ordinateur. Sans elle, une seule réponse peut prendre dix minutes ou plus, et parfois ne pas aboutir du tout. Vous pouvez quand même utiliser BookaLLM, mais ce sera vraiment lent.',
   'hardware.continue': 'Continuer quand même',
 
   'import.title': 'Ajouter un livre',
@@ -407,16 +407,16 @@ export const fr: Record<MessageKey, Message> = {
       : `BookaLLM n’ajoute qu’un livre à la fois : seul le premier fichier a été ajouté. Les ${count} autres fichiers n’ont pas été pris en compte.`,
   'indexing.title': 'BookaLLM fait connaissance avec votre livre',
   'indexing.forBook':
-    'Préparation de « {title} » pour que vous puissiez poser des questions dessus.',
+    'Préparation de « {title} » pour que vous puissiez l’interroger.',
   'indexing.intro':
-    'C’est une étape à faire une seule fois. Elle peut durer de quelques minutes à quelques heures, selon votre ordinateur et la longueur du livre. Vous pouvez fermer BookaLLM à tout moment : il reprendra là où il s’était arrêté.',
+    'C’est une étape à faire une seule fois. Elle peut durer de quelques minutes à quelques heures, selon votre ordinateur et la longueur du livre. Vous pouvez fermer BookaLLM à tout moment : la préparation reprendra là où elle s’était arrêtée.',
   'indexing.estimating': 'Estimation de la durée…',
   'indexing.remaining': 'Il reste environ {time}.',
   'indexing.remainingSoon': 'Il reste moins d’une minute.',
   'indexing.starting': 'Préparation…',
   'indexing.chapter': 'Chapitre {current} sur {total}',
   'indexing.progressLabel': 'Progression de la préparation',
-  'indexing.resumed': 'On reprend là où l’on s’était arrêté.',
+  'indexing.resumed': 'Reprise là où la préparation s’était arrêtée.',
   'indexing.rebuild':
     'Le modèle de recherche a changé : BookaLLM refait connaissance avec ce livre.',
   'indexing.error.unreachable':
@@ -452,7 +452,7 @@ export const fr: Record<MessageKey, Message> = {
     count === 1 ? '1 chapitre' : `${count} chapitres`,
 
   'answering.nothingFound':
-    'Je ne trouve rien à ce sujet : pouvez-vous me dire à quel endroit du livre cela se trouve ?',
+    'Je ne trouve rien à ce sujet : pouvez-vous me dire dans quelle partie du livre il en est question ?',
 
   'ask.questionLabel': 'Votre question',
   'ask.placeholder': 'Posez une question sur ce livre…',
@@ -470,7 +470,7 @@ export const fr: Record<MessageKey, Message> = {
   'recovery.unclear':
     'Je n’ai pas compris de quel chapitre il s’agit. Choisissez-le ci-dessous.',
   'recovery.handOver':
-    'Je ne l’ai pas trouvé dans ce chapitre. Le voici, pour que vous puissiez le parcourir vous-même.',
+    'Je n’ai pas trouvé la réponse dans ce chapitre. Le voici, pour que vous puissiez le parcourir vous-même.',
   'ask.error.unreachable':
     'Ollama semble s’être arrêté. Vérifiez qu’il est lancé, puis réessayez.',
   'ask.error.modelNotFound':
@@ -509,7 +509,7 @@ export const fr: Record<MessageKey, Message> = {
   'verify.attribute.where': 'le lieu',
   'verify.bookSays': 'Ce que dit le livre :',
   'verify.changedWords': 'Mots modifiés :',
-  'verify.swapped': '« {before} » devient « {after} »',
+  'verify.swapped': '« {before} » est devenu « {after} »',
   'verify.added': 'Ajout : « {after} »',
   'verify.removed': 'Suppression : « {before} »',
   'verify.source': 'Extrait du livre',
@@ -517,7 +517,7 @@ export const fr: Record<MessageKey, Message> = {
   'verify.tally': ({ correct, judged }) =>
     `Cette session : ${correct} ${Number(correct) > 1 ? 'bonnes réponses' : 'bonne réponse'} sur ${judged}`,
   'verify.error.unverified':
-    'Impossible cette fois de tirer une affirmation fiable de ce passage. Réessayez pour en obtenir une autre.',
+    'Ce passage n’a pas donné d’affirmation fiable cette fois. Réessayez pour en obtenir une nouvelle.',
   'verify.error.other': 'Aucune affirmation n’a pu être créée cette fois.',
   'announce.claimReady': 'Une affirmation est prête.',
   'announce.claimFailed': 'Aucune affirmation n’a pu être créée.',

@@ -220,7 +220,7 @@ describe('Verify session', () => {
     );
 
     expect((await screen.findByRole('alert')).textContent).toContain(
-      'A fair claim could not be made from this passage this time.',
+      'This passage didn’t give a reliable claim this time.',
     );
     controller.destroy();
   });
@@ -316,7 +316,7 @@ describe('Verify session in French', () => {
     ).toBeTruthy();
     expect(screen.getByText('Ce que dit le livre :')).toBeTruthy();
     expect(screen.getByText('Mots modifiés :')).toBeTruthy();
-    expect(screen.getByText('« Claim » devient « Changed »')).toBeTruthy();
+    expect(screen.getByText('« Claim » est devenu « Changed »')).toBeTruthy();
     expect(screen.getByText('Extrait du livre')).toBeTruthy();
     expect(
       screen.getByText('Cette session : 1 bonne réponse sur 1'),

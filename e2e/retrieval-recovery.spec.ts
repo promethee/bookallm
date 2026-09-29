@@ -10,7 +10,7 @@ import {
 const LATER = { timeout: 15_000 };
 const UNRELATED = 'How does photosynthesis work in green plants?';
 const HAND_OVER =
-  'I couldn’t find it in this chapter. Here it is, so you can look through it yourself.';
+  'I couldn’t find the answer in this chapter. Here it is, so you can look through it yourself.';
 
 const heading = (page: Page, name: string | RegExp) =>
   page.getByRole('heading', { level: 1, name });

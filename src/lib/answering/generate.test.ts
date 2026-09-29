@@ -194,7 +194,7 @@ describe('generateAnswer: nothing relevant', () => {
     if (result.status !== 'ok') throw new Error('expected ok');
     const { text } = await drain(result.chunks);
     expect(text).toEqual([
-      'Je ne trouve rien à ce sujet : pouvez-vous me dire à quel endroit du livre cela se trouve ?',
+      'Je ne trouve rien à ce sujet : pouvez-vous me dire dans quelle partie du livre il en est question ?',
     ]);
   });
 

@@ -32,7 +32,7 @@ describe('HardwareWarningScreen', () => {
         name: 'This computer will likely be very slow at this',
       }),
     ).toBeTruthy();
-    expect(screen.getByText(/sometimes ten minutes or more/)).toBeTruthy();
+    expect(screen.getByText(/can take ten minutes or more/)).toBeTruthy();
     const button = screen.getByRole('button', { name: 'Continue anyway' });
     expect(button.tagName).toBe('BUTTON');
     expect(button.tabIndex).not.toBe(-1);

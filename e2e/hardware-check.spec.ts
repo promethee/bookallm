@@ -20,7 +20,7 @@ test.describe('the hardware warning', () => {
     await expect(
       heading(page, 'This computer will likely be very slow at this'),
     ).toBeVisible();
-    await expect(page.getByText(/sometimes ten minutes or more/)).toBeVisible();
+    await expect(page.getByText(/can take ten minutes or more/)).toBeVisible();
 
     await page.getByRole('button', { name: 'Continue anyway' }).click();
 
