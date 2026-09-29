@@ -14,9 +14,9 @@
 
 ## 3. User-facing README
 
-- [ ] 3.1 Check each EPUB source in the browser (reachable, public-domain, DRM-free EPUB) and keep only those that pass (design decision 4); verify the list in the notes of this task
-- [ ] 3.2 Write the new `README.md` following design decision 2, with the screenshots and the checked EPUB sources; verify with markdownlint and that every link and image path resolves
-- [ ] 3.3 Commit ("Add a user-facing README")
+- [x] 3.1 Check each EPUB source in the browser (reachable, public-domain, DRM-free EPUB) and keep only those that pass (design decision 4); verify the list in the notes of this task
+- [x] 3.2 Write the new `README.md` following design decision 2, with the screenshots and the checked EPUB sources; verify with markdownlint and that every link and image path resolves
+- [x] 3.3 Commit ("Add a user-facing README")
 
 ## 4. Wrap-up
 
