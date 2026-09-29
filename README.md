@@ -134,6 +134,7 @@ longest session; totals and memory were not recorded.
   may have been changed; only the book decides.
 - **Not a substitute for reading.** BookaLLM helps you check your
   understanding of a book you are reading; it does not replace it.
-- **This project was built with AI.** The code and documentation were
-  written with Claude (Anthropic) through Claude Code, and reviewed,
-  tested and approved by the author.
+- **Designed by a human, built with AI.** BookaLLM's idea, design and
+  decisions are the author's. The code and documentation were written
+  with Claude (Anthropic) through Claude Code, and reviewed, tested and
+  approved by the author.
