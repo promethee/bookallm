@@ -44,19 +44,16 @@ source.
 
 ## Requirements
 
-- **Windows.** The desktop app is built and tested on Windows; macOS and
-  Linux are not tested yet.
-- **[Ollama](https://ollama.com/download)**, version 0.3.4 or later.
-  BookaLLM explains how to install it if it is missing.
-- **Two AI models**, which BookaLLM offers to download on first start
-  (nothing is downloaded without your OK): `llama3.1:8b` (about 4.9 GB)
-  to answer, and `bge-m3` (about 1.2 GB) to find passages. Both names
-  can be changed.
 - **A graphics card is strongly recommended.** Measured on the same
   book: with a GPU, an answer or a claim takes a few seconds; on a
-  CPU-only machine it can take several minutes. BookaLLM warns you if
-  Ollama is not using a GPU.
-- About 8 GB of memory free for the answering model.
+  computer without one it can take several minutes. BookaLLM warns you
+  if the AI would run without it.
+- **About 8 GB of memory** free while BookaLLM is answering.
+- **About 7 GB of disk space** for the AI models, which BookaLLM offers
+  to download on first start.
+
+> **Note:** BookaLLM is built and tested on Windows. macOS and Linux are
+> not tested yet.
 
 ## How to install
 
