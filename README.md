@@ -122,11 +122,13 @@ them find out the hard way.
   a failed retrieval (e.g. "try chapter 7"), the app does a
   metadata-filtered lookup by chapter, not another semantic search
   against the same failed query.
-- Context management: long sessions require conversation history
-  trimming to stay fast on modest local hardware. User-provided
-  location hints (in response to a failed retrieval) are pinned and
-  excluded from trimming, so a clarification given several turns ago
-  isn't silently dropped right when it's needed.
+- Context management (v2, with Socratic follow-ups): long sessions
+  require conversation history trimming to stay fast on modest local
+  hardware. User-provided location hints (in response to a failed
+  retrieval) are pinned and excluded from trimming, so a clarification
+  given several turns ago isn't silently dropped right when it's
+  needed. In v1 each question is answered on its own, so there is no
+  history to trim.
 - Retrieval failure escalation: if a metadata-filtered retry (per
   the location hint) also fails, stop asking and surface the raw
   chapter text directly for the user to scan — no further AI
@@ -139,17 +141,26 @@ them find out the hard way.
 ### v1 — Ask mode
 
 Sincere, RAG-grounded Q&A. User asks a question, the AI answers
-with the model's general knowledge for context where useful, and
-every factual claim carries a citation back to the exact passage —
-so the answer is checkable, not just asserted. Response style:
-concise, dense, often Socratic (a follow-up question rather than a
-full dump) — chosen for pedagogical value, not as friction against
-misuse. When retrieval finds nothing relevant to a question, the AI
+from the retrieved passages only, and every factual claim carries a
+citation back to the exact passage — so the answer is checkable, not
+just asserted. Response style: concise. When retrieval finds nothing relevant to a question, the AI
 says so plainly and asks the user to point toward where it might
 be — e.g. "I can't find anything about that — could you tell me
 where in the book that comes up?" Never phrased as "this isn't in
 the book," since that's an unverifiable claim in its own right and
 undermines the same verifiability positioning the app is built on.
+
+Moved to v2 (decided 2026-09-29, after a drift review against the
+original spec, which put them in v1):
+
+- General knowledge for context: kept apart from the book's cited
+  claims, in its own clearly labelled block that is never cited, so
+  outside facts never pass for checkable ones. To be measured first:
+  a small local model follows such formatting unreliably.
+- Socratic style: concise, dense, often ending with a follow-up
+  question rather than a full dump, for pedagogical value. This needs
+  conversation memory, and with it the history trimming described
+  under Architecture.
 
 ### v1.1 — Verify mode
 
@@ -304,5 +315,7 @@ on the main screen ("Free memory after": 5, 10 or 30 minutes, or never;
 10 by default). The desktop app stays in the system tray: closing its
 window hides it (unless "Keep running in the tray when closed" is
 unticked), and the tray icon brings it back or quits.
-Conversation history trimming is not built yet: each question is still
-answered on its own.
+Each question is answered on its own; general-knowledge context,
+Socratic follow-ups and history trimming are v2. Still to come in v1:
+SQLite storage, the list of public-domain EPUB sites, a command
+palette (to be explored), and the release pipeline.
