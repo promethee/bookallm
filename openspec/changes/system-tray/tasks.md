@@ -23,6 +23,6 @@
 
 ## 4. Real-world check and wrap-up
 
-- [ ] 4.1 Run the desktop app on this machine and go through the `MANUAL_TESTS.md` tray section with the reader (they see the tray; results reported back), recording the outcome in this change's design.md; verify the notes are written
-- [ ] 4.2 Update the README Status section (tray built; no v1 item left unbuilt except history trimming); verify with markdownlint
-- [ ] 4.3 Add the new French messages to the deferred French review memory file, then commit ("Finish system-tray")
+- [x] 4.1 Run the desktop app on this machine and go through the `MANUAL_TESTS.md` tray section with the reader (they see the tray; results reported back), recording the outcome in this change's design.md; verify the notes are written
+- [x] 4.2 Update the README Status section (tray built; no v1 item left unbuilt except history trimming); verify with markdownlint
+- [x] 4.3 Add the new French messages to the deferred French review memory file, then commit ("Finish system-tray")

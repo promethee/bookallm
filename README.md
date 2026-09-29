@@ -301,6 +301,8 @@ card after an inline confirmation: BookaLLM's copy and index go, the
 EPUB file stays where it is, and the previous book (or the import
 screen) comes next. Models unload after an idle time the reader chooses
 on the main screen ("Free memory after": 5, 10 or 30 minutes, or never;
-10 by default).
+10 by default). The desktop app stays in the system tray: closing its
+window hides it (unless "Keep running in the tray when closed" is
+unticked), and the tray icon brings it back or quits.
 Conversation history trimming is not built yet: each question is still
 answered on its own.

@@ -57,6 +57,10 @@ Tray left-click (`TrayIconEvent::Click` with the left button released) and "Show
 - [The webview fails to call `configure_tray`] → The native defaults match the app's defaults (hide on close, English menu), so the app still behaves sensibly.
 - [Two ways to close from Rust (`CloseRequested` vs `exit`)] → Quit uses `exit`, so it can never be swallowed by the hide rule.
 
+## Real-world check (2026-09-29)
+
+The debug desktop app (`pnpm tauri build --debug --no-bundle`, Windows, launched from File Explorer) was run through all 12 steps of the System tray section of `MANUAL_TESTS.md` by the reader, who can see the tray; all 12 passed: the icon and tooltip, hiding on close with the conversation kept, showing again from a left click, from the menu and from a minimised window, the French menu, closing to quit with the option off (remembered after a restart), and "Quit BookaLLM" quitting with the option on. Before that, the built executable was started from the session and confirmed to keep running with the window titled "BookaLLM".
+
 ## Migration Plan
 
 One optional setting is added. Rollback: revert; the extra setting is ignored.
