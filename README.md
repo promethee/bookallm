@@ -1,7 +1,9 @@
 # BookaLLM
 
-**Ask your book questions, and check every answer against the page it
-came from.**
+**AI makes mistakes. Use them to learn.**
+
+Ask your book questions, and check every answer against the page it came
+from.
 
 **BookaLLM is free**: no price, no account, no subscription, and open
 source under the MIT license.
