@@ -67,6 +67,9 @@ pub fn run() {
         // Lets the frontend open a web page in the user's default browser. What it may open
         // is limited by the `opener:allow-open-url` scope in capabilities/default.json.
         .plugin(tauri_plugin_opener::init())
+        // Lets the interface keep its library in a SQLite database file in the app's data
+        // folder (`bookallm.db`, preloaded in tauri.conf.json; see `src/lib/storage`).
+        .plugin(tauri_plugin_sql::Builder::default().build())
         // `generate_handler!` registers the commands the interface may `invoke`.
         .invoke_handler(tauri::generate_handler![configure_tray])
         // The window starts hidden (see tauri.conf.json) so the reader never sees it blank

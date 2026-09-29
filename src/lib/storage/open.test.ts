@@ -5,6 +5,7 @@ import type { Book } from '../ingest/types';
 import { openLibrary } from './library';
 import { openStorage, storageProblem } from './open';
 import type { StorageLike } from './settings';
+import { nodeSqliteDatabase } from './testing/node-sqlite';
 
 let counter = 0;
 const nextName = () => `open-test-${(counter += 1)}`;
@@ -25,6 +26,52 @@ const book: Book = {
   chapters: [{ number: 1, title: 'Un', text: 'Il était une fois.' }],
   chunks: [],
 };
+
+describe('openStorage: where the library lives', () => {
+  it('keeps the library in the SQLite database in the desktop app', async () => {
+    const db = nodeSqliteDatabase();
+    const storage = await openStorage({
+      getStorage: fakeStorage,
+      isTauri: true,
+      openSqlDatabase: async () => db,
+      requestPersistence: async () => true,
+    });
+
+    await storage.library.saveBook(book);
+
+    expect(await db.select<{ hash: string }>('SELECT hash FROM books')).toEqual(
+      [{ hash: book.hash }],
+    );
+  });
+
+  it('keeps the library in IndexedDB in the browser build', async () => {
+    const openSqlDatabase = vi.fn(async () => nodeSqliteDatabase());
+    const storage = await openStorage({
+      getStorage: fakeStorage,
+      isTauri: false,
+      openSqlDatabase,
+      requestPersistence: async () => true,
+    });
+
+    await storage.library.saveBook(book);
+
+    expect(openSqlDatabase).not.toHaveBeenCalled();
+    expect(
+      (await (await openLibrary()).registry.list()).map((entry) => entry.hash),
+    ).toContain(book.hash);
+  });
+
+  it('falls back to memory when the desktop database cannot be opened', async () => {
+    const storage = await openStorage({
+      getStorage: fakeStorage,
+      isTauri: true,
+      openSqlDatabase: () => Promise.reject(new Error('no database')),
+      requestPersistence: async () => true,
+    });
+
+    expect(storage.booksProblem).toBe('unavailable');
+  });
+});
 
 describe('openStorage', () => {
   it('opens settings and books that are remembered across restarts, with no problem', async () => {

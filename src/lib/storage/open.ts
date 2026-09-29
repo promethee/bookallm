@@ -1,5 +1,8 @@
 import { openLibrary, type BookLibrary } from './library';
 import { MemoryLibrary } from './memory-library';
+import { openPluginDatabase } from './plugin-database';
+import type { SqlDatabase } from './sql';
+import { openSqliteLibrary } from './sqlite-library';
 import {
   LocalStorageSettings,
   type SettingsStore,
@@ -17,9 +20,29 @@ export interface AppStorage {
 
 export interface OpenStorageOptions {
   getStorage?: () => StorageLike | undefined;
+  /** Replaces the choice below entirely. */
   openLibrary?: () => Promise<BookLibrary>;
+  /** Defaults to detecting the desktop app's webview. */
+  isTauri?: boolean;
+  /** The desktop app's database; defaults to the SQL plugin's. */
+  openSqlDatabase?: () => Promise<SqlDatabase>;
   /** Asks the browser not to evict our data; defaults to `navigator.storage.persist()`. */
   requestPersistence?: () => Promise<unknown>;
+}
+
+/**
+ * The desktop app keeps its library in a SQLite file in its data folder; the browser
+ * build, which cannot, keeps it in the webview's IndexedDB.
+ */
+function libraryOpener(
+  options: OpenStorageOptions,
+): () => Promise<BookLibrary> {
+  const isTauri =
+    options.isTauri ??
+    (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window);
+  if (!isTauri) return openLibrary;
+  const openDatabase = options.openSqlDatabase ?? openPluginDatabase;
+  return async () => openSqliteLibrary(await openDatabase());
 }
 
 const browserPersistence = async (): Promise<unknown> =>
@@ -38,7 +61,7 @@ export async function openStorage(
   let library: BookLibrary;
   let booksProblem: AppStorage['booksProblem'];
   try {
-    library = await (options.openLibrary ?? openLibrary)();
+    library = await (options.openLibrary ?? libraryOpener(options))();
   } catch {
     library = new MemoryLibrary();
     booksProblem = 'unavailable';

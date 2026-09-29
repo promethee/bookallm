@@ -23,6 +23,11 @@
       "csp": null
     }
   },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:bookallm.db"]
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",

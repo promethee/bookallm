@@ -56,6 +56,8 @@ The plugin runs each `execute` on a connection from a pool, so `BEGIN` and `COMM
 
 The first task checks in the real app whether the plugin runs a multi-statement `execute` as one unit; if it does, removal uses that instead.
 
+**Checked in the desktop app (2026-09-29)**, by attaching Playwright to the running app's WebView2 (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=…`) and calling the plugin from inside it: the app created both tables at start; `?` placeholders bind as in `node:sqlite`; and an `execute` holding two statements runs both. Removal still uses two ordered calls, because values cannot be bound across the statements of one call, and the vectors-first order already leaves nothing half-removed that matters. The database file is `%APPDATA%\com.promethee.bookallm\bookallm.db`.
+
 ### 4. Choosing the implementation
 
 `openStorage` opens `SqliteLibrary` over the plugin when running inside the desktop app (the same check as `openExternal` and the tray), and `IndexedDbLibrary` otherwise. `SqliteLibrary` never imports the plugin itself: it receives a `SqlDatabase`, and a small `plugin-database.ts` adapts the plugin to it. Tests get a `node:sqlite` adapter.

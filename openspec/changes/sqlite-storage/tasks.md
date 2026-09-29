@@ -8,9 +8,9 @@
 
 ## 2. Desktop app
 
-- [ ] 2.1 Add `tauri-plugin-sql` (sqlite feature) and `@tauri-apps/plugin-sql`, register the plugin, preload `sqlite:bookallm.db` and grant `sql:default` and `sql:allow-execute` (design decision 6); verify with `cargo clippy -- -D warnings`
-- [ ] 2.2 Add `plugin-database.ts` and make `openStorage` choose SQLite in the desktop app (design decision 4); verify with an `open.test.ts` case that the browser build still gets IndexedDB and that the desktop path gets the SQL library
-- [ ] 2.3 Build the desktop app and check it starts; check in it whether a multi-statement `execute` is atomic and apply design decision 3 accordingly; then commit ("Store the library in SQLite in the desktop app")
+- [x] 2.1 Add `tauri-plugin-sql` (sqlite feature) and `@tauri-apps/plugin-sql`, register the plugin, preload `sqlite:bookallm.db` and grant `sql:default` and `sql:allow-execute` (design decision 6); verify with `cargo clippy -- -D warnings`
+- [x] 2.2 Add `plugin-database.ts` and make `openStorage` choose SQLite in the desktop app (design decision 4); verify with an `open.test.ts` case that the browser build still gets IndexedDB and that the desktop path gets the SQL library
+- [x] 2.3 Build the desktop app and check it starts; check in it whether a multi-statement `execute` is atomic and apply design decision 3 accordingly; then commit ("Store the library in SQLite in the desktop app")
 
 ## 3. Checks and wrap-up
 
