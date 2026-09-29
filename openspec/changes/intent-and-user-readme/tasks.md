@@ -2,9 +2,9 @@
 
 ## 1. Intent
 
-- [ ] 1.1 `git mv README.md INTENT.md`, retitle it, and replace its Status section with a Roadmap (design decision 1); verify `git log --follow INTENT.md` shows the README's history and markdownlint passes
-- [ ] 1.2 Point `openspec/config.yaml` at `INTENT.md` as the source of truth; verify `openspec validate --all --strict` still passes
-- [ ] 1.3 Commit ("Move the design spec to INTENT.md")
+- [x] 1.1 `git mv README.md INTENT.md`, retitle it, and replace its Status section with a Roadmap (design decision 1); verify `git log --follow INTENT.md` shows the README's history and markdownlint passes
+- [x] 1.2 Point `openspec/config.yaml` at `INTENT.md` as the source of truth; verify `openspec validate --all --strict` still passes
+- [x] 1.3 Commit ("Move the design spec to INTENT.md")
 
 ## 2. Screenshots
 

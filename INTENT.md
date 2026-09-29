@@ -1,4 +1,9 @@
-# BookaLLM
+# BookaLLM — Intent
+
+What BookaLLM is meant to be and why: positioning, scope,
+architecture and the decisions behind them. This is the source of
+truth to check the build against; the user-facing overview, with how
+to run the app, is the [README](README.md).
 
 A local, installable AI study companion for books. Ask questions
 like "why does character X act that way?" and get an answer grounded
@@ -279,44 +284,19 @@ disproportionate risk for a portfolio build.
 
 MIT.
 
-## Status
+## Roadmap
 
-Direction and naming decided. Project scaffold and tooling are in place
-(Tauri + Svelte shell, lint/format/test hooks, CI). The first-run wizard
-works end to end in English and French: Ollama detection and guidance,
-model download, a warning (with a way to continue anyway) when this
-machine's Ollama does not appear to GPU-accelerate answers, EPUB import
-(with DRM and duplicate detection), local storage of books, and indexing
-of the active book with the local embedding model (resumable, with live
-progress and a time estimate). Ask mode works end to end in English and
-French: a question box on the
-landing screen once the active book is ready, a streamed, cited answer
-with the exact passage behind each citation, a "getting ready" note for
-the first, slower answer, stopping an answer mid-stream, a nothing-found
-reply when nothing is relevant, and a plain-language retry for a failed
-turn. The conversation is session-only, per book. Verify mode works end
-to end in English and French, reached through Ask/Verify tabs and
-styled apart from Ask mode: the reader asks for a claim built from a
-real passage of the story (front and back matter such as the
-introduction or the licence are skipped), true or with who did something
-or where changed and verified to contradict the source, judges it true or
-false, then sees whether they were right and the exact passage; for a
-changed claim it also shows what the book says and the exact words that
-were changed, with a session-only tally per book. Retrieval recovery
-works end to end in
-English and French: after a nothing-found reply, or an answer that cites
-no passage, the reader points to a chapter (from a list, or by typing
-"chapter 7" / "chapitre VII"), the app looks once more in that chapter
-only, and if it still cannot answer with a citation it hands over the
-chapter's text to look through. The active book can be deleted from its
-card after an inline confirmation: BookaLLM's copy and index go, the
-EPUB file stays where it is, and the previous book (or the import
-screen) comes next. Models unload after an idle time the reader chooses
-on the main screen ("Free memory after": 5, 10 or 30 minutes, or never;
-10 by default). The desktop app stays in the system tray: closing its
-window hides it (unless "Keep running in the tray when closed" is
-unticked), and the tray icon brings it back or quits.
-Each question is answered on its own; general-knowledge context,
-Socratic follow-ups and history trimming are v2. Still to come in v1:
-SQLite storage, the list of public-domain EPUB sites, a command
-palette (to be explored), and the release pipeline.
+What works today is listed in the [README](README.md#what-works-today).
+
+Left in v1, in order:
+
+1. Storage in SQLite, replacing the webview's IndexedDB (decided
+   2026-09-29: SQLite was the agreed choice).
+2. A command palette (Ctrl/Cmd+K), to be explored first.
+3. The release pipeline (tauri-action matrix across macOS, Linux and
+   Windows), last.
+
+v2: general-knowledge context and the Socratic style for Ask mode
+(with conversation memory and history trimming), a book switcher and
+per-book index management, adaptive Verify difficulty, cause and order
+changes in Verify mode, and the corroboration layer.

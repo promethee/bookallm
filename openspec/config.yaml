@@ -5,7 +5,7 @@ context: |
   Product: BookaLLM, a local Tauri desktop study companion for EPUB books.
   Answers are RAG-grounded with precise citations (exact passage/chapter, never
   vague). It trains users to verify claims against the primary source. Study
-  tool, not a reading replacement. README.md is the source of truth for
+  tool, not a reading replacement. INTENT.md is the source of truth for
   positioning, scope, architecture and rejected approaches.
   Tech stack: TypeScript, Svelte, Tailwind CSS, pnpm, Tauri (Rust only as a thin
   native bridge, with brief comments on Rust-specific syntax), local Ollama
