@@ -5,6 +5,9 @@
 Ask your book questions, and check every answer against the page it came
 from.
 
+Website, with a download button for your system:
+<https://promethee.github.io/bookallm/>
+
 **BookaLLM is free**: no price, no account, no subscription, and open
 source under the MIT license.
 
