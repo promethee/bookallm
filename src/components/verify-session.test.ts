@@ -304,22 +304,22 @@ describe('Verify session in French', () => {
       ),
     ).toBeTruthy();
     await fireEvent.click(
-      screen.getByRole('button', { name: 'Proposez-moi une affirmation' }),
+      screen.getByRole('button', { name: 'Recevoir une affirmation' }),
     );
     await fireEvent.click(await screen.findByRole('button', { name: 'Faux' }));
 
     expect(screen.getByText('Bonne réponse.')).toBeTruthy();
     expect(
       screen.getByText(
-        'Cette affirmation était fausse. Ce qui a été changé : qui a fait ou dit cela.',
+        'Cette affirmation était fausse. Ce qui a été changé : qui a agi ou parlé.',
       ),
     ).toBeTruthy();
     expect(screen.getByText('Ce que dit le livre :')).toBeTruthy();
-    expect(screen.getByText('Les mots changés :')).toBeTruthy();
-    expect(screen.getByText('« Claim » est devenu « Changed »')).toBeTruthy();
-    expect(screen.getByText('Dans le livre')).toBeTruthy();
+    expect(screen.getByText('Mots modifiés :')).toBeTruthy();
+    expect(screen.getByText('« Claim » devient « Changed »')).toBeTruthy();
+    expect(screen.getByText('Extrait du livre')).toBeTruthy();
     expect(
-      screen.getByText('Cette séance : 1 bonne réponse sur 1'),
+      screen.getByText('Cette session : 1 bonne réponse sur 1'),
     ).toBeTruthy();
     controller.destroy();
   });

@@ -309,18 +309,18 @@ export const fr: Record<MessageKey, Message> = {
   'idle.label': 'Libérer la mémoire après',
   'idle.minutes': '{count} minutes',
   'idle.never': 'Jamais',
-  'tray.keepRunning': 'Continuer dans la zone de notification à la fermeture',
+  'tray.keepRunning': 'Rester dans la zone de notification à la fermeture',
   'tray.show': 'Afficher BookaLLM',
   'tray.quit': 'Quitter BookaLLM',
   'idle.hint':
-    'Après ce délai sans question ni affirmation, Ollama libère la mémoire utilisée. La réponse suivante prend alors plus de temps.',
+    'Passé ce délai sans question ni affirmation, Ollama libère la mémoire qu’il utilise. La réponse suivante met alors plus de temps à arriver.',
   'delete.action': 'Supprimer ce livre',
   'delete.confirm':
-    'Cela supprime la copie du livre et son index dans BookaLLM. Votre fichier EPUB reste où il est.',
+    'Cela supprime la copie du livre conservée par BookaLLM et son index. Votre fichier EPUB reste à sa place.',
   'delete.yes': 'Supprimer',
   'delete.cancel': 'Annuler',
   'delete.failed':
-    'BookaLLM n’a pas pu supprimer ce livre. Rien n’a été retiré.',
+    'BookaLLM n’a pas pu supprimer ce livre. Rien n’a été supprimé.',
 
   'ollama.get.title': 'Mettons Ollama en marche',
   'ollama.get.intro':
@@ -477,7 +477,7 @@ export const fr: Record<MessageKey, Message> = {
     'Ollama n’a plus l’un des modèles configurés. Vérifiez les noms des modèles, puis réessayez.',
   'ask.error.other': 'Cette question n’a pas pu obtenir de réponse.',
   'announce.answerDone': 'La réponse est prête.',
-  'announce.bookDeleted': '{title} a été supprimé.',
+  'announce.bookDeleted': 'Livre supprimé : {title}.',
   'announce.deleteFailed': 'Le livre n’a pas pu être supprimé.',
   'announce.answerFailed': 'La question n’a pas pu obtenir de réponse.',
   'announce.chapterShown':
@@ -490,8 +490,8 @@ export const fr: Record<MessageKey, Message> = {
   'landing.modeVerify':
     'Mode Vérification : l’affirmation ci-dessous est peut-être fausse',
   'verify.intro':
-    'Obtenez une affirmation sur ce livre, décidez si elle est vraie, puis vérifiez le passage d’où elle vient.',
-  'verify.getClaim': 'Proposez-moi une affirmation',
+    'Recevez une affirmation sur ce livre, dites si elle est vraie, puis vérifiez le passage dont elle est tirée.',
+  'verify.getClaim': 'Recevoir une affirmation',
   'verify.waiting':
     'Préparation de l’IA. La première affirmation peut prendre quelques minutes.',
   'verify.stop': 'Arrêter',
@@ -505,19 +505,19 @@ export const fr: Record<MessageKey, Message> = {
     'Cette affirmation était fausse. Ce qui a été changé : {attribute}.',
   'verify.attribute.cause': 'la cause',
   'verify.attribute.order': 'l’ordre des événements',
-  'verify.attribute.who': 'qui a fait ou dit cela',
+  'verify.attribute.who': 'qui a agi ou parlé',
   'verify.attribute.where': 'le lieu',
   'verify.bookSays': 'Ce que dit le livre :',
-  'verify.changedWords': 'Les mots changés :',
-  'verify.swapped': '« {before} » est devenu « {after} »',
-  'verify.added': '« {after} » a été ajouté',
-  'verify.removed': '« {before} » a été retiré',
-  'verify.source': 'Dans le livre',
+  'verify.changedWords': 'Mots modifiés :',
+  'verify.swapped': '« {before} » devient « {after} »',
+  'verify.added': 'Ajout : « {after} »',
+  'verify.removed': 'Suppression : « {before} »',
+  'verify.source': 'Extrait du livre',
   'verify.next': 'Affirmation suivante',
   'verify.tally': ({ correct, judged }) =>
-    `Cette séance : ${correct} ${Number(correct) > 1 ? 'bonnes réponses' : 'bonne réponse'} sur ${judged}`,
+    `Cette session : ${correct} ${Number(correct) > 1 ? 'bonnes réponses' : 'bonne réponse'} sur ${judged}`,
   'verify.error.unverified':
-    'Aucune affirmation équitable n’a pu être tirée de ce passage cette fois. Réessayez pour en obtenir une autre.',
+    'Impossible cette fois de tirer une affirmation fiable de ce passage. Réessayez pour en obtenir une autre.',
   'verify.error.other': 'Aucune affirmation n’a pu être créée cette fois.',
   'announce.claimReady': 'Une affirmation est prête.',
   'announce.claimFailed': 'Aucune affirmation n’a pu être créée.',

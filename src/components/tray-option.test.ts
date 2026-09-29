@@ -61,7 +61,7 @@ describe('the tray option', () => {
 
     expect(
       screen.getByLabelText(
-        'Continuer dans la zone de notification à la fermeture',
+        'Rester dans la zone de notification à la fermeture',
       ),
     ).toBeTruthy();
     controller.destroy();

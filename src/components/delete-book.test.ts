@@ -151,7 +151,7 @@ describe('deleting the active book: in French', () => {
     await fireEvent.click(button('Supprimer ce livre'));
     expect(
       screen.getByText(
-        'Cela supprime la copie du livre et son index dans BookaLLM. Votre fichier EPUB reste où il est.',
+        'Cela supprime la copie du livre conservée par BookaLLM et son index. Votre fichier EPUB reste à sa place.',
       ),
     ).toBeTruthy();
     expect(button('Annuler')).toBeTruthy();
